@@ -6,7 +6,11 @@ import './globals.css';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   
   // 마우스 위치를 추적하여 모든 glow-card에 CSS 변수를 주입하는 React 로직
-  useEffect(() => {
+useEffect(() => {
+    // 터치 디바이스(모바일) 감지: 모바일이면 마우스 트래킹 이벤트 등록 안 함
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouchDevice) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       const cards = document.querySelectorAll('.glow-card') as NodeListOf<HTMLElement>;
       cards.forEach((card) => {

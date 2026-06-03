@@ -2,7 +2,7 @@ import { portfolioData } from '../content/data';
 
 export default function Experience() {
   return (
-    <section className="py-20 bg-gray-50 px-6 border-t border-gray-100">
+    <section id="experience" className="py-20 bg-gray-50 px-6 border-t border-gray-100">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-12 text-gray-900 border-b pb-4 inline-block border-black">
           Experience

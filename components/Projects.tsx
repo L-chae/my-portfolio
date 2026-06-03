@@ -1,7 +1,6 @@
 import { portfolioData } from '../content/data';
-import { ExternalLink } from 'lucide-react'; // Github import 제거
+import { ExternalLink } from 'lucide-react';
 
-// 1. 직접 선언한 가벼운 GitHub SVG 컴포넌트
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -21,7 +20,7 @@ const GithubIcon = ({ size = 16 }: { size?: number }) => (
 
 export default function Projects() {
   return (
-    <section className="py-20 bg-white px-6">
+    <section id="projects" className="py-20 bg-white px-6">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-12 text-gray-900 border-b pb-4 inline-block border-black">
           Projects
@@ -59,7 +58,7 @@ export default function Projects() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm font-bold bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors"
                     >
-                      <GithubIcon size={16} /> {/* 대체한 아이콘 적용 */}
+                      <GithubIcon size={16} />
                       GitHub
                     </a>
                   )}

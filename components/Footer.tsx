@@ -2,12 +2,8 @@ import { portfolioData } from '../content/data';
 
 export default function Footer() {
   return (
-    <footer className="bg-white py-8 border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-6 text-center">
-        <p className="text-gray-500 text-sm font-medium">
-          © {new Date().getFullYear()} {portfolioData.name}. All rights reserved.
-        </p>
-      </div>
+    <footer className="border-t border-slate-200 py-12 text-center text-slate-400 font-medium text-sm bg-slate-50">
+      <p>© {new Date().getFullYear()} {portfolioData.name}. {portfolioData.role}</p>
     </footer>
   );
 }

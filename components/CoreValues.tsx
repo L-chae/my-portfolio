@@ -1,7 +1,6 @@
 import { portfolioData } from '../content/data';
 import { ShieldAlert, Database, Terminal } from 'lucide-react';
 
-// 문자열을 React 컴포넌트로 안전하게 치환하는 매퍼 객체
 const iconMap: Record<string, React.ReactNode> = {
   'fa-shield-halved': <ShieldAlert className="w-7 h-7 text-black" />,
   'fa-database': <Database className="w-7 h-7 text-black" />,
@@ -10,7 +9,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export default function CoreValues() {
   return (
-    <section className="py-20 bg-white px-6">
+    <section id="core-values" className="py-20 bg-white px-6">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-12 text-gray-900 border-b pb-4 inline-block border-black">
           Core Values
