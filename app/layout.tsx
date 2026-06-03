@@ -1,40 +1,49 @@
-'use client'; // 이벤트 리스너를 사용하기 위해 클라이언트 컴포넌트로 전환
+'use client';
 
 import { useEffect } from 'react';
 import './globals.css';
+import Header from '../components/Header';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   
-  // 마우스 위치를 추적하여 모든 glow-card에 CSS 변수를 주입하는 React 로직
-useEffect(() => {
-    // 터치 디바이스(모바일) 감지: 모바일이면 마우스 트래킹 이벤트 등록 안 함
+  // 마우스 트래킹 로직: 성능을 위해 passive 이벤트 등록 고려
+  useEffect(() => {
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
     if (isTouchDevice) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const cards = document.querySelectorAll('.glow-card') as NodeListOf<HTMLElement>;
-      cards.forEach((card) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
+      // requestAnimationFrame은 렌더링 성능 최적화의 핵심입니다.
+      window.requestAnimationFrame(() => {
+        const cards = document.querySelectorAll('.glow-card');
+        cards.forEach((el) => {
+          const card = el as HTMLElement;
+          const rect = card.getBoundingClientRect();
+          
+          // 뷰포트 내에 있는 카드만 계산하여 불필요한 연산 차단
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          if (isVisible) {
+            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+          }
+        });
       });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
-    <html lang="ko">
-      <body className="antialiased">
-        {/* HTML 템플릿의 배경 패턴 및 Ambient Orb 포팅 */}
-        <div className="bg-pattern" />
-        <div className="ambient-orb" style={{ width: '50vw', height: '50vw', background: '#dbeafe', top: '-10%', left: '-10%' }} />
-        <div className="ambient-orb" style={{ width: '40vw', height: '40vw', background: '#f3e8ff', bottom: '-10%', right: '-10%', animationDelay: '-5s' }} />
+    <html lang="ko" className="scroll-smooth">
+      <body className="antialiased text-slate-900 bg-white">
+        {/* 💡 HeroSection 전용 배경으로 이동했으므로 여기서는 제거합니다. */}
         
-        {children}
+        <Header />
+        
+        {/* main 태그에 min-h-screen을 주어 레이아웃 안정성 확보 */}
+        <main className="min-h-screen">
+          {children}
+        </main>
       </body>
     </html>
   );

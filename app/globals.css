@@ -5,7 +5,7 @@
   :root {
     --bg-page: #ffffff;
     --text-main: #0f172a;
-    --card-bg: rgba(255, 255, 255, 0.6);
+    --card-bg: rgba(255, 255, 255, 0.8); /* 약간 더 불투명하게 조정 */
     --card-border: rgba(15, 23, 42, 0.06);
   }
   
@@ -13,33 +13,23 @@
     font-family: 'Pretendard', sans-serif;
     background-color: var(--bg-page);
     color: var(--text-main);
-    overflow-x: hidden;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* 백그라운드 패턴 및 오브젝트 효과 */
-.bg-pattern {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+/* 💡 개선된 그리드: 굵기를 동일하게 맞추고 투명도를 조정하여 더 정갈한 인상 */
+.bg-grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at 50% 0%, black 20%, transparent 70%);
 }
 
-.ambient-orb {
-  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4;
-  animation: float 20s infinite alternate ease-in-out; pointer-events: none;
-}
-
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, 50px) scale(1.1); }
-}
-
-/* 마우스 트래킹 Glow 카드 효과 */
+/* 💡 Glow Card: 호버 시 그림자 강도를 낮추고 부드러운 하이라이트 부여 */
 .glow-card {
   position: relative;
   background: var(--card-bg);
@@ -47,60 +37,30 @@
   border: 1px solid var(--card-border);
   border-radius: 20px;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
 }
+
 .glow-card::before {
-  content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
-  /* React에서 style 속성으로 --mouse-x, --mouse-y 변수를 주입받아 그라데이션 위치를 결정합니다. */
-  background: radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(37, 99, 235, 0.04), transparent 40%);
+  content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0; pointer-events: none;
+  background: radial-gradient(500px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(37, 99, 235, 0.08), transparent 50%);
+  transition: opacity 0.6s ease;
 }
-.glow-card:hover { 
-  transform: translateY(-4px); 
-  border-color: rgba(37, 99, 235, 0.2); 
-}
+
+.glow-card:hover { transform: translateY(-2px); border-color: rgba(37, 99, 235, 0.2); }
 .glow-card:hover::before { opacity: 1; }
 .glow-content { position: relative; z-index: 1; }
 
-/* 애니메이션 유틸 */
-.reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+/* 💡 Reveal: 가속도 곡선을 조금 더 우아하게 조정 */
+.reveal { 
+  opacity: 0; 
+  transform: translateY(15px); 
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
+}
 .reveal.active { opacity: 1; transform: translateY(0); }
 
-/* 챗봇 말풍선 및 타이핑 애니메이션 */
-.chat-bubble { animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: scale(0.95) translateY(10px); }
-.chat-delay-1 { animation-delay: 0.5s; }
-.chat-delay-2 { animation-delay: 1.5s; }
-@keyframes popIn { to { opacity: 1; transform: scale(1) translateY(0); } }
+/* 💡 타이핑 애니메이션: 가독성을 위해 불투명도 조절 */
 .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
-/* ==========================================================================
-   Background Decorations (Grid & Ambient Blur)
-   ========================================================================== */
-.bg-grid {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-}
-
-.ambient-bg {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
-}
-
-.ambient-orb {
-  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.5;
-  animation: float 20s infinite alternate ease-in-out;
-}
-
-.orb-1 { width: 600px; height: 600px; background: #dbeafe; top: -10%; left: -10%; }
-.orb-2 { width: 500px; height: 500px; background: #fae8ff; bottom: 10%; right: -10%; animation-delay: -5s; }
-
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(50px, 50px) scale(1.1); }
-}
+@keyframes typing { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { portfolioData } from '../content/data';
-import { Terminal, ArrowDown, Bot, User, Sparkles } from 'lucide-react';
+import { Terminal, ArrowDown } from 'lucide-react';
 
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -11,118 +11,9 @@ const GithubIcon = ({ size = 18 }: { size?: number }) => (
   </svg>
 );
 
-const AutoPlayChatDemo = () => {
-  const [messages, setMessages] = useState<{role: string, content: string}[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [activeChip, setActiveChip] = useState<number | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const SUGGESTIONS = ["예외 처리 통제 경험은?", "데이터 정합성 검증 방법은?"];
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const runDemo = async () => {
-      while (isMounted) {
-        setMessages([]);
-        setActiveChip(null);
-        setIsTyping(false);
-        await new Promise(r => setTimeout(r, 1500));
-
-        if (!isMounted) return;
-        setActiveChip(0); 
-        await new Promise(r => setTimeout(r, 800));
-
-        if (!isMounted) return;
-        const question = SUGGESTIONS[0];
-        setActiveChip(null);
-        setMessages([{ role: 'user', content: question }]);
-        setIsTyping(true);
-        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        
-        await new Promise(r => setTimeout(r, 1500));
-
-        if (!isMounted) return;
-        setIsTyping(false);
-        setMessages([
-          { role: 'user', content: question },
-          { role: 'assistant', content: 'StoryLex 프로젝트에서 상태 충돌 및 401 에러 다중 발생 시 토큰 갱신 중복을 차단하는 큐(Queue) 메커니즘을 설계하여 예외를 통제했습니다.' }
-        ]);
-        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-
-        await new Promise(r => setTimeout(r, 4500));
-      }
-    };
-    
-    runDemo();
-    return () => { isMounted = false; };
-  }, []);
-
-  return (
-    // 💡 최소한의 프레임 복구 (글래스모피즘 기반)
-    <div className="relative w-full max-w-[360px] mx-auto h-[420px] flex flex-col select-none pointer-events-none bg-white/40 backdrop-blur-md border border-white/60 shadow-xl rounded-3xl p-4">
-      
-      <div className="flex items-center gap-2 mb-4 ml-1">
-        <Sparkles size={14} className="text-blue-600 animate-pulse" />
-        <span className="text-[11px] font-extrabold text-blue-600 tracking-wider">
-          AI AGENT PREVIEW
-        </span>
-      </div>
-      
-      <div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col gap-5 scroll-smooth pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        
-        {messages.length === 0 && !isTyping && (
-          <div className="flex flex-col gap-3 mt-auto">
-            {SUGGESTIONS.map((text, idx) => (
-              <div 
-                key={idx} 
-                className={`px-5 py-3 rounded-2xl text-sm font-semibold border transition-all duration-300 w-fit ${
-                  activeChip === idx 
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-95' 
-                    : 'bg-white/80 text-slate-600 border-slate-200/60'
-                }`}
-              >
-                {text}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-slate-900 text-white' : 'bg-blue-600 text-white'}`}>
-              {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
-            </div>
-            <div className={`p-4 text-sm shadow-sm leading-relaxed ${
-              msg.role === 'user' 
-                ? 'bg-slate-900 text-white rounded-3xl rounded-tr-sm' 
-                : 'bg-white border border-slate-100 text-slate-800 rounded-3xl rounded-tl-sm'
-            }`}>
-              {msg.content}
-            </div>
-          </div>
-        ))}
-
-        {isTyping && (
-          <div className="flex gap-3 max-w-[90%] self-start">
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <Bot size={14} />
-            </div>
-            <div className="bg-white p-4 rounded-3xl rounded-tl-sm border border-slate-100 flex items-center gap-1.5 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 export default function HeroSection() {
   const [typedText, setTypedText] = useState('');
-  const fullText = "const role = 'Scenario_Validator';";
+  const fullText = "Frontend Engineer";
 
   useEffect(() => {
     let currentLength = 0;
@@ -135,46 +26,50 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section id="hero" className="min-h-screen flex items-center pt-24 pb-12 relative z-10">
-      <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+    <section id="hero" className="relative min-h-[600px] h-[85vh] flex flex-col pt-24 pb-12 px-6 overflow-hidden">
+      
+      {/* 1. 모눈 배경 (컨테이너 내부 고정) */}
+      <div className="absolute inset-0 z-0 bg-grid" />
+
+      {/* 2. 콘텐츠 영역 (카드 레이어 제거, 투명한 배경) */}
+      <div className="relative z-10 flex-1 flex flex-col justify-center items-center max-w-4xl mx-auto w-full text-center reveal">
         
-        {/* 💡 반응형 정렬 적용: 모바일 중앙 정렬(items-center, text-center), 데스크탑 좌측 정렬(lg:items-start, lg:text-left) */}
-        <div className="reveal flex flex-col items-center lg:items-start text-center lg:text-left">
-          <div className="font-mono text-sm font-bold text-blue-600 mb-6 flex items-center gap-2">
-            <Terminal size={18} />
-            <span className="border-r-2 border-blue-600 pr-1 animate-pulse">
-              {typedText}
-            </span>
-          </div>
-          
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-6 text-slate-900">
-            설계가 단단한<br />
-            <span className="relative inline-block mt-2">
-              사용자 경험
-              <span className="absolute left-0 bottom-2 w-full h-4 bg-blue-600/20 -z-10 -rotate-1"></span>
-            </span>
-            을 구축합니다.
-          </h1>
-          
-          <p className="text-lg text-slate-600 leading-relaxed mb-8 max-w-md font-medium">
-            {portfolioData.introduction}
-          </p>
-          
-          {/* 💡 버튼 그룹 정렬 연동 */}
-          <div className="flex gap-4 flex-wrap justify-center lg:justify-start">
-            <a href="#projects" className="flex items-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:-translate-y-0.5">
-              성과 확인하기 <ArrowDown size={18} />
-            </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-bold transition-all shadow-sm hover:border-slate-400">
-              <GithubIcon size={18} /> GitHub
-            </a>
-          </div>
+        <div className="font-mono text-xs md:text-sm font-bold text-blue-600 mb-6 flex items-center justify-center gap-2 bg-white/50 backdrop-blur-sm px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+          <Terminal size={14} />
+          <span className="border-r-2 border-blue-600 pr-1 animate-pulse tracking-wide">{typedText}</span>
         </div>
-
-        <div className="reveal delay-1 w-full flex justify-center lg:justify-end">
-          <AutoPlayChatDemo />
+        
+        <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight mb-8 text-slate-900">
+          설계가 단단한<br />
+          <span className="relative inline-block mt-2">
+            사용자 경험
+            <span className="absolute left-0 bottom-2 w-full h-4 bg-blue-600/10 -z-10 -rotate-1"></span>
+          </span>
+          을 구축합니다.
+        </h1>
+        
+        <p className="text-base md:text-lg text-slate-600 leading-relaxed mb-10 max-w-2xl font-medium break-keep">
+          {portfolioData.introduction}
+        </p>
+        
+        <div className="flex gap-4 flex-wrap justify-center">
+          <a href="#projects" className="flex items-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+            성과 확인하기 <ArrowDown size={18} />
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-8 py-4 rounded-2xl font-bold transition-all shadow-sm hover:border-slate-300 hover:-translate-y-1">
+            <GithubIcon size={18} /> GitHub
+          </a>
         </div>
+      </div>
 
+      {/* 3. 하단 안내 요소 (레이어 제거, 깔끔한 위치 조정) */}
+      <div className="relative z-10 flex flex-col items-center gap-2 opacity-60">
+        <div className="text-[12px] font-semibold text-slate-500">
+          하단의 AI 검색창에 질문해보세요
+        </div>
+        <div className="animate-[bounce_2s_infinite]">
+          <ArrowDown size={20} className="text-slate-400" />
+        </div>
       </div>
     </section>
   );
