@@ -1,42 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 
 export default function Header() {
   const [activeSection, setActiveSection] = useState('hero');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      // 💡 섹션 판단 범위를 좁혀 중복 활성화 방지
-      const scrollPosition = window.scrollY + 150;
-      const sections = ['hero', 'experience', 'projects', 'core-values'];
-      let current = 'hero';
-      
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
-          if (absoluteTop <= scrollPosition) current = section;
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      timerRef.current = setTimeout(() => {
+        setIsScrolled(window.scrollY > 20);
+        
+        const sections = ['hero', 'experience', 'projects', 'core-values'];
+        const scrollPosition = window.scrollY + 200;
+        
+        let current = 'hero';
+        for (const id of sections) {
+          const el = document.getElementById(id);
+          if (el && el.offsetTop <= scrollPosition) {
+            current = id;
+          }
         }
-      }
-      setActiveSection(current);
+        setActiveSection(current);
+      }, 100);
     };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      window.scrollTo({
-        top: element.getBoundingClientRect().top + window.scrollY - 64,
-        behavior: 'smooth'
-      });
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 64, behavior: 'smooth' });
+      setActiveSection(id);
       setIsMobileMenuOpen(false);
-      setActiveSection(id); // 💡 클릭 시 즉시 활성화 상태 변경
     }
   };
 
@@ -48,30 +54,24 @@ export default function Header() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
+    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/60 backdrop-blur-md border-b border-slate-200' : 'bg-transparent border-transparent'
+    }`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
-        
-        <a href="#hero" onClick={(e) => scrollToSection(e, 'hero')} className="text-lg font-bold text-slate-900">
+        <button onClick={() => scrollToSection('hero')} className="text-lg font-bold text-slate-900">
           Lee<span className="text-blue-600">.dev</span>
-        </a>
-        
+        </button>
+
         <nav className="hidden md:flex gap-8 text-[13px] font-bold tracking-widest text-slate-500">
           {navItems.map((item) => (
-            <a 
+            <button
               key={item.id}
-              href={`#${item.id}`}
-              onClick={(e) => scrollToSection(e, item.id)}
-              className={`relative py-5 transition-colors ${
-                activeSection === item.id ? 'text-slate-900' : 'hover:text-slate-900'
-              }`}
+              onClick={() => scrollToSection(item.id)}
+              className={`relative py-5 transition-colors ${activeSection === item.id ? 'text-slate-900' : 'hover:text-slate-900'}`}
             >
               {item.label}
-              
-              {/* 💡 오직 활성화된 상태에서만 밑줄 표시 */}
-              <span className={`absolute left-0 bottom-3.5 h-[1px] bg-slate-900 transition-all duration-300 ease-out 
-                ${activeSection === item.id ? 'w-full' : 'w-0'}`}
-              ></span>
-            </a>
+              <span className={`absolute left-0 bottom-3.5 h-px bg-slate-900 transition-all duration-300 ${activeSection === item.id ? 'w-full' : 'w-0'}`} />
+            </button>
           ))}
         </nav>
 
@@ -83,9 +83,9 @@ export default function Header() {
       {isMobileMenuOpen && (
         <nav className="md:hidden bg-white px-6 py-6 flex flex-col gap-5 text-sm font-bold text-slate-600 border-t border-slate-100">
           {navItems.map((item) => (
-            <a key={item.id} href={`#${item.id}`} onClick={(e) => scrollToSection(e, item.id)}>
+            <button key={item.id} onClick={() => scrollToSection(item.id)} className="text-left">
               {item.label}
-            </a>
+            </button>
           ))}
         </nav>
       )}

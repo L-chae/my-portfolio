@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/Header';
-import DynamicChatBar from '@/components/DynamicChatBar';
+import ChatBar from '@/components/ChatBar';
 import HeroSection from '@/components/HeroSection';
 import CoreValues from '@/components/CoreValues';
 import ExperienceAndInfo from '@/components/ExperienceAndInfo';
@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <main className="w-full h-full relative">
       <Header />
-      <DynamicChatBar />
+      <ChatBar />
       <HeroSection />
       <ExperienceAndInfo />
       <Projects />

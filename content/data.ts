@@ -5,7 +5,7 @@ export const portfolioData: PortfolioData = {
   name: "김민준",
   role: "Scenario Validator & Frontend Engineer",
   catchphrase: "구현을 넘어, 사용자의 불편을 차단합니다.",
-  introduction: "프론트엔드 구조에 대한 깊은 이해를 바탕으로, 기획 의도가 실제 화면에서 엣지 케이스 없이 안전하게 동작하는지 시나리오를 설계하고 검증합니다.",
+  introduction: "프로젝트 경험과 개발 과정에 대해 AI에게 직접 질문해보세요.",
   
   coreValues: [
     {
