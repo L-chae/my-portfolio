@@ -1,3 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-page: #ffffff;
+    --text-main: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --card-border: rgba(15, 23, 42, 0.06);
+  }
+  
+  body {
+    font-family: 'Pretendard', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+}
+
+/* 백그라운드 패턴 및 오브젝트 효과 */
+.bg-pattern {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+.ambient-orb {
+  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4;
+  animation: float 20s infinite alternate ease-in-out; pointer-events: none;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 50px) scale(1.1); }
+}
+
+/* 마우스 트래킹 Glow 카드 효과 */
+.glow-card {
+  position: relative;
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glow-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+  /* React에서 style 속성으로 --mouse-x, --mouse-y 변수를 주입받아 그라데이션 위치를 결정합니다. */
+  background: radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(37, 99, 235, 0.04), transparent 40%);
+}
+.glow-card:hover { 
+  transform: translateY(-4px); 
+  border-color: rgba(37, 99, 235, 0.2); 
+}
+.glow-card:hover::before { opacity: 1; }
+.glow-content { position: relative; z-index: 1; }
+
+/* 애니메이션 유틸 */
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+/* 챗봇 말풍선 및 타이핑 애니메이션 */
+.chat-bubble { animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: scale(0.95) translateY(10px); }
+.chat-delay-1 { animation-delay: 0.5s; }
+.chat-delay-2 { animation-delay: 1.5s; }
+@keyframes popIn { to { opacity: 1; transform: scale(1) translateY(0); } }
+.typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
