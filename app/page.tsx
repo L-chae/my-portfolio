@@ -4,9 +4,8 @@ import Header from '@/components/Header';
 import DynamicChatBar from '@/components/DynamicChatBar';
 import HeroSection from '@/components/HeroSection';
 import CoreValues from '@/components/CoreValues';
-import Experience from '@/components/Experience';
+import ExperienceAndInfo from '@/components/ExperienceAndInfo';
 import Projects from '@/components/Projects';
-import EducationAndCert from '@/components/EducationAndCert';
 import Footer from '@/components/Footer';
 import { useScrollReveal } from '@/hooks/useScrollReveal'; // 커스텀 훅 임포트
 
@@ -18,10 +17,9 @@ export default function Home() {
       <Header />
       <DynamicChatBar />
       <HeroSection />
-      <CoreValues />
-      <Experience />
+      <ExperienceAndInfo />
       <Projects />
-      <EducationAndCert />
+      <CoreValues />
       <Footer />
     </main>
   );

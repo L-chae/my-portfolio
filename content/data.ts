@@ -113,5 +113,36 @@ export const portfolioData: PortfolioData = {
       title: "GTQ 그래픽기술자격 1급",
       issuer: "한국생산성본부"
     }
-  ]
+  ],
+
+  allExperiences: [
+    {
+      period: "2026.05 - 현재",
+      title: "HiveLab",
+      role: "AIS실 일경험 인턴 · AI 학습 데이터 검증 및 관리",
+      description: "대용량 AI 학습 데이터 마이그레이션 및 정합성 검증 프로세스 고도화. Figma와 Claude를 활용한 코드 변환 검증."
+    },
+    {
+      period: "2026.02 - 2026.03",
+      title: "Rodia",
+      role: "Frontend · React Native",
+      description: "화물 운송 중개 플랫폼 개발. OpenAPI 기반 코드 자동 생성 구조를 적용하여 API 타입 안정성 확보 및 분기 로직 개선."
+    },
+    {
+      period: "2025.11 - 2025.12",
+      title: "StoryLex",
+      role: "Frontend · React",
+      description: "영어 단어 학습 애플리케이션. React Query와 Zustand를 이용한 상태 분리로 데이터 충돌 방지 및 사용자 경험 개선."
+    }
+  ],
+
+  journeyMetadata: {
+    interests: [
+      "컴포넌트 아키텍처 설계",
+      "서버/클라이언트 상태 전략",
+      "개발자 경험(DX) 향상",
+      "코드 가독성 및 유지보수성"
+    ],
+    learning: "Next.js App Router · Server Components 패턴 · 테스트 자동화 전략"
+  }
 };

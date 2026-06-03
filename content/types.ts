@@ -56,4 +56,18 @@ export interface PortfolioData {
   projects: Project[];
   educations: Education[];
   certifications: Certification[];
+    allExperiences: ExperienceJourney[];
+  journeyMetadata: JourneyMetadata;
+}
+
+export interface ExperienceJourney {
+  period: string;
+  title: string;
+  role: string;
+  description: string;
+}
+
+export interface JourneyMetadata {
+  interests: string[];
+  learning: string;
 }

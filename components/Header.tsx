@@ -11,7 +11,7 @@ export default function Header() {
     const handleScroll = () => {
       // 💡 섹션 판단 범위를 좁혀 중복 활성화 방지
       const scrollPosition = window.scrollY + 150;
-      const sections = ['hero', 'core-values', 'experience', 'projects'];
+      const sections = ['hero', 'experience', 'projects', 'core-values'];
       let current = 'hero';
       
       for (const section of sections) {
@@ -42,9 +42,9 @@ export default function Header() {
 
   const navItems = [
     { id: 'hero', label: 'Home' },
-    { id: 'core-values', label: 'Core Values' },
     { id: 'experience', label: 'Experience' },
-    { id: 'projects', label: 'Projects' }
+    { id: 'projects', label: 'Projects' },
+    { id: 'core-values', label: 'Core Values' }
   ];
 
   return (
@@ -52,7 +52,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
         
         <a href="#hero" onClick={(e) => scrollToSection(e, 'hero')} className="text-lg font-bold text-slate-900">
-          김민준<span className="text-blue-600">.dev</span>
+          Lee<span className="text-blue-600">.dev</span>
         </a>
         
         <nav className="hidden md:flex gap-8 text-[13px] font-bold tracking-widest text-slate-500">
