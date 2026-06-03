@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Bot,
   Send,
@@ -25,6 +25,18 @@ export default function ChatBar() {
   } = useChat();
 
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 300);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleExpanded = (expanded: boolean) => {
     if (!expanded) setIsFullScreen(false);
@@ -45,33 +57,59 @@ export default function ChatBar() {
     <>
       {/* 1. 백그라운드 딤 처리 */}
       <div
-        className={`fixed inset-0 z-50 bg-slate-900/10 backdrop-blur-sm transition-opacity duration-400 ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-sm transition-opacity duration-400 ${
+          isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
         onClick={() => {
           if (!isTyping) toggleExpanded(false);
         }}
       />
 
-      {/* 2. 메인 컨테이너 */}
+      {/* 2. 스크롤 시 나타나는 알약(Pill) 형태의 FAB (우측 하단) */}
       <div
-        className={`fixed z-60 left-0 right-0 mx-auto flex flex-col transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-auto ${
+        className={`fixed bottom-6 right-6 z-40 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+          !isExpanded && isScrolled
+            ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+            : "opacity-0 translate-y-8 scale-90 pointer-events-none"
+        }`}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleExpanded(true);
+            setTimeout(() => inputRef.current?.focus(), 150);
+          }}
+          // 💡 수정사항: 파란색~보라색 그라데이션, 텍스트 포함 알약 형태, 깔끔한 호버 애니메이션
+          className="group h-14 px-5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.3)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+        >
+          <Sparkles size={20} className="transition-transform duration-300 group-hover:scale-110" />
+          <span className="font-semibold text-[15px] tracking-tight">AI 질문하기</span>
+        </button>
+      </div>
+
+      {/* 3. 메인 컨테이너 */}
+      <div
+        className={`fixed z-50 left-0 right-0 mx-auto flex flex-col transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-auto ${
           isExpanded
             ? isFullScreen
-              ? "inset-0 w-full max-w-full h-full bg-white rounded-none shadow-none border-none"
-              : "bottom-[2vh] sm:bottom-[5vh] w-[96vw] max-w-[800px] h-[92vh] sm:h-[85vh] bg-white shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden"
-            : "bottom-6 w-[calc(100%-2rem)] max-w-[280px] h-14 bg-transparent border-transparent shadow-none pointer-events-none"
+              ? "inset-0 w-full max-w-full h-full bg-white rounded-none shadow-none border-none opacity-100"
+              : "bottom-[2vh] sm:bottom-[5vh] w-[96vw] max-w-[800px] h-[92vh] sm:h-[85vh] bg-white shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden opacity-100 scale-100"
+            : !isScrolled
+              ? "bottom-6 w-[calc(100%-2rem)] max-w-md h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-100 scale-100"
+              : "bottom-6 w-[calc(100%-2rem)] max-w-md h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
         }`}
       >
         {/* 헤더 바 */}
         <div className={`shrink-0 bg-slate-50/90 backdrop-blur-md px-5 sm:px-6 py-3 flex justify-between items-center border-b border-slate-200/60 transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 hidden'}`}>
           <div className="flex items-center gap-3">
-           <div className="flex items-center gap-2"> {/* 텍스트와의 간격을 위해 부모에 flex와 gap 추가 권장 */}
-  <div className="w-7 h-7 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-600 shrink-0">
-    <Sparkles size={16} /> 
-  </div>
-  <h3 className="font-bold text-[15px] text-slate-700">
-    Portfolio AI
-  </h3>
-</div>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-600 shrink-0">
+                <Sparkles size={16} /> 
+              </div>
+              <h3 className="font-bold text-[15px] text-slate-700">
+                Portfolio AI
+              </h3>
+            </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
@@ -95,25 +133,21 @@ export default function ChatBar() {
           </div>
         </div>
 
-        {/* 3. 대화 영역 */}
+        {/* 대화 영역 */}
         <div
           ref={scrollRef}
           className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-[140px] transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0 hidden"}`}
         >
-          {/* 💡 gap-5로 일관된 간격 유지 */}
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
                 className={`flex gap-3.5 max-w-full ${msg.role === "user" ? "self-end flex-row-reverse sm:max-w-[85%]" : "self-start w-full"}`}
               >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm mt-0.5 ${msg.role === "user" ? "bg-slate-800 text-white" : "bg-blue-600 text-white"}`}
-                >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm mt-0.5 ${msg.role === "user" ? "bg-slate-800 text-white" : "bg-blue-600 text-white"}`}>
                   {msg.role === "user" ? <User size={15} /> : <Bot size={15} />}
                 </div>
 
-                {/* 💡 break-keep 및 leading 조정으로 가독성 최적화 */}
                 {msg.role === "user" ? (
                   <div className="px-4 py-3 text-[15px] bg-slate-800 text-white rounded-[20px] rounded-tr-sm shadow-sm leading-relaxed whitespace-pre-wrap break-words break-keep">
                     {msg.content}
@@ -126,7 +160,6 @@ export default function ChatBar() {
               </div>
             ))}
 
-            {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="flex gap-3.5 w-full self-start animate-in fade-in duration-300">
                 <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
@@ -140,11 +173,8 @@ export default function ChatBar() {
               </div>
             )}
 
-            {/* 질문 추천 요소 */}
             {availableSuggestions.length > 0 && (
-              <div
-                className={`ml-11 flex flex-col gap-3 transition-opacity duration-300 ${isTyping ? "opacity-40 pointer-events-none" : "opacity-100"}`}
-              >
+              <div className={`ml-11 flex flex-col gap-3 transition-opacity duration-300 ${isTyping ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
                 {messages.length === 1 && (
                   <p className="text-[13px] font-bold text-slate-400">
                     다음 질문을 선택해보세요
@@ -169,7 +199,6 @@ export default function ChatBar() {
         {/* 4. 입력 폼 영역 */}
         <div
           className={`absolute bottom-0 w-full flex justify-center pointer-events-none transition-all duration-300 ${
-            // 💡 좌우 여백을 헤더/대화 영역과 동일하게(px-5 sm:px-6) 맞추어 정렬선 유지
             isExpanded ? "px-5 sm:px-6 pt-2 pb-5 sm:pb-6 bg-gradient-to-t from-white via-white to-transparent" : "p-0"
           }`}
         >
@@ -177,7 +206,7 @@ export default function ChatBar() {
             className={`pointer-events-auto flex items-center gap-2 w-full transition-all duration-500 cursor-text overflow-hidden ${
               isExpanded
                 ? "max-w-2xl min-h-[56px] px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-full focus-within:bg-white focus-within:shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-500/10"
-                : "max-w-[280px] h-14 px-3 bg-white border border-slate-300 shadow-md hover:shadow-lg rounded-full"
+                : "max-w-md h-14 px-3 bg-white border border-slate-300 shadow-md hover:shadow-lg rounded-full"
             }`}
             onClick={() => {
               if (!isExpanded) {
