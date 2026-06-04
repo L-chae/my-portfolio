@@ -1,7 +1,8 @@
 'use client';
 
 import { portfolioData } from '../content/data';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Sparkles } from 'lucide-react';
+import { useChat } from '@/hooks/useChat'; // 경로 확인 필수
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -11,69 +12,97 @@ const GithubIcon = ({ size = 16 }: { size?: number }) => (
 );
 
 export default function Projects() {
+  // 💡 개선점: setInputValue 대신 handleSend를 가져와 즉시 메시지를 전송합니다.
+  const { setIsExpanded, handleSend } = useChat();
+
+  const handleAskAI = (projectTitle: string) => {
+    // 1. 챗봇 창을 엽니다.
+    setIsExpanded(true);
+    
+    // 2. 입력창에 글자를 채우는 대신, 챗봇에게 즉시 메시지를 전송합니다.
+    // 약간의 딜레이를 주어 창이 열리는 애니메이션 도중에 자연스럽게 메시지가 올라가도록 합니다.
+    setTimeout(() => {
+      handleSend(`${projectTitle} 프로젝트의 핵심 아키텍처와 해결 과정에 대해 알려줘`);
+    }, 300); 
+  };
+
   return (
-    // 💡 스펙 적용: 배경 #FFFFFF (bg-white)
-    <section id="projects" className="py-20 px-6 bg-white border-b border-slate-100">
+    <section id="projects" className="py-20 px-6 bg-slate-50/50 border-b border-slate-100">
       <div className="max-w-6xl mx-auto">
-        {/* 💡 스펙 적용: 타이틀 #0F172A (slate-900), font-weight: 700 (font-bold) */}
-        <h2 className="text-3xl font-bold mb-10 text-slate-900 border-b-2 pb-4 inline-block border-slate-900">
-          Projects
-        </h2>
+        <div className="flex items-end justify-between mb-10">
+          <h2 className="text-3xl font-bold text-slate-900 border-b-2 pb-4 border-slate-900 inline-block">
+            Featured Projects
+          </h2>
+          <p className="hidden md:block text-slate-500 text-sm font-medium pb-4">
+            핵심 기술적 고민을 담은 쇼케이스입니다.
+          </p>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {portfolioData.projects.map((project) => (
             <div 
               key={project.id} 
-              // 💡 스펙 적용: 테두리 #E2E8F0 (slate-200), 기본 섀도우, 호버 섀도우 및 -2px 이동
-              className="flex flex-col p-6 border border-slate-200 rounded-3xl bg-white shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(37,99,235,0.10)] hover:-translate-y-0.5 transition-all duration-300"
+              id={`project-${project.id}`} 
+              className="group flex flex-col p-6 sm:p-8 border border-slate-200/80 rounded-[28px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-400"
             >
               <div className="flex flex-col flex-1">
-                {/* 💡 스펙 적용: 프로젝트명 #0F172A (slate-900), 600 (semibold) */}
-                <h3 className="text-xl font-semibold text-slate-900 mb-1">{project.title}</h3>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{project.title}</h3>
+                    <p className="text-blue-600 font-semibold mt-1.5 text-[12.5px] tracking-widest uppercase">{project.period}</p>
+                  </div>
+                </div>
                 
-                {/* 💡 스펙 적용: 날짜 #2563EB (blue-600), 12px */}
-                <p className="text-blue-600 font-medium mb-3 text-[12px] tracking-widest uppercase">{project.period}</p>
-                
-                {/* 💡 스펙 적용: 설명 #64748B (slate-500), 13px */}
-                <p className="text-slate-500 text-[13px] mb-4 leading-relaxed line-clamp-3">
-                  {project.summary}
-                </p>
-                
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {project.techStack.map((tech, idx) => (
-                    // 💡 스펙 적용: 태그 배경 #EFF6FF (blue-50), 텍스트 #2563EB (blue-600) 11px 500, 테두리 #DBEAFE (blue-100)
-                    <span key={idx} className="px-2 py-0.5 bg-blue-50 border border-blue-100 text-blue-600 text-[11px] font-medium rounded-md uppercase">
-                      {tech}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {project.tags?.map((tag, idx) => (
+                    <span key={idx} className="px-2.5 py-1 bg-slate-100/80 text-slate-600 text-[11.5px] font-semibold rounded-lg">
+                      #{tag}
                     </span>
                   ))}
                 </div>
 
-                {/* 트러블슈팅/이슈 요약 영역 */}
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
-                  {/* 💡 스펙 적용: 소제목 #374151 (gray-700), 12px, 600 (semibold) */}
-                  <h4 className="text-[12px] font-semibold text-gray-700 mb-2">{project.troubleShooting.title}</h4>
-                  <ul className="space-y-1.5">
-                    {project.troubleShooting.points.slice(0, 2).map((point, idx) => (
-                      // 💡 스펙 적용: 항목 텍스트 #64748B (slate-500), 13px
-                      <li key={idx} className="text-slate-500 text-[13px] truncate">• {point.split(':')[0]}</li>
+                <p className="text-slate-600 text-[14px] mb-6 leading-[1.6]">
+                  {project.summary}
+                </p>
+
+                <div className="bg-gradient-to-br from-blue-50/50 to-slate-50 p-5 rounded-2xl border border-blue-100/50 mb-7 flex-1">
+                  <h4 className="text-[13px] font-bold text-blue-900 mb-3 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Key Technical Impact
+                  </h4>
+                  <ul className="space-y-2.5">
+                    {project.content?.solution.slice(0, 2).map((point, idx) => (
+                      <li key={idx} className="text-slate-600 text-[13.5px] leading-snug flex items-start gap-2">
+                        <span className="text-blue-400 mt-0.5 shrink-0">✓</span>
+                        <span className="break-keep">{point}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="flex gap-2 mt-auto">
-                  {project.githubUrl && (
-                    // 💡 스펙 적용: GitHub 버튼 #0F172A (slate-900), 텍스트 #FFFFFF
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-bold bg-slate-900 text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition-all">
-                      <GithubIcon size={14} /> GitHub
-                    </a>
-                  )}
-                  {project.liveUrl && (
-                    // 💡 스펙 적용: Demo 버튼 투명 배경, 테두리 #E2E8F0 (slate-200), 텍스트 #374151 (gray-700)
-                    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-bold bg-transparent border border-slate-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-slate-50 transition-all">
-                      <ExternalLink size={14} /> Demo
-                    </a>
-                  )}
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-auto pt-4 border-t border-slate-100">
+                  <button 
+                    onClick={() => handleAskAI(project.title)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white px-4 py-2.5 rounded-xl text-[13.5px] font-bold transition-colors duration-300 group/btn"
+                  >
+                    <Sparkles size={16} className="transition-transform group-hover/btn:scale-110" />
+                    AI에게 질문하기
+                  </button>
+
+                  <div className="flex gap-2">
+                    {project.githubUrl && (
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] font-bold bg-slate-100 text-slate-700 px-3.5 py-2.5 rounded-xl hover:bg-slate-200 transition-colors">
+                        <GithubIcon size={15} /> 코드
+                      </a>
+                    )}
+                    {project.liveUrl && (
+                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] font-bold bg-slate-100 text-slate-700 px-3.5 py-2.5 rounded-xl hover:bg-slate-200 transition-colors">
+                        <ExternalLink size={15} /> 데모
+                      </a>
+                    )}
+                  </div>
                 </div>
+                
               </div>
             </div>
           ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/Header';
-import ChatBar from '@/components/ChatBar';
+import ChatBar from '@/components/chat/ChatBar';
 import HeroSection from '@/components/HeroSection';
 import CoreValues from '@/components/CoreValues';
 import ExperienceAndInfo from '@/components/ExperienceAndInfo';
