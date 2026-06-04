@@ -141,7 +141,7 @@ export default function Header() {
             </button>
           ))}
           <span 
-            className="absolute bottom-3.5 left-0 h-[2px] bg-slate-900 rounded-full transition-all duration-300 ease-out pointer-events-none"
+            className="absolute bottom-3.5 left-0 h-0.5 bg-slate-900 rounded-full transition-all duration-300 ease-out pointer-events-none"
             style={{ 
               transform: `translateX(${indicator.left}px)`, 
               width: `${indicator.width}px`,

@@ -65,7 +65,7 @@ export default function Projects() {
                   {project.summary}
                 </p>
 
-                <div className="bg-gradient-to-br from-blue-50/50 to-slate-50 p-5 rounded-2xl border border-blue-100/50 mb-7 flex-1">
+                <div className="bg-linear-to-br from-blue-50/50 to-slate-50 p-5 rounded-2xl border border-blue-100/50 mb-7 flex-1">
                   <h4 className="text-[13px] font-bold text-blue-900 mb-3 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
                     Key Technical Impact
