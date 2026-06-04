@@ -65,7 +65,7 @@ export default function ChatBar() {
         }}
       />
 
-      {/* 2. 스크롤 시 나타나는 알약(Pill) 형태의 FAB (우측 하단) */}
+      {/* 2. 스크롤 시 나타나는 FAB */}
       <div
         className={`fixed bottom-6 right-6 z-40 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
           !isExpanded && isScrolled
@@ -79,8 +79,7 @@ export default function ChatBar() {
             toggleExpanded(true);
             setTimeout(() => inputRef.current?.focus(), 150);
           }}
-          // 💡 수정사항: 파란색~보라색 그라데이션, 텍스트 포함 알약 형태, 깔끔한 호버 애니메이션
-          className="group h-14 px-5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.3)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+          className="group h-14 px-5 bg-blue-600 text-white rounded-full shadow-[0_4px_20px_rgba(37,99,235,0.35)] hover:bg-blue-700 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)] flex items-center justify-center gap-2.5 transition-all duration-300 hover:-translate-y-1"
         >
           <Sparkles size={20} className="transition-transform duration-300 group-hover:scale-110" />
           <span className="font-semibold text-[15px] tracking-tight">AI 질문하기</span>
@@ -93,10 +92,10 @@ export default function ChatBar() {
           isExpanded
             ? isFullScreen
               ? "inset-0 w-full max-w-full h-full bg-white rounded-none shadow-none border-none opacity-100"
-              : "bottom-[2vh] sm:bottom-[5vh] w-[96vw] max-w-[800px] h-[92vh] sm:h-[85vh] bg-white shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden opacity-100 scale-100"
+              : "bottom-[2vh] sm:bottom-[5vh] w-[96vw] max-w-200 h-[92vh] sm:h-[85vh] bg-white shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden opacity-100 scale-100"
             : !isScrolled
-              ? "bottom-6 w-[calc(100%-2rem)] max-w-md h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-100 scale-100"
-              : "bottom-6 w-[calc(100%-2rem)] max-w-md h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
+              ? "bottom-6 w-[calc(100%-2rem)] max-w-100 h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-100 scale-100"
+              : "bottom-6 w-[calc(100%-2rem)] max-w-100 h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
         }`}
       >
         {/* 헤더 바 */}
@@ -106,7 +105,7 @@ export default function ChatBar() {
               <div className="w-7 h-7 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-600 shrink-0">
                 <Sparkles size={16} /> 
               </div>
-              <h3 className="font-bold text-[15px] text-slate-700">
+              <h3 className="font-bold text-[15px] text-slate-900">
                 Portfolio AI
               </h3>
             </div>
@@ -136,7 +135,7 @@ export default function ChatBar() {
         {/* 대화 영역 */}
         <div
           ref={scrollRef}
-          className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-[140px] transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0 hidden"}`}
+          className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-35 transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0 hidden"}`}
         >
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
             {messages.map((msg, idx) => (
@@ -149,11 +148,11 @@ export default function ChatBar() {
                 </div>
 
                 {msg.role === "user" ? (
-                  <div className="px-4 py-3 text-[15px] bg-slate-800 text-white rounded-[20px] rounded-tr-sm shadow-sm leading-relaxed whitespace-pre-wrap break-words break-keep">
+                  <div className="px-4 py-3 text-[15px] bg-slate-800 text-white rounded-[20px] rounded-tr-sm shadow-sm leading-relaxed whitespace-pre-wrap wrap-break-word break-keep">
                     {msg.content}
                   </div>
                 ) : (
-                  <div className="flex-1 py-1 text-[15.5px] text-slate-800 leading-[1.7] whitespace-pre-wrap break-words break-keep tracking-tight">
+                  <div className="flex-1 py-1 text-[15.5px] text-slate-800 leading-[1.7] whitespace-pre-wrap wrap-break-word break-keep tracking-tight">
                     {msg.content}
                   </div>
                 )}
@@ -199,14 +198,14 @@ export default function ChatBar() {
         {/* 4. 입력 폼 영역 */}
         <div
           className={`absolute bottom-0 w-full flex justify-center pointer-events-none transition-all duration-300 ${
-            isExpanded ? "px-5 sm:px-6 pt-2 pb-5 sm:pb-6 bg-gradient-to-t from-white via-white to-transparent" : "p-0"
+            isExpanded ? "px-5 sm:px-6 pt-2 pb-5 sm:pb-6 bg-linear-to-t from-white via-white to-transparent" : "p-0"
           }`}
         >
           <form
             className={`pointer-events-auto flex items-center gap-2 w-full transition-all duration-500 cursor-text overflow-hidden ${
               isExpanded
-                ? "max-w-2xl min-h-[56px] px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-full focus-within:bg-white focus-within:shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-500/10"
-                : "max-w-md h-14 px-3 bg-white border border-slate-300 shadow-md hover:shadow-lg rounded-full"
+                ? "max-w-2xl min-h-14 px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-[28px] focus-within:bg-white focus-within:shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-500/10"
+                : "max-w-100 h-14 px-4 bg-white border border-slate-200 shadow-[0_4px_24px_rgba(59,130,246,0.10)] hover:shadow-[0_8px_32px_rgba(59,130,246,0.15)] rounded-full group"
             }`}
             onClick={() => {
               if (!isExpanded) {
@@ -220,7 +219,7 @@ export default function ChatBar() {
             }}
           >
             {!isExpanded && (
-              <Sparkles size={18} className="text-blue-600 shrink-0 ml-1.5" />
+              <Sparkles size={18} className="text-blue-600 shrink-0 ml-1 transition-transform group-hover:scale-110" />
             )}
 
             <input
@@ -231,8 +230,8 @@ export default function ChatBar() {
               placeholder={
                 isExpanded ? "메시지를 입력하세요..." : "Portfolio AI에게 질문하기"
               }
-              className={`flex-1 min-w-0 bg-transparent px-2 py-2 focus:outline-none transition-all text-slate-800 placeholder-slate-400 truncate ${
-                isExpanded ? "text-[15.5px]" : "text-[14.5px] font-medium"
+              className={`flex-1 min-w-0 bg-transparent px-2 py-2 focus:outline-none transition-all text-slate-900 placeholder-slate-500 truncate ${
+                isExpanded ? "text-[15.5px]" : "text-[15px] font-medium cursor-pointer"
               }`}
               disabled={isTyping}
               readOnly={!isExpanded}
@@ -246,7 +245,7 @@ export default function ChatBar() {
                     (inputValue.trim() && !isTyping
                       ? "bg-blue-600 text-white shadow-sm hover:bg-blue-700"
                       : "bg-slate-200/60 text-slate-400")
-                  : "w-8 h-8 bg-slate-100 text-slate-500 hover:bg-slate-200 mr-1"
+                  : "w-9 h-9 bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600"
               }`}
               disabled={isExpanded && (!inputValue.trim() || isTyping)}
             >
@@ -254,7 +253,7 @@ export default function ChatBar() {
                 size={isExpanded ? 16 : 14}
                 className={
                   isExpanded && inputValue.trim() && !isTyping
-                    ? "translate-x-[1px]"
+                    ? "translate-x-px"
                     : ""
                 }
               />
