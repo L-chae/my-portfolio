@@ -20,8 +20,9 @@ export default function Header() {
   const sectionOffsets = useRef<{ id: string; top: number }[]>([]);
   const isClickScrolling = useRef(false);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollRafRef = useRef<number | null>(null); // rAF 식별자
 
-  // 1. 네비게이션 밑줄 인디케이터 업데이트
+  // 1. 인디케이터 업데이트 로직
   const updateIndicator = useCallback((id: string) => {
     if (!navRef.current) return;
     const activeEl = navRef.current.querySelector(`[data-id="${id}"]`) as HTMLElement;
@@ -34,54 +35,72 @@ export default function Header() {
     }
   }, []);
 
-  // 2. 각 섹션의 절대 좌표 계산 및 캐싱 (Reflow 최소화)
+  // 2. 좌표 계산 로직
   const calculateOffsets = useCallback(() => {
     sectionOffsets.current = NAV_ITEMS.map(({ id }) => {
       const el = document.getElementById(id);
       return {
         id,
-        // 현재 스크롤 위치를 더해 문서 최상단 기준 절대 좌표 획득
         top: el ? el.getBoundingClientRect().top + window.scrollY : 0,
       };
     });
   }, []);
 
-  useEffect(() => {
-    updateIndicator(activeSection);
-  }, [activeSection, updateIndicator]);
-
-  // 최초 로드 및 리사이즈 시 좌표 캐싱
-  useEffect(() => {
-    // DOM 렌더링이 완료된 후 좌표 계산
-    setTimeout(calculateOffsets, 100); 
+  // 3. 스크롤 평가 로직 (rAF 내부에서 실행될 핵심 로직)
+  const evaluateScrollPosition = useCallback(() => {
+    const scrollY = window.scrollY;
+    setIsScrolled(scrollY > 50);
     
-    window.addEventListener('resize', calculateOffsets);
-    return () => window.removeEventListener('resize', calculateOffsets);
-  }, [calculateOffsets]);
+    if (isClickScrolling.current || sectionOffsets.current.length === 0) return;
 
-  // 3. 캐시된 좌표 기반 초경량 스크롤 스파이
+    const triggerPoint = scrollY + window.innerHeight * 0.4;
+    
+    let current = 'hero';
+    for (let i = 0; i < sectionOffsets.current.length; i++) {
+      if (triggerPoint >= sectionOffsets.current[i].top) {
+        current = sectionOffsets.current[i].id;
+      }
+    }
+    setActiveSection(current);
+  }, []);
+
+  // 새로고침 대응 및 초기 세팅
+// 새로고침 대응 및 초기 세팅
+  useEffect(() => {
+    // 1. 오프셋 계산은 DOM 읽기만 수행하므로 동기 실행 무방
+    calculateOffsets();
+
+    // 2. 상태 업데이트(setState)를 동반하는 로직은 다음 프레임으로 지연 처리 (ESLint 경고 해결)
+    requestAnimationFrame(() => {
+      evaluateScrollPosition();
+      updateIndicator(activeSection);
+    });
+
+    window.addEventListener('load', calculateOffsets);
+    window.addEventListener('resize', calculateOffsets);
+
+    return () => {
+      window.removeEventListener('load', calculateOffsets);
+      window.removeEventListener('resize', calculateOffsets);
+    };
+  }, [calculateOffsets, evaluateScrollPosition, updateIndicator, activeSection]);
+  // 성능이 최적화된 스크롤 이벤트 리스너
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-      
-      // 클릭으로 인한 자동 스크롤 중에는 스크롤 스파이 중지
-      if (isClickScrolling.current) return;
+      if (scrollRafRef.current) return; // 이미 예약된 프레임이 있으면 무시
 
-      // 뷰포트 높이의 40% 지점을 감지 기준으로 설정 (수치 조건: 일반적인 UX 기준)
-      const triggerPoint = window.scrollY + window.innerHeight * 0.4;
-      
-      let current = 'hero';
-      for (let i = 0; i < sectionOffsets.current.length; i++) {
-        if (triggerPoint >= sectionOffsets.current[i].top) {
-          current = sectionOffsets.current[i].id;
-        }
-      }
-      setActiveSection(current);
+      scrollRafRef.current = requestAnimationFrame(() => {
+        evaluateScrollPosition();
+        scrollRafRef.current = null;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+    };
+  }, [evaluateScrollPosition]);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -89,9 +108,9 @@ export default function Header() {
 
     isClickScrolling.current = true;
     setActiveSection(id);
+    updateIndicator(id); // 즉각적인 UI 반영
     setIsMobileMenuOpen(false);
 
-    // 고정 헤더 높이(64px)를 고려한 스크롤 위치 보정
     const offsetTop = el.getBoundingClientRect().top + window.scrollY - 64;
     window.scrollTo({ top: offsetTop, behavior: 'smooth' });
 
@@ -103,7 +122,7 @@ export default function Header() {
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/75 backdrop-blur-lg border-b border-slate-200/60 shadow-sm' : 'bg-transparent border-transparent'
+      isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm' : 'bg-transparent border-transparent'
     }`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
         <button onClick={() => scrollToSection('hero')} className="text-lg font-bold text-slate-900">
@@ -136,15 +155,22 @@ export default function Header() {
         </button>
       </div>
 
-      {isMobileMenuOpen && (
-        <nav className="md:hidden bg-white px-6 py-6 flex flex-col gap-5 text-sm font-bold text-slate-600 border-t border-slate-100 shadow-xl absolute w-full">
+      {/* 모바일 메뉴 스타일 대응: 페이드 & 슬라이드 애니메이션 추가 */}
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-t border-slate-100 shadow-xl absolute w-full ${
+        isMobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+      }`}>
+        <nav className="px-6 py-4 flex flex-col gap-4 text-sm font-bold text-slate-600">
           {NAV_ITEMS.map((item) => (
-            <button key={item.id} onClick={() => scrollToSection(item.id)} className="text-left py-2 active:text-slate-900">
+            <button 
+              key={item.id} 
+              onClick={() => scrollToSection(item.id)} 
+              className={`text-left py-2 transition-colors ${activeSection === item.id ? 'text-blue-600' : 'active:text-slate-900'}`}
+            >
               {item.label}
             </button>
           ))}
         </nav>
-      )}
+      </div>
     </header>
   );
 }

@@ -1,16 +1,28 @@
+import React, { memo } from "react";
 import { Sparkles } from "lucide-react";
 
-export default function TypingIndicator() {
+interface TypingIndicatorProps {
+  message?: string;
+}
+
+function TypingIndicator({ message = "답변을 생성하고 있습니다..." }: TypingIndicatorProps) {
   return (
-    <div className="flex gap-3.5 w-full self-start animate-in fade-in duration-300">
-      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-        <Sparkles size={15} className="text-white animate-pulse" />
+    <div className="flex gap-4 w-full self-start animate-in fade-in duration-300">
+      {/* 아바타 영역 */}
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 shadow-sm">
+        <Sparkles size={16} className="text-white animate-pulse" strokeWidth={2.5} />
       </div>
-      <div className="flex-1 py-1.5 flex items-center">
-        <span className="text-[14.5px] font-medium text-slate-400 animate-pulse tracking-tight">
-          답변을 생성하고 있습니다...
-        </span>
+
+      {/* 말풍선 영역 (봇 메시지 스타일과 통일) */}
+      <div className="relative max-w-[85%] rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-5 py-3.5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-[14.5px] font-medium text-slate-500 animate-pulse tracking-tight">
+            {message}
+          </span>
+        </div>
       </div>
     </div>
   );
 }
+
+export default memo(TypingIndicator);

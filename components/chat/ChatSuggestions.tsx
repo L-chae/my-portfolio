@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 
 interface ChatSuggestionsProps {
   activeSection: string;
@@ -15,12 +15,10 @@ const CONTEXT_DATA: Record<string, string[]> = {
   default: ["이전 프로젝트에서 겪은 가장 큰 난관은?", "협업 시 본인만의 강점은?"],
 };
 
-export default function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
-  // 💡 대화가 시작된 직후(인사말만 있는 상태)인지 판별
+function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
   const isInitialState = messages.length === 1;
 
   const suggestions = useMemo(() => {
-    // 1. 처음 챗봇을 열었을 때는 면접관이 가장 궁금해할 '핵심 유도 질문' 고정 노출
     if (isInitialState) {
       return [
         "가장 자신 있는 프로젝트의 아키텍처 설명해 줘",
@@ -29,30 +27,28 @@ export default function ChatSuggestions({ activeSection, onSelect, messages, isT
       ];
     }
     
-    // 2. 대화가 진행된 이후에는 스크롤 위치에 따른 맥락(Context) 질문 노출
     const rawSuggestions = CONTEXT_DATA[activeSection] || CONTEXT_DATA.default;
     return rawSuggestions.filter(
       (s) => !messages.some((m) => m.role === "user" && m.content === s)
     );
   }, [activeSection, messages, isInitialState]);
 
-  if (suggestions.length === 0) return null;
+  if (isTyping || suggestions.length === 0) return null;
 
   return (
-    <div className={`ml-11 flex flex-col gap-3 transition-opacity duration-300 ${isTyping ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
+    <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <p className="text-[13px] font-bold text-slate-400">
-        {/* 상태에 따라 안내 문구도 변경 */}
         {isInitialState ? "👉 첫 질문을 선택해 대화를 시작해 보세요" : "현재 보고 계신 내용과 관련된 질문"}
       </p>
       <div className="flex flex-wrap gap-2">
-        {suggestions.map((suggestion, idx) => (
+        {suggestions.map((suggestion) => (
           <button
-            key={idx}
+            key={suggestion}
             onClick={() => onSelect(suggestion)}
             className={`px-4 py-2 text-[14px] font-medium transition-all shadow-sm text-left break-keep rounded-xl border ${
               isInitialState 
-                ? "bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300" // 초기 상태일 땐 더 눈에 띄게 (Primary)
-                : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300" // 이후엔 덜 방해되게 (Secondary)
+                ? "bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300"
+                : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300" 
             }`}
           >
             {suggestion}
@@ -62,3 +58,5 @@ export default function ChatSuggestions({ activeSection, onSelect, messages, isT
     </div>
   );
 }
+
+export default memo(ChatSuggestions);
