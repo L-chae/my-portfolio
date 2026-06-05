@@ -50,11 +50,16 @@ export const portfolioData: PortfolioData = {
   projects: [
     {
       id: "proj-rodia",
+      category: "CROSS-PLATFORM ARCHITECTURE",
       title: "Rodia",
       period: "2026.02 - 2026.03",
-      summary: "화물 운송 중개 모바일/웹 플랫폼",
-      tags: ["OpenAPI", "Orval", "React Native", "DX", "디버깅", "자동화", "정책레이어", "디자인토큰"],
-      techStack: ["React Native", "Expo", "TypeScript", "Orval", "Axios"],
+      oneLiner: "웹과 모바일에서 동일한 디자인 자산을 관리하고 API 통신 안정성을 확보한 모노레포 프로젝트",
+      problems: [
+        "플랫폼 간 디자인 값 중복 관리 및 React Native 패키지 공유 이슈",
+        "잦은 OpenAPI 스펙 변경으로 인한 타입 불일치 및 관리 비용 증가",
+        "모바일 환경 내 API 요청 흐름 추적 및 디버깅의 어려움"
+      ],
+      techStack: ["TypeScript", "React Native", "Expo", "Turborepo", "Zod", "Orval"],
       githubUrl: "https://github.com",
       content: {
         situation: "화주/기사 역할 분기와 상태 규칙이 복잡했고, OpenAPI 스펙 변경이 잦아 API 타입 관리 비용이 높았습니다. 또한 모바일 환경에서는 API 요청 흐름을 추적하기 어려워 디버깅 비용이 컸습니다.",
@@ -80,11 +85,16 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: "proj-react-starter-composer",
+      category: "DEVELOPER TOOLING",
       title: "React Starter Composer",
       period: "2026.04 - 2026.05",
-      summary: "React 프로젝트 초기 세팅을 선택형으로 생성하고 ZIP으로 다운로드하는 교육용 생성기",
-      tags: ["Scaffolding", "Code Generation", "ZIP", "JSZip", "Zustand", "useMemo", "Architecture"],
-      techStack: ["React", "TypeScript", "Zustand", "JSZip", "FileSaver"],
+      oneLiner: "React 프로젝트 초기 세팅을 자동화하고, 유연한 확장 구조로 설계한 보일러플레이트 생성기",
+      problems: [
+        "라이브러리 조합에 따른 동적 파일 구조 결합의 복잡성",
+        "원본 상태와 결과물(ZIP) 간의 불필요한 상태 동기화 병목",
+        "문자열 조합 방식의 잦은 구문 에러 및 유지보수 한계"
+      ],
+      techStack: ["TypeScript", "React", "Zustand", "JSZip", "FileSaver"],
       githubUrl: "https://github.com",
       content: {
         situation: "반복적인 React 프로젝트 초기 세팅 보일러플레이트를 자동화하고자 했으나, 선택한 라이브러리에 따라 동적으로 파일 구조와 코드가 결합되어야 하는 복잡성이 존재했습니다.",
@@ -106,11 +116,16 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: "proj-storylex",
+      category: "WEB APPLICATION",
       title: "StoryLex",
       period: "2025.11 - 2025.12",
-      summary: "영어 단어 학습 웹 애플리케이션",
-      tags: ["React Query", "Zustand", "인증", "401", "Queue", "상태관리", "시각화"],
-      techStack: ["React", "React Query", "Zustand", "Recharts", "Axios"],
+      oneLiner: "동시성 에러를 제어하고 서버/클라이언트 상태를 분리해 렌더링을 최적화한 학습용 웹앱",
+      problems: [
+        "액세스 토큰 만료 시 다수의 API 요청 실패(401) 및 갱신 중복 발생",
+        "서버 상태와 전역 UI 상태 혼재로 인한 책임 경계 모호",
+        "데이터 페칭 지연 시 발생하는 화면 단절 현상"
+      ],
+      techStack: ["React", "TypeScript", "React Query", "Zustand", "Recharts", "Axios"],
       githubUrl: "https://github.com",
       liveUrl: "https://live-demo.com",
       content: {

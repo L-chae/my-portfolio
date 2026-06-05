@@ -1,8 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { portfolioData } from '../content/data';
-import { ExternalLink, Sparkles } from 'lucide-react';
-import { useChat } from '@/hooks/useChat';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
@@ -12,111 +12,170 @@ const GithubIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
-export default function Projects() {
-  const { setIsExpanded, handleSend } = useChat();
-  const containerRef = useScrollReveal(); 
+// 카드별 색상 팔레트 (라이트 배경 기반)
+const PALETTES = [
+  {
+    bg:        'bg-[#EEEDFE]',
+    catBg:     'bg-[#AFA9EC]',
+    catText:   'text-[#26215C]',
+    num:       'text-[#AFA9EC]',
+    title:     'text-[#26215C]',
+    liner:     'text-[#534AB7]',
+    dash:      'text-[#534AB7]',
+    problem:   'text-[#3C3489]',
+    techBg:    'bg-[#534AB7]/10',
+    techText:  'text-[#534AB7]',
+    border:    'border-[#534AB7]/20',
+    linkLabel: 'text-[#3C3489]',
+    linkSub:   'text-[#7F77DD]',
+    iconBg:    'bg-[#534AB7]/10 border-[#534AB7]/25 text-[#534AB7]',
+  },
+  {
+    bg:        'bg-[#E1F5EE]',
+    catBg:     'bg-[#9FE1CB]',
+    catText:   'text-[#085041]',
+    num:       'text-[#5DCAA5]',
+    title:     'text-[#085041]',
+    liner:     'text-[#0F6E56]',
+    dash:      'text-[#1D9E75]',
+    problem:   'text-[#085041]',
+    techBg:    'bg-[#0F6E56]/10',
+    techText:  'text-[#0F6E56]',
+    border:    'border-[#0F6E56]/20',
+    linkLabel: 'text-[#085041]',
+    linkSub:   'text-[#1D9E75]',
+    iconBg:    'bg-[#0F6E56]/10 border-[#0F6E56]/25 text-[#0F6E56]',
+  },
+  {
+    bg:        'bg-[#FAEEDA]',
+    catBg:     'bg-[#FAC775]',
+    catText:   'text-[#412402]',
+    num:       'text-[#EF9F27]',
+    title:     'text-[#412402]',
+    liner:     'text-[#854F0B]',
+    dash:      'text-[#BA7517]',
+    problem:   'text-[#633806]',
+    techBg:    'bg-[#854F0B]/10',
+    techText:  'text-[#854F0B]',
+    border:    'border-[#854F0B]/20',
+    linkLabel: 'text-[#412402]',
+    linkSub:   'text-[#BA7517]',
+    iconBg:    'bg-[#854F0B]/10 border-[#854F0B]/25 text-[#854F0B]',
+  },
+  {
+    bg:        'bg-[#FAECE7]',
+    catBg:     'bg-[#F5C4B3]',
+    catText:   'text-[#4A1B0C]',
+    num:       'text-[#F0997B]',
+    title:     'text-[#4A1B0C]',
+    liner:     'text-[#993C1D]',
+    dash:      'text-[#993C1D]',
+    problem:   'text-[#712B13]',
+    techBg:    'bg-[#993C1D]/10',
+    techText:  'text-[#993C1D]',
+    border:    'border-[#993C1D]/20',
+    linkLabel: 'text-[#4A1B0C]',
+    linkSub:   'text-[#D85A30]',
+    iconBg:    'bg-[#993C1D]/10 border-[#993C1D]/25 text-[#993C1D]',
+  },
+] as const;
 
-  const handleAskAI = (projectTitle: string) => {
-    setIsExpanded(true);
-    setTimeout(() => {
-      handleSend(`${projectTitle} 프로젝트의 핵심 아키텍처와 해결 과정에 대해 알려줘`);
-    }, 300); 
-  };
+export default function Projects() {
+  const containerRef = useScrollReveal();
 
   return (
-    <section 
-      id="projects" 
-      ref={containerRef}
-      className="py-24 px-6 bg-slate-50/50 border-b border-slate-100 overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto">
-        
-        {/* 헤더 영역 */}
-        <div className="reveal opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 transition-all duration-700 flex items-end justify-between mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 border-b-2 pb-4 border-slate-900 inline-block tracking-tight">
-            Featured Projects
-          </h2>
-          <p className="hidden md:block text-slate-500 text-[14.5px] font-medium pb-4">
-            핵심 기술적 고민을 담은 쇼케이스입니다.
+    <section id="projects" ref={containerRef} className="py-24 bg-[#f7f6f2]">
+      <div className="max-w-[1200px] mx-auto px-6">
+
+        <div className="mb-16">
+          <p className="text-[11px] tracking-[0.2em] uppercase text-slate-400 mb-3 font-medium">
+            Featured projects
           </p>
+          <h2 className="font-['Syne'] text-[42px] font-extrabold tracking-tight text-slate-900 leading-none">
+            주요 프로젝트
+          </h2>
         </div>
-        
-        {/* 💡 3열 배치 적용 (lg:grid-cols-3) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {portfolioData.projects.map((project, idx) => (
-            <div 
-              key={project.id} 
-              id={`project-${project.id}`} 
-              style={{ transitionDelay: `${idx * 100}ms` }}
-              className="reveal opacity-0 translate-y-6 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 transition-all duration-700 ease-out group flex flex-col p-7 border border-slate-200/80 rounded-[28px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(37,99,235,0.08)] hover:-translate-y-1.5"
-            >
-              <div className="flex flex-col flex-1">
-                
-                {/* 1. 타이틀 & 기간 */}
-                <div className="flex justify-between items-start mb-5">
-                  <div>
-                    <h3 className="text-[20px] font-bold text-slate-900 tracking-tight leading-snug mb-1">{project.title}</h3>
-                    <p className="text-blue-600 font-semibold text-[11px] tracking-widest uppercase">{project.period}</p>
-                  </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {portfolioData.projects.map((project, idx) => {
+            const p = PALETTES[idx % PALETTES.length];
+            const isMain = idx === 0;
+
+            return (
+              <div
+                key={project.id}
+                style={{ transitionDelay: `${idx * 80}ms` }}
+                className={[
+                  'reveal opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0',
+                  'rounded-3xl p-10 flex flex-col transition-all duration-500 ease-out',
+                  'hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-2',
+                  p.bg,
+                  isMain ? 'lg:col-span-7' : 'lg:col-span-5',
+                ].join(' ')}
+              >
+                {/* 상단: 카테고리 + 번호 */}
+                <div className="flex justify-between items-center mb-8">
+                  <span className={`text-[11px] font-bold tracking-[0.15em] uppercase px-3 py-1 rounded-full ${p.catBg} ${p.catText}`}>
+                    {project.category}
+                  </span>
+                  <span className={`font-['Syne'] text-[16px] font-bold opacity-60 ${p.num}`}>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
                 </div>
-                
-                {/* 2. 태그 시스템 */}
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {project.tags?.map((tag: string, i: number) => (
-                    <span key={i} className="px-2.5 py-1 bg-slate-100/80 text-slate-600 text-[11px] font-semibold rounded-lg">
-                      #{tag}
+
+                {/* 타이틀 & 한 줄 요약 */}
+                <h3 className={`font-['Syne'] text-[28px] font-extrabold tracking-tight mb-3 ${p.title}`}>
+                  {project.title}
+                </h3>
+                <p className={`text-[14px] font-normal mb-8 leading-relaxed max-w-lg ${p.liner}`}>
+                  {project.oneLiner}
+                </p>
+
+                {/* 핵심 문제: 명확한 여백 확보 */}
+                <div className="space-y-3 mb-8 flex-1">
+                  {project.problems?.slice(0, 3).map((problem: string, i: number) => (
+                    <div key={i} className="flex gap-3 text-[14px] leading-relaxed">
+                      <span className={`shrink-0 mt-1 ${p.dash}`}>●</span>
+                      <span className={`${p.problem} font-medium`}>{problem}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 기술 스택: 강조 */}
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {project.techStack?.map((tech: string, i: number) => (
+                    <span key={i} className={`text-[11px] px-3 py-1 rounded-md font-semibold ${p.techBg} ${p.techText}`}>
+                      {tech}
                     </span>
                   ))}
                 </div>
 
-                {/* 3. 요약 */}
-                <p className="text-slate-600 text-[14px] mb-7 leading-relaxed break-keep">
-                  {project.summary}
-                </p>
-
-                {/* 4. 핵심 성과 */}
-                <div className="bg-gradient-to-br from-blue-50/50 to-slate-50 p-5 rounded-2xl border border-blue-100/50 mb-8 flex-1">
-                  <h4 className="text-[13px] font-bold text-blue-900 mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.4)]"></span>
-                    Key Technical Impact
-                  </h4>
-                  <ul className="space-y-3">
-                    {project.content?.solution.slice(0, 2).map((point: string, i: number) => (
-                      <li key={i} className="text-slate-600 text-[13px] leading-relaxed flex items-start gap-2.5">
-                        <span className="text-blue-400 mt-1 shrink-0 text-[11px]">✓</span>
-                        <span className="break-keep">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* 5. 액션 버튼 영역 (3열 좁은 너비에 맞춘 상하 배치 구조) */}
-                <div className="flex flex-col gap-3 mt-auto pt-5 border-t border-slate-100">
-                  <button 
-                    onClick={() => handleAskAI(project.title)}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white px-4 py-3 rounded-xl text-[13px] font-bold transition-colors duration-300 group/btn"
+                {/* 하단 액션: 시각적 우선순위 강화 */}
+                <div className={`pt-6 border-t flex items-center justify-between ${p.border}`}>
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="group/link flex items-center gap-2 text-[15px] font-bold hover:opacity-70 transition-opacity"
                   >
-                    <Sparkles size={16} className="transition-transform group-hover/btn:scale-110" />
-                    AI에게 질문하기
-                  </button>
+                    <span className={p.linkLabel}>Explore Project</span>
+                    <ArrowRight size={16} className={`${p.linkLabel} group-hover/link:translate-x-1 transition-transform`} />
+                  </Link>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-4">
                     {project.githubUrl && (
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 text-[12.5px] font-bold bg-slate-100 text-slate-700 px-3 py-2.5 rounded-xl hover:bg-slate-200 transition-colors">
-                        <GithubIcon size={15} /> 코드
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" aria-label="Github Repository" className={`${p.title} hover:opacity-60 transition-opacity`}>
+                        <GithubIcon size={20} />
                       </a>
                     )}
                     {project.liveUrl && (
-                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 text-[12.5px] font-bold bg-slate-100 text-slate-700 px-3 py-2.5 rounded-xl hover:bg-slate-200 transition-colors">
-                        <ExternalLink size={15} /> 데모
+                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" aria-label="Live Demo" className={`${p.title} hover:opacity-60 transition-opacity`}>
+                        <ExternalLink size={20} />
                       </a>
                     )}
                   </div>
                 </div>
-                
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

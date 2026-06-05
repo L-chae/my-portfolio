@@ -21,22 +21,17 @@ export default function ChatBar() {
 
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const activeSection = useActiveSection(["hero", "rodia", "storylex", "experience"]);
+  
+  const activeSection = useActiveSection(["hero", "experience", "projects", "core-values"]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 💡 개선 1: 배경 화면 스크롤 잠금 (모달 오픈 시)
+  // 배경 화면 스크롤 잠금
   useEffect(() => {
-    if (isExpanded) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    document.body.style.overflow = isExpanded ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [isExpanded]);
 
-  // 💡 개선 2: 자연스러운 오토 스크롤 및 렌더링 틱 지연 처리
+  // 오토 스크롤
   useEffect(() => {
     if (scrollRef.current) {
       setTimeout(() => {
@@ -44,11 +39,11 @@ export default function ChatBar() {
           top: scrollRef.current.scrollHeight,
           behavior: "smooth",
         });
-      }, 50); // DOM 렌더링 완료 후 스크롤되도록 미세 딜레이
+      }, 50);
     }
   }, [messages, isTyping]);
 
-  // FAB 노출을 위한 스크롤 감지
+  // 스크롤 감지 (300px 이상일 때 FAB 노출)
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
@@ -63,7 +58,6 @@ export default function ChatBar() {
 
   return (
     <>
-      {/* 1. 백그라운드 딤 처리 */}
       <div
         className={`fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-sm transition-opacity duration-400 ${
           isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -73,7 +67,7 @@ export default function ChatBar() {
         }}
       />
 
-      {/* 2. 스크롤 시 나타나는 FAB */}
+      {/* FAB: 스크롤 조건만 확인하여 항상 유지 */}
       <div
         className={`fixed bottom-6 right-6 z-40 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
           !isExpanded && isScrolled
@@ -93,13 +87,11 @@ export default function ChatBar() {
         </button>
       </div>
 
-      {/* 3. 메인 컨테이너 */}
       <div
         className={`fixed z-50 left-0 right-0 mx-auto flex flex-col transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-auto ${
           isExpanded
             ? isFullScreen
               ? "inset-0 w-full max-w-full h-full bg-slate-50 rounded-none shadow-none border-none opacity-100"
-              // 💡 개선 3: vh 대신 dvh 사용하여 모바일 주소창 이슈 대응
               : "bottom-[2dvh] sm:bottom-[5dvh] w-[96vw] max-w-2xl h-[92dvh] sm:h-[85dvh] bg-slate-50 shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden opacity-100 scale-100"
             : !isScrolled
               ? "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-100 scale-100"
