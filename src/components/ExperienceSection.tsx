@@ -1,6 +1,6 @@
 'use client';
 
-import { useScrollReveal } from './useScrollReveal';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SectionLayout } from './SectionLayout';
 
 // 데이터는 해당 섹션 파일에 colocate — 무관한 섹션이 import할 이유 없음

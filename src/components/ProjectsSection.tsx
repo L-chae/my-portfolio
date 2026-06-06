@@ -1,6 +1,6 @@
 'use client';
 
-import { useScrollReveal } from './useScrollReveal';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SectionLayout } from './SectionLayout';
 
 interface ProjectCard {

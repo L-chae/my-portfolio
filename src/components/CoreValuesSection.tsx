@@ -1,26 +1,33 @@
-'use client';
+"use client";
 
-import { Shield, Users, Layers } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { useScrollReveal } from './useScrollReveal';
-import { SectionLayout } from './SectionLayout';
-import type { CoreValue } from '@/types/project';
+import { Shield, Database, TerminalSquare } from "lucide-react";
+import { useScrollReveal } from "../hooks/useScrollReveal";
+import { SectionLayout } from "./SectionLayout";
 
-// data.ts의 icon 문자열(FontAwesome id) → lucide 컴포넌트 매핑
-// data.ts에서 icon 값을 바꾸면 여기만 수정하면 됨
-const ICON_MAP: Record<string, LucideIcon> = {
-  'fa-layer-group': Layers,
-  'fa-shield-halved': Shield,
-  'fa-users': Users,
-};
+const CORE_VALUES = [
+  {
+    // JSX를 데이터에 넣으면 파일 스코프에서도 렌더마다 새 참조 생성됨.
+    // icon을 컴포넌트 이름으로 저장하고 렌더 시점에 생성하는 게 올바른 패턴.
+    Icon: Shield,
+    title: "시나리오 검증가",
+    description:
+      "사용자는 100번의 정상 동작보다 1번의 실패 경험을 더 오래 기억합니다. 해피 패스(Happy Path) 구현보다 네트워크 지연, 인증 만료 등 실패 흐름(Failure Flow)을 선제적으로 방어합니다.",
+  },
+  {
+    Icon: Database,
+    title: "반복 비용의 시스템적 제거",
+    description:
+      "휴먼 에러를 유발하는 반복 업무를 방치하지 않습니다. OpenAPI 기반 코드 생성기나 Zod를 활용해 런타임 에러를 빌드 타임으로 끌어올려 팀의 생산성을 높입니다.",
+  },
+  {
+    Icon: TerminalSquare,
+    title: "적정 기술과 오버엔지니어링 경계",
+    description:
+      "미래의 확장성을 과도하게 고려하다 발생한 실패 경험을 바탕으로, 현재 팀 규모와 비즈니스 우선순위에 맞춰 가장 적합한 '적정 수준의 타협점'을 도출합니다.",
+  },
+];
 
-const FALLBACK_ICON = Layers;
-
-interface Props {
-  coreValues: CoreValue[];
-}
-
-export function CoreValuesSection({ coreValues }: Props) {
+export function CoreValuesSection() {
   const ref = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -41,22 +48,24 @@ export function CoreValuesSection({ coreValues }: Props) {
         }
       >
         <div className="space-y-12 md:space-y-16">
-          {coreValues.map(({ id, icon, title, description }) => {
-            const Icon = ICON_MAP[icon] ?? FALLBACK_ICON;
-            return (
-              <article key={id} className="scroll-reveal">
-                <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center mb-5 md:mb-6 text-blue-600">
-                  <Icon size={22} />
-                </div>
-                <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
-                  {title}
-                </h4>
-                <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
-                  {description}
-                </p>
-              </article>
-            );
-          })}
+      {CORE_VALUES.map(({ Icon, title, description }) => (
+  <article key={title} className="scroll-reveal flex gap-5 items-start">
+
+    <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+      <Icon size={22} />
+    </div>
+
+    <div className="flex-1">
+      <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
+        {title}
+      </h4>
+      <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
+        {description}
+      </p>
+    </div>
+
+  </article>
+))}
         </div>
       </SectionLayout>
     </div>

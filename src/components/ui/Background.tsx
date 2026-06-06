@@ -38,10 +38,10 @@ export default function Background() {
         }
       `}</style>
       
-      <div className="blob blob-purple -top-10 -left-10 w-[50vw] h-[50vw] max-w-[600px] max-h-[600px]" />
-      <div className="blob blob-cyan top-1/4 -right-10 w-[60vw] h-[60vw] max-w-[700px] max-h-[700px]" />
-      <div className="blob blob-blue -bottom-1/4 left-1/4 w-[70vw] h-[70vw] max-w-[800px] max-h-[800px]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="blob blob-purple -top-10 -left-10 w-[50vw] h-[50vw] max-w-150 max-h-150" />
+      <div className="blob blob-cyan top-1/4 -right-10 w-[60vw] h-[60vw] max-w-175 max-h-175" />
+      <div className="blob blob-blue -bottom-1/4 left-1/4 w-[70vw] h-[70vw] max-w-200 max-h-200" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-size[40px_40px]" />
     </div>
   );
 }

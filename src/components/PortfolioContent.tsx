@@ -232,19 +232,24 @@ export default function PortfolioContent() {
           }
         >
           <div className="space-y-12 md:space-y-16">
-            {CORE_VALUES.map(({ icon, title, description }) => (
-              <article key={title} className="scroll-reveal">
-                <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center mb-5 md:mb-6 text-blue-600">
-                  {icon}
-                </div>
-                <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
-                  {title}
-                </h4>
-                <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
-                  {description}
-                </p>
-              </article>
-            ))}
+        {CORE_VALUES.map(({ icon, title, description }) => (
+  <article key={title} className="scroll-reveal flex gap-4 items-start">
+
+    <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+      {icon}
+    </div>
+
+    <div className="flex-1">
+      <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
+        {title}
+      </h4>
+      <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
+        {description}
+      </p>
+    </div>
+
+  </article>
+))}
           </div>
         </SectionLayout>
 
