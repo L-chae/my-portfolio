@@ -1,3 +1,16 @@
+// src/types/project.ts
+export interface Project {
+  id: string | number;
+  category: string;
+  title: string;
+  oneLiner: string;
+  problems?: string[];
+  techStack?: string[];
+  githubUrl?: string;
+  liveUrl?: string;
+  period: string;
+}
+
 export interface Profile {
   name: string;
   role: string;
@@ -34,26 +47,6 @@ export interface ProjectContent {
 export interface InterviewQA {
   question: string;
   answer: string;
-}
-
-export interface Project {
-  id: string;
-  category: string;     // 추가: 프로젝트 분류 (예: CROSS-PLATFORM, TOOLING)
-  title: string;
-  period: string;
-  oneLiner: string;     // 추가: 한 줄 가치 (기존 summary 대체)
-  problems: string[];   // 추가: 해결한 핵심 문제 3가지
-  techStack: string[];
-  githubUrl?: string;
-  liveUrl?: string;
-  // AI 챗봇이 읽을 상세 컨텍스트 (UI에는 노출되지 않음)
-  content: {
-    situation: string;
-    task: string;
-    solution: string[];
-    result: string[];
-  };
-  interviewQA: Array<{ question: string; answer: string }>;
 }
 
 export interface ArchiveProject {

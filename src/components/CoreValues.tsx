@@ -1,4 +1,5 @@
-import { portfolioData } from '../content/data';
+'use client';
+
 import { ShieldAlert, Database, Terminal } from 'lucide-react';
 
 // 밝고 차분한 파스텔톤 조합
@@ -8,7 +9,17 @@ const valueStyles = [
   { bg: 'bg-emerald-100', text: 'text-emerald-600', border: 'border-emerald-200', icon: <Terminal className="w-7 h-7" /> },
 ];
 
-export default function CoreValues() {
+export interface CoreValue {
+  id: string | number;
+  title: string;
+  description: string;
+}
+
+interface CoreValuesProps {
+  values?: CoreValue[];
+}
+
+export default function CoreValues({ values = [] }: CoreValuesProps) {
   return (
     // 💡 아주 연한 블루 그레이 배경(bg-slate-50보다 한 단계 더 부드러운 블루톤)
     <section id="core-values" className="py-24 px-6 bg-sky-50/50">
@@ -18,7 +29,7 @@ export default function CoreValues() {
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {portfolioData.coreValues.map((value, index) => {
+          {values.map((value, index) => {
             const style = valueStyles[index % valueStyles.length];
             return (
               <div 
