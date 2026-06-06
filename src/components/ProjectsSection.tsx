@@ -1,7 +1,7 @@
 'use client';
 
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { SectionLayout } from './SectionLayout';
+import { SectionLayout } from './ui/SectionLayout';
 
 interface ProjectCard {
   title: string;
@@ -59,7 +59,7 @@ const PROJECTS: Project[] = [
   },
 ];
 
-export function ProjectsSection() {
+export default  function ProjectsSection() {
   const ref = useScrollReveal<HTMLDivElement>();
 
   return (

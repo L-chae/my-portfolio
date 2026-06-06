@@ -2,7 +2,7 @@
 
 import { Shield, Database, TerminalSquare } from "lucide-react";
 import { useScrollReveal } from "../hooks/useScrollReveal";
-import { SectionLayout } from "./SectionLayout";
+import { SectionLayout } from "./ui/SectionLayout";
 
 const CORE_VALUES = [
   {
@@ -27,7 +27,7 @@ const CORE_VALUES = [
   },
 ];
 
-export function CoreValuesSection() {
+export default function CoreValuesSection() {
   const ref = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -48,24 +48,25 @@ export function CoreValuesSection() {
         }
       >
         <div className="space-y-12 md:space-y-16">
-      {CORE_VALUES.map(({ Icon, title, description }) => (
-  <article key={title} className="scroll-reveal flex gap-5 items-start">
+          {CORE_VALUES.map(({ Icon, title, description }) => (
+            <article
+              key={title}
+              className="scroll-reveal flex gap-5 items-start"
+            >
+              <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+                <Icon size={22} />
+              </div>
 
-    <div className="w-12 h-12 bg-white border border-slate-200/60 shadow-sm rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
-      <Icon size={22} />
-    </div>
-
-    <div className="flex-1">
-      <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
-        {title}
-      </h4>
-      <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
-        {description}
-      </p>
-    </div>
-
-  </article>
-))}
+              <div className="flex-1">
+                <h4 className="text-xl md:text-lg font-bold text-slate-900 mb-3 break-keep">
+                  {title}
+                </h4>
+                <p className="text-[15px] text-slate-600 leading-relaxed break-keep">
+                  {description}
+                </p>
+              </div>
+            </article>
+          ))}
         </div>
       </SectionLayout>
     </div>

@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import Header from '@/components/Header';
-import ChatBar from '@/components/chat/ChatBar';
-import HeroSection from '@/components/HeroSection';
-import PortfolioContent from '@/components/PortfolioContent';
-import Footer from '@/components/Footer';
-
+import Header from "@/components/Header";
+import ChatBar from "@/components/chat/ChatBar";
+import HeroSection from "@/components/HeroSection";
+// import PortfolioContent from "@/components/PortfolioContent";
+import Footer from "@/components/Footer";
+import ExperienceSection from "@/components/ExperienceSection";
+import CoreValuesSection from "@/components/CoreValuesSection";
+import ProjectsSection from "@/components/ProjectsSection";
 // 1. 데이터 파일 임포트
 //import { portfolioData } from '@/content/data';
 
@@ -15,7 +17,11 @@ export default function Home() {
       <Header />
       <ChatBar />
       <HeroSection />
-      <PortfolioContent />
+      {/* <PortfolioContent /> */}
+
+      <ExperienceSection />
+      <CoreValuesSection />
+      <ProjectsSection />
       <Footer />
     </main>
   );
