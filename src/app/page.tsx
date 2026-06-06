@@ -3,13 +3,11 @@
 import Header from '@/components/Header';
 import ChatBar from '@/components/chat/ChatBar';
 import HeroSection from '@/components/HeroSection';
-import CoreValues from '@/components/CoreValues';
-import ExperienceAndInfo from '@/components/ExperienceAndInfo';
-import Projects from '@/components/Projects';
+import PortfolioContent from '@/components/PortfolioContent';
 import Footer from '@/components/Footer';
 
 // 1. 데이터 파일 임포트
-import { portfolioData } from '@/content/data';
+//import { portfolioData } from '@/content/data';
 
 export default function Home() {
   return (
@@ -17,12 +15,7 @@ export default function Home() {
       <Header />
       <ChatBar />
       <HeroSection />
-      <ExperienceAndInfo />
-      
-      {/* 2. 데이터 주입 */}
-      <Projects projects={portfolioData.projects} />
-      <CoreValues values={portfolioData.coreValues} />
-      
+      <PortfolioContent />
       <Footer />
     </main>
   );

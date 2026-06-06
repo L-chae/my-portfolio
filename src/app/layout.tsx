@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import './globals.css';
 import Header from '../components/Header';
+import Background from '../components/ui/Background';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   
@@ -36,8 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" className="scroll-smooth">
       <body className="antialiased text-slate-900 bg-white">
-        {/* 💡 HeroSection 전용 배경으로 이동했으므로 여기서는 제거합니다. */}
-        
+        <Background />
         <Header />
         
         {/* main 태그에 min-h-screen을 주어 레이아웃 안정성 확보 */}
