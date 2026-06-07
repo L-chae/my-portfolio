@@ -9,5 +9,7 @@ export interface KnowledgeSection {
   lessons?: readonly string[];
   improvements?: readonly string[];
   keywords?: readonly string[];
+  suggestedQuestions?: readonly string[];
+  preparedAnswers?: Record<string, string>;
   [key: string]: unknown;
 }

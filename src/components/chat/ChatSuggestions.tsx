@@ -10,19 +10,19 @@ interface ChatSuggestionsProps {
 }
 
 function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
-  const activeContextKey = useChat((state) => state.activeContextKey);
+  const currentTopicHint = useChat((state) => state.currentTopicHint);
   const isInitialState = messages.length === 1;
 
   const suggestions = useMemo(() => {
     const rawSuggestions =
-      activeContextKey && SUGGESTION_MAP[activeContextKey]
-        ? SUGGESTION_MAP[activeContextKey]
+      currentTopicHint && SUGGESTION_MAP[currentTopicHint]
+        ? SUGGESTION_MAP[currentTopicHint]
         : SECTION_SUGGESTION_MAP[activeSection] ?? DEFAULT_SUGGESTIONS;
 
     return rawSuggestions
       .filter((suggestion) => !messages.some((message) => message.role === "user" && message.content === suggestion))
       .slice(0, 3);
-  }, [activeContextKey, activeSection, messages]);
+  }, [currentTopicHint, activeSection, messages]);
 
   if (isTyping || suggestions.length === 0) return null;
 

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { STATIC_ANSWERS } from "@/content/staticAnswers";
+import { findPreparedAnswer } from "@/lib/preparedAnswers";
 import { searchKnowledge } from "@/lib/searchKnowledge";
 
 export interface Message {
@@ -16,7 +16,7 @@ interface ChatStore {
   inputValue: string;
   setInputValue: (value: string) => void;
   messages: Message[];
-  activeContextKey: string | null;
+  currentTopicHint: string | null;
   handleSend: (content: string) => Promise<void>;
   resetChat: () => void;
 }
@@ -29,6 +29,23 @@ const INITIAL_MESSAGE: Message = {
   content: "안녕하세요. 기능 구현을 넘어 예외 상황을 통제하는 프론트엔드 개발자 [이름]의 AI입니다. 무엇이든 물어보세요!",
 };
 
+async function streamPreparedAnswer(
+  answer: string,
+  assistantId: string,
+  set: (partial: ChatStore | Partial<ChatStore> | ((state: ChatStore) => ChatStore | Partial<ChatStore>)) => void
+) {
+  let current = "";
+  for (const char of answer) {
+    await new Promise((resolve) => setTimeout(resolve, 6));
+    current += char;
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg.id === assistantId ? { ...msg, content: current } : msg
+      ),
+    }));
+  }
+}
+
 export const useChat = create<ChatStore>((set, get) => ({
   isExpanded: false,
   setIsExpanded: (expanded) => set({ isExpanded: expanded }),
@@ -37,16 +54,16 @@ export const useChat = create<ChatStore>((set, get) => ({
   inputValue: "",
   setInputValue: (value) => set({ inputValue: value }),
   messages: [INITIAL_MESSAGE],
-  activeContextKey: null,
+  currentTopicHint: null,
 
   resetChat: () =>
     set({
       messages: [{ ...INITIAL_MESSAGE, id: createId() }],
-      activeContextKey: null,
+      currentTopicHint: null,
     }),
 
   handleSend: async (content) => {
-    const { isTyping, isStreaming } = get();
+    const { currentTopicHint, isTyping, isStreaming } = get();
     const trimmedContent = content.trim();
     if (!trimmedContent || isTyping || isStreaming) return;
 
@@ -57,39 +74,33 @@ export const useChat = create<ChatStore>((set, get) => ({
     }));
 
     const assistantId = createId();
-    const matchedKey = searchKnowledge(trimmedContent, 1)[0]?.id ?? null;
-    set({ activeContextKey: matchedKey });
+    const localRetrieval = searchKnowledge(trimmedContent, 1, { currentTopicHint })[0];
+    const nextTopicHint = localRetrieval?.sourceId ?? currentTopicHint;
+    set({ currentTopicHint: nextTopicHint });
 
-    const cached = STATIC_ANSWERS[trimmedContent];
-    if (cached) {
+    const preparedAnswer = findPreparedAnswer(trimmedContent);
+    if (preparedAnswer) {
       set((state) => ({
         messages: [...state.messages, { id: assistantId, role: "assistant", content: "" }],
         isStreaming: true,
         isTyping: false,
       }));
 
-      let current = "";
-      for (const char of cached) {
-        await new Promise((resolve) => setTimeout(resolve, 6));
-        current += char;
-        set((state) => ({
-          messages: state.messages.map((msg) =>
-            msg.id === assistantId ? { ...msg, content: current } : msg
-          ),
-        }));
-      }
-
+      await streamPreparedAnswer(preparedAnswer, assistantId, set);
       set({ isStreaming: false });
       return;
     }
 
     try {
-      const currentMessages = get().messages.slice(-4).map(({ role, content }) => ({ role, content }));
+      const currentMessages = get().messages.slice(-5).map(({ role, content }) => ({ role, content }));
 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: currentMessages }),
+        body: JSON.stringify({
+          currentTopicHint: nextTopicHint,
+          messages: currentMessages,
+        }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

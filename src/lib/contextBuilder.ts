@@ -1,28 +1,31 @@
-function valueToText(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
+import type { KnowledgeSearchResult } from "@/lib/searchKnowledge";
 
-  if (Array.isArray(value)) {
-    // 줄바꿈과 '-' 대신 쉼표나 세미콜론으로 한 줄 압축
-    return value.map(valueToText).filter(Boolean).join("; ");
-  }
+const MAX_CONTEXT_LENGTH = 4200;
 
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value as Record<string, unknown>)
-      .filter(([key, val]) => key !== "keywords" && key !== "id" && val != null) // 메타데이터/null/undefined 제외
-      .map(([key, val]) => {
-        const parsedVal = valueToText(val);
-        // 들여쓰기와 [] 제거, 한 줄로 연결
-        return parsedVal ? `${key}: ${parsedVal}` : "";
-      })
-      .filter(Boolean)
-      .join("\n"); // \n\n 대신 단일 줄바꿈 사용
-  }
-
-  return "";
+function formatSection(section: KnowledgeSearchResult) {
+  return [
+    `Title: ${section.title}`,
+    `Source: ${section.sourceId}`,
+    `Summary: ${section.summary}`,
+    `Explanation: ${section.explanation}`,
+    section.tags.length > 0 ? `Key facts: ${section.tags.join(", ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
-export function buildContextPrompt(sections: unknown[]): string {
-  // 구분자도 공백을 최소화하여 토큰 절약
-  return sections.map(valueToText).filter(Boolean).join("\n---\n");
+export function buildContextPrompt(sections: readonly KnowledgeSearchResult[]) {
+  let context = "";
+  const included: string[] = [];
+
+  for (const section of sections) {
+    const next = formatSection(section);
+    const candidate = context ? `${context}\n---\n${next}` : next;
+    if (candidate.length > MAX_CONTEXT_LENGTH) break;
+
+    context = candidate;
+    included.push(section.id);
+  }
+
+  return { context, included };
 }
