@@ -8,11 +8,27 @@ interface ChatSuggestionsProps {
 }
 
 const CONTEXT_DATA: Record<string, string[]> = {
-  hero: ["전체 기술 스택 요약해줘", "프론트엔드 개발 시 가장 중요하게 생각하는 가치는?"],
-  rodia: ["Orval을 도입한 구체적인 이유는?", "인앱 디버거는 어떻게 구현했어?"],
-  storylex: ["401 에러 큐(Queue) 로직 설명해줘", "React Query와 Zustand 분리 이유"],
-  composer: ["파생 상태를 useMemo로 분리한 이유는?", "JSON 병합 전략에 대해 설명해줘"],
-  default: ["이전 프로젝트에서 겪은 가장 큰 난관은?", "협업 시 본인만의 강점은?"],
+  hero: [
+    "가장 자신 있는 프로젝트 설명해줘",
+    "개발자로서 핵심 가치는 뭐야?",
+  ],
+  experience: [
+    "하이브랩에서 어떤 걸 배웠어?",
+    "AI 데이터 검수 경험이 개발에 어떤 영향을 줬어?",
+  ],
+  projects: [
+    "Rodia 아키텍처 설명해줘",
+    "StoryLex 401 에러 어떻게 해결했어?",
+    "Portfolio AI에서 RAG 안 쓴 이유는?",
+  ],
+  "core-values": [
+    "오버엔지니어링 실패 경험 얘기해줘",
+    "AI 도구를 어떻게 활용하고 있어?",
+  ],
+  default: [
+    "이전 프로젝트에서 겪은 가장 큰 난관은?",
+    "협업 시 본인만의 강점은?",
+  ],
 };
 
 function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {

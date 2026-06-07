@@ -13,7 +13,7 @@ export function useActiveSection(sectionIds: string[]) {
           }
         });
       },
-      { threshold: 0.5 } // 화면의 50% 이상 보일 때 활성화
+      { threshold: 0.1 } // 화면의 50% 이상 보일 때 활성화
     );
 
     sectionIds.forEach((id) => {
