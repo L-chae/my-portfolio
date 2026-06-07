@@ -42,33 +42,34 @@ export default function HeroSection() {
       {/* delay는 인라인 style로 — Tailwind delay-* arbitrary는 빌드 환경 따라 불안정 */}
       <div
         className="hero-item font-mono text-sm font-bold text-blue-600 mb-6 tracking-widest uppercase"
-        style={{ animationDelay: '0ms' }}
+        style={{ animationDelay: "0ms" }}
       >
-        {typedText}<span className="animate-pulse">|</span>
+        {typedText}
+        <span className="animate-pulse">|</span>
       </div>
 
       <h1
         className="hero-item text-4xl md:text-5xl font-extrabold leading-tight tracking-tight mb-8 text-slate-900 text-center break-keep"
-        style={{ animationDelay: '150ms' }}
+        style={{ animationDelay: "150ms" }}
       >
         경험과 고민을 대화로 공유합니다.
       </h1>
 
       <p
         className="hero-item text-base md:text-lg text-slate-600 leading-relaxed mb-12 text-center break-keep"
-        style={{ animationDelay: '280ms' }}
+        style={{ animationDelay: "280ms" }}
       >
         구현 과정부터 기술적 선택의 근거까지, 무엇이든 물어보세요.
       </p>
 
       <div
         className="hero-item flex flex-col sm:flex-row gap-4 w-full justify-center"
-        style={{ animationDelay: '400ms' }}
+        style={{ animationDelay: "400ms" }}
       >
         <a
           href="/resume.pdf"
           download
-          className="px-6 py-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors shadow-md text-center"
+          className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold transition-colors text-center"
         >
           이력서 다운로드
         </a>
@@ -76,7 +77,7 @@ export default function HeroSection() {
           href="https://github.com/your-id"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-6 py-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold transition-colors shadow-sm text-center"
+          className="px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold transition-colors text-center"
         >
           GitHub 보기
         </a>

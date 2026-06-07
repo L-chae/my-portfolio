@@ -149,12 +149,14 @@
     transition:
       opacity 500ms ease-out,
       transform 500ms ease-out;
+      visibility: hidden;
       
   }
 
   .scroll-reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
+      visibility: visible;
   }
 }
 

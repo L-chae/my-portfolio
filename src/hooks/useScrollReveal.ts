@@ -1,8 +1,5 @@
 import { useEffect, useRef, DependencyList } from 'react';
 
-/**
- * @param deps 비동기 데이터로 인해 DOM이 늦게 그려질 경우, 해당 데이터를 배열로 주입하여 옵저버를 재실행합니다.
- */
 export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(deps: DependencyList = []) {
   const containerRef = useRef<T>(null);
 
@@ -24,25 +21,33 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(deps: De
       { threshold: 0.05, rootMargin: '0px 0px -5% 0px' }
     );
 
-    const rAF = requestAnimationFrame(() => {
-      const elements = container.querySelectorAll<HTMLElement>('.scroll-reveal');
+    const outerRaf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const elements = container.querySelectorAll<HTMLElement>('.scroll-reveal');
 
-      elements.forEach((el) => {
-        const { top, bottom } = el.getBoundingClientRect();
-        if (top < window.innerHeight && bottom > 0) {
-          el.classList.add('is-visible');
-        } else {
-          observer.observe(el);
-        }
+        elements.forEach((el) => {
+          const { top, bottom } = el.getBoundingClientRect();
+          if (top < window.innerHeight && bottom > 0) {
+            // 트랜지션 없이 즉시 표시
+            el.style.transition = 'none';
+            el.classList.add('is-visible');
+            el.getBoundingClientRect(); // force reflow
+            requestAnimationFrame(() => {
+              el.style.transition = '';
+            });
+          } else {
+            observer.observe(el);
+          }
+        });
       });
     });
 
     return () => {
-      cancelAnimationFrame(rAF);
+      cancelAnimationFrame(outerRaf);
       observer.disconnect();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps); 
+  }, deps);
 
   return containerRef;
 }
