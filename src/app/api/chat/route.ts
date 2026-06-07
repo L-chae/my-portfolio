@@ -19,7 +19,7 @@ function clarificationResponse() {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
       },
-    }
+    },
   );
 }
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   try {
     const { currentTopicHint, messages } = await req.json();
 
-    const recentMessages: Message[] = messages.slice(-5);
+    const recentMessages: Message[] = messages.slice(-3);
     const lastUserMessage = [...recentMessages]
       .reverse()
       .find((msg): msg is Message => msg.role === "user");
@@ -35,7 +35,8 @@ export async function POST(req: Request) {
     const question = lastUserMessage?.content ?? "";
     const rewrittenQuery = rewriteQuery(question, recentMessages.slice(-4));
     const sections = searchKnowledge(rewrittenQuery, 3, {
-      currentTopicHint: typeof currentTopicHint === "string" ? currentTopicHint : null,
+      currentTopicHint:
+        typeof currentTopicHint === "string" ? currentTopicHint : null,
     });
 
     if (sections.length === 0) {
@@ -63,6 +64,7 @@ ${rewrittenQuery}`,
       model: anthropic("claude-haiku-4-5-20251001"),
       system: SYSTEM_PROMPT,
       messages: enhancedMessages,
+      maxOutputTokens: 800,
     });
 
     return new Response(result.textStream, {

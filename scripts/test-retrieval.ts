@@ -35,6 +35,21 @@ type RetrievalResult = {
 // - Avg context tokens should usually stay under 1500 for this portfolio chatbot.
 const testCases: RetrievalTestCase[] = [
   {
+  id: "rodia-korean-alias-01",
+  question: "로디아는 어떤 프로젝트야?",
+  expectedChunkIds: ["rodia.summary", "rodia.designSystem"],
+},
+{
+  id: "storylex-korean-alias-01",
+  question: "스토리렉스는 어떤 프로젝트야?",
+  expectedChunkIds: ["storylex.summary", "storylex.auth401", "storylex.stateManagement"],
+},
+{
+  id: "hivelab-korean-alias-01",
+  question: "하이브랩에서는 어떤 일을 했어?",
+  expectedChunkIds: ["career.hivelab", "career.summary"],
+},
+  {
     id: "rodia-design-system-01",
     question: "Rodia 디자인 시스템은 어떻게 만들었어?",
     expectedChunkIds: ["rodia.designSystem", "rodia.summary"],
@@ -117,6 +132,11 @@ const testCases: RetrievalTestCase[] = [
     expectedChunkIds: ["storylex.auth401"],
   },
   {
+    id: "storylex-react-query-zustand-split-01",
+    question: "React Query와 Zustand를 왜 분리했어?",
+    expectedChunkIds: ["storylex.stateManagement"],
+  },
+  {
     id: "storylex-react-query-01",
     question: "React Query는 어떤 상태를 맡겼어?",
     expectedChunkIds: ["storylex.stateManagement.separation", "storylex.stateManagement"],
@@ -191,7 +211,7 @@ const testCases: RetrievalTestCase[] = [
   {
     id: "career-hivelab-01",
     question: "하이브랩에서 어떤 일을 했어?",
-    expectedChunkIds: ["career.hivelab"],
+    expectedChunkIds: ["career.hivelab", "career.summary"],
   },
   {
     id: "career-hivelab-02",
