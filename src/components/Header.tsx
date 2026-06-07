@@ -143,8 +143,6 @@ export default function Header() {
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
         isScrolled || isMobileMenuOpen
-          // 💡 핵심 개선: bg-white/40 으로 극강의 투명함을 주되, backdrop-blur-xl 로 뒷배경을 강하게 뭉개버림
-          // border-white/50 을 통해 유리 같은 엣지 느낌 추가
           ? 'bg-white/40 backdrop-blur-xl border-b border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.06)] py-0'
           : 'bg-transparent border-transparent py-2'
       }`}

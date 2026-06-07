@@ -1,60 +1,46 @@
 import { memo, useMemo } from "react";
 
 interface ChatSuggestionsProps {
-  activeSection: string;
+  // 💡 부모(Zustand 또는 ChatContainer)로부터 주입받는 동적 추천 질문
+  currentSuggestions?: string[]; 
   onSelect: (suggestion: string) => void;
   messages: { role: string; content: string }[];
   isTyping: boolean;
 }
 
-const CONTEXT_DATA: Record<string, string[]> = {
-  hero: [
-    "가장 자신 있는 프로젝트 설명해줘",
-    "개발자로서 핵심 가치는 뭐야?",
-  ],
-  experience: [
-    "하이브랩에서 어떤 걸 배웠어?",
-    "AI 데이터 검수 경험이 개발에 어떤 영향을 줬어?",
-  ],
-  projects: [
-    "Rodia 아키텍처 설명해줘",
-    "StoryLex 401 에러 어떻게 해결했어?",
-    "Portfolio AI에서 RAG 안 쓴 이유는?",
-  ],
-  "core-values": [
-    "오버엔지니어링 실패 경험 얘기해줘",
-    "AI 도구를 어떻게 활용하고 있어?",
-  ],
-  default: [
-    "이전 프로젝트에서 겪은 가장 큰 난관은?",
-    "협업 시 본인만의 강점은?",
-  ],
-};
+// 초기 질문은 컴포넌트 내부에 상수로 두거나 외부에서 import
+const INITIAL_QUESTIONS = [
+  "가장 자신 있는 프로젝트의 아키텍처 설명해 줘",
+  "상태 관리를 다루는 본인만의 기준이 있나요?",
+  "오버엔지니어링으로 실패했던 경험이 있나요?"
+];
 
-function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
+function ChatSuggestions({ 
+  currentSuggestions, 
+  onSelect, 
+  messages, 
+  isTyping 
+}: ChatSuggestionsProps) {
   const isInitialState = messages.length === 1;
 
   const suggestions = useMemo(() => {
     if (isInitialState) {
-      return [
-        "가장 자신 있는 프로젝트의 아키텍처 설명해 줘",
-        "상태 관리를 다루는 본인만의 기준이 있나요?",
-        "이력서 PDF 다운로드하기"
-      ];
+      return INITIAL_QUESTIONS;
     }
     
-    const rawSuggestions = CONTEXT_DATA[activeSection] || CONTEXT_DATA.default;
-    return rawSuggestions.filter(
-      (s) => !messages.some((m) => m.role === "user" && m.content === s)
-    );
-  }, [activeSection, messages, isInitialState]);
+    const rawSuggestions = currentSuggestions || [];
+    
+    return rawSuggestions
+      .filter((s) => !messages.some((m) => m.role === "user" && m.content === s))
+      .slice(0, 3); // UI 레이아웃 안정을 위해 최대 3개까지만 노출
+  }, [currentSuggestions, messages, isInitialState]);
 
   if (isTyping || suggestions.length === 0) return null;
 
   return (
     <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <p className="text-[13px] font-bold text-slate-400">
-        {isInitialState ? "👉 첫 질문을 선택해 대화를 시작해 보세요" : "현재 보고 계신 내용과 관련된 질문"}
+        {isInitialState ? "👉 첫 질문을 선택해 대화를 시작해 보세요" : "현재 내용과 관련된 후속 질문"}
       </p>
       <div className="flex flex-wrap gap-2">
         {suggestions.map((suggestion) => (

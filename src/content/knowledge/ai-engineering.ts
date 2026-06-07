@@ -7,7 +7,7 @@ AI는 코딩 병목을 제거하는 생산성 도구일 뿐, 기술적 의사결
 특정 AI 도구에 종속되지 않는 빠른 "적응력"을 중시.
   `.trim(),
 
-  keywords: ['ai', 'claude', 'cursor', 'gpt', '코딩', '생산성', '검증', '의사결정'],
+  keywords: ['ai', 'claude', 'codex', 'gpt', '코딩', '생산성', '검증', '의사결정'],
 
   coreBeliefs: [
     'AI의 생산성과 신뢰성은 별개 — 여러 모델의 결과를 교차 검증(Cross-validation)',
@@ -17,8 +17,8 @@ AI는 코딩 병목을 제거하는 생산성 도구일 뿐, 기술적 의사결
   ],
 
   usage: {
-    phase1: 'StoryLex/ActionMate: 웹 기반 대화형 AI에 막히는 부분을 질문하는 수준',
-    phase2: 'Rodia부터: Cursor, Claude CLI 등 IDE 내장 에이전트를 본격적으로 도입',
+    phase1: 'StoryLex: 웹 기반 대화형 AI에 막히는 부분을 질문하는 수준',
+    phase2: 'Rodia부터: Codex, Claude CLI 등 IDE 내장 에이전트를 본격적으로 도입',
     phase3: '현재: 반복적인 UI 구현과 보일러플레이트는 AI에게 위임 → 저는 코드 검토와 아키텍처 설계에 집중',
   },
 
@@ -48,7 +48,7 @@ AI는 코딩 병목을 제거하는 생산성 도구일 뿐, 기술적 의사결
   ],
 
   toolDependency: `
-Copilot → Cursor → Claude CLI → Codex 등 모델의 성능 우위가 순식간에 뒤바뀜.
+Copilot → Cursor → Claude CLI 등 모델의 성능 우위가 순식간에 뒤바뀜.
 장기적 경쟁력은 "특정 AI 숙련도"가 아니라, 새로운 도구 등장 시 빠르게 파악하고 녹여내는 "적응력".
   `.trim(),
 

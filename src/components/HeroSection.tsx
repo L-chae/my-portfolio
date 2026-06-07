@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
 
 const FULL_TEXT = "Frontend Developer";
-
-// Hero는 진입 즉시 보이는 섹션 → IntersectionObserver 불필요
-// CSS animation + delay로 처리. 마운트 시 자동 재생.
 export default function HeroSection() {
   const [typedText, setTypedText] = useState("");
 
@@ -39,7 +36,6 @@ export default function HeroSection() {
         }
       `}</style>
 
-      {/* delay는 인라인 style로 — Tailwind delay-* arbitrary는 빌드 환경 따라 불안정 */}
       <div
         className="hero-item font-mono text-sm font-bold text-blue-600 mb-6 tracking-widest uppercase"
         style={{ animationDelay: "0ms" }}

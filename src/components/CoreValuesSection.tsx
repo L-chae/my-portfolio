@@ -6,8 +6,6 @@ import { SectionLayout } from "./ui/SectionLayout";
 
 const CORE_VALUES = [
   {
-    // JSX를 데이터에 넣으면 파일 스코프에서도 렌더마다 새 참조 생성됨.
-    // icon을 컴포넌트 이름으로 저장하고 렌더 시점에 생성하는 게 올바른 패턴.
     Icon: Shield,
     title: "시나리오 검증가",
     description:

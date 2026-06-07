@@ -7,6 +7,6 @@ export interface KnowledgeSection {
   weaknesses?: string[];
   lessons?: string[];
   improvements?: string[];
-  // 필요한 경우 필드 추가
- [key: string]: string |readonly string[] | undefined;
+ keywords?: readonly string[];
+  [key: string]: unknown;
 }

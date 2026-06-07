@@ -3,7 +3,6 @@
 import Header from "@/components/Header";
 import ChatBar from "@/components/chat/ChatBar";
 import HeroSection from "@/components/HeroSection";
-// import PortfolioContent from "@/components/PortfolioContent";
 import Footer from "@/components/Footer";
 import ExperienceSection from "@/components/ExperienceSection";
 import CoreValuesSection from "@/components/CoreValuesSection";
@@ -17,8 +16,6 @@ export default function Home() {
       <Header />
       <ChatBar />
       <HeroSection />
-      {/* <PortfolioContent /> */}
-
       <ExperienceSection />
       <CoreValuesSection />
       <ProjectsSection />
