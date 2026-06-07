@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { STATIC_ANSWERS } from '@/content/staticAnswers';
 
 export interface Message {
   id: string;
@@ -44,18 +45,40 @@ export const useChat = create<ChatStore>((set, get) => ({
     const { isTyping, isStreaming } = get();
     if (!content.trim() || isTyping || isStreaming) return;
 
-    // 유저 메시지 추가
     set((state) => ({
       messages: [...state.messages, { id: createId(), role: 'user', content }],
       inputValue: '',
-      isTyping: true,
+      isTyping: false,
     }));
 
     const assistantId = createId();
 
+    // 캐시 히트 → API 호출 없이 타이핑 효과만
+    const cached = STATIC_ANSWERS[content.trim()];
+    if (cached) {
+      set((state) => ({
+        messages: [...state.messages, { id: assistantId, role: 'assistant', content: '' }],
+        isStreaming: true,
+      }));
+
+      let current = '';
+      for (const char of cached) {
+        await new Promise((r) => setTimeout(r, 6));
+        current += char;
+        set((state) => ({
+          messages: state.messages.map((msg) =>
+            msg.id === assistantId ? { ...msg, content: current } : msg
+          ),
+        }));
+      }
+
+      set({ isStreaming: false });
+      return;
+    }
+
+    // 캐시 미스 → API 호출
     try {
-      // 최근 6턴 슬라이싱 (유저 메시지 포함 후)
-      const currentMessages = get().messages.slice(-6).map(({ role, content }) => ({ role, content }));
+      const currentMessages = get().messages.slice(-4).map(({ role, content }) => ({ role, content }));
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -66,14 +89,12 @@ export const useChat = create<ChatStore>((set, get) => ({
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (!res.body) throw new Error('No response body');
 
-      // 어시스턴트 메시지 슬롯 추가
       set((state) => ({
         messages: [...state.messages, { id: assistantId, role: 'assistant', content: '' }],
         isTyping: false,
         isStreaming: true,
       }));
 
-      // 실제 스트리밍 처리
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
@@ -100,7 +121,6 @@ export const useChat = create<ChatStore>((set, get) => ({
         });
       }
 
-      // 남은 버퍼 flush
       if (buffer) {
         set((state) => ({
           messages: state.messages.map((msg) =>

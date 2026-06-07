@@ -138,7 +138,9 @@ function ChatMessageItem({ message }: ChatMessageItemProps) {
   const isUser = message.role === "user";
 
   return (
-    <div className={`flex gap-3 w-full ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div
+      className={`flex gap-3 w-full ${isUser ? "flex-row-reverse" : "flex-row"}`}
+    >
       {/* Avatar */}
       <div
         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full mt-0.5 ${
@@ -166,7 +168,10 @@ function ChatMessageItem({ message }: ChatMessageItemProps) {
           <span className="whitespace-pre-wrap">{message.content}</span>
         ) : (
           <div className="break-words min-w-0">
-            <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              components={markdownComponents}
+              remarkPlugins={[remarkGfm]}
+            >
               {message.content}
             </ReactMarkdown>
           </div>
@@ -180,5 +185,5 @@ export default memo(
   ChatMessageItem,
   (prev, next) =>
     prev.message.id === next.message.id &&
-    prev.message.content === next.message.content
+    prev.message.content === next.message.content,
 );
