@@ -2,6 +2,8 @@
 // 문제 해결 철학, 디버깅 방법론, 사고방식
 
 export const problemSolving = {
+  id: 'problem-solving',
+
   summary: `
 에러의 단순한 '수정(Fix)'보다 정확한 '재현(Reproduction)'과 '영향 범위(Side Effect) 통제'를 우선함.
 현상만 쫓아 땜질식 처방을 하면 예외 상황에서 버그가 반드시 재발한다고 생각.

@@ -2,6 +2,8 @@
 // StoryLex 프로젝트: 인증 동시성, 상태 관리, 예외 처리
 
 export const storylex = {
+  id: 'storylex',
+
   summary: `
 영어 단어 학습의 대시보드부터 복습까지 일관된 흐름 제공.
 예외 처리와 상태 관리의 안정성을 최우선으로 설계한 프로젝트.

@@ -4,7 +4,7 @@ import { SUGGESTION_MAP } from "@/content/suggestions";
 // 시뮬레이션용 데이터 키 매핑 함수 (상태 업데이트 로직 검증)
 function getContextKey(query: string) {
   const results = searchKnowledge(query, 1);
-  return results.length > 0 ? results[0].key : null;
+  return results[0]?.id ?? null;
 }
 const testScenarios = [
   { query: "Rodia 디자인 시스템 설명해줘", expectedKey: "rodia" },

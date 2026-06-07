@@ -2,6 +2,8 @@
 // AI 시대의 개발 철학, 도구 활용, 의사결정
 
 export const aiEngineering = {
+  id: 'ai-engineering',
+
   summary: `
 AI는 코딩 병목을 제거하는 생산성 도구일 뿐, 기술적 의사결정(Thinking), 아키텍처 설계, 결과에 대한 책임은 인간 개발자의 몫.
 특정 AI 도구에 종속되지 않는 빠른 "적응력"을 중시.

@@ -2,12 +2,20 @@
 // 경력 경험: HiveLab (AI 데이터 검수)
 
 export const career = {
+  id: 'career',
+
   summary: `
 하이브랩에서 AI 학습 데이터 라벨링 및 검수 업무 담당.
 데이터의 양보다 품질과 일관성이 훨씬 중요하다는 점을 배운 경험.
   `.trim(),
 
   keywords: ['career', 'hivelab', '데이터', '품질', '라벨링', '검수'],
+
+  suggestedQuestions: [
+    'HiveLab에서 어떤 일을 했나요?',
+    '데이터 품질과 일관성이 왜 중요했나요?',
+    '반복 작업의 휴먼 에러를 어떻게 줄였나요?',
+  ],
 
   hivelab: {
     role: 'AI 학습 데이터 라벨링 및 검수',

@@ -11,9 +11,9 @@ interface ChatInputProps {
 
 const PLACEHOLDER_DATA: Record<string, string> = {
   hero: "포트폴리오 AI에게 질문하기",
-  rodia: "Rodia 프로젝트의 API 디버깅에 대해 물어보세요",
-  storylex: "StoryLex의 동시성 제어에 대해 물어보세요",
-  composer: "Composer의 아키텍처 설계에 대해 물어보세요",
+  experience: "경험과 데이터 품질 관점에 대해 물어보세요",
+  "core-values": "개발 가치관과 예외 처리 기준을 물어보세요",
+  projects: "Rodia, StoryLex, Portfolio AI에 대해 물어보세요",
   default: "메시지를 입력하세요...",
 };
 

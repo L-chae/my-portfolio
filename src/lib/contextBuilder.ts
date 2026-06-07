@@ -9,7 +9,7 @@ function valueToText(value: unknown): string {
 
   if (typeof value === "object" && value !== null) {
     return Object.entries(value as Record<string, unknown>)
-      .filter(([key, val]) => key !== "keywords" && val != null) // null/undefined 값 제외
+      .filter(([key, val]) => key !== "keywords" && key !== "id" && val != null) // 메타데이터/null/undefined 제외
       .map(([key, val]) => {
         const parsedVal = valueToText(val);
         // 들여쓰기와 [] 제거, 한 줄로 연결

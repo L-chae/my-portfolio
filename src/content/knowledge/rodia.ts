@@ -2,6 +2,8 @@
 // Rodia 프로젝트: 디자인 시스템, 모노레포, API 아키텍처
 
 export const rodia = {
+  id: 'rodia',
+
   summary: `
 웹과 모바일에서 동일한 디자인 경험을 제공하기 위해 구축한 모노레포 기반 디자인 시스템 및 API 아키텍처.
 단일 JSON 토큰에서 시작해 Zod 검증, Orval 자동화, Feature API 계층 설계까지 진행.

@@ -2,6 +2,8 @@
 // 자주 묻는 질문 (FAQ)
 
 export const faq = {
+  id: 'faq',
+
   summary: '포트폴리오 방문자가 자주 물어볼 만한 질문과 답변',
 
   keywords: ['faq', '질문', '팀', 'ai', '기여', '가치관', '목표'],

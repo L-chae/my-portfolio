@@ -118,7 +118,7 @@ export default function ChatBar() {
             {isTyping && <TypingIndicator />}
 
             <ChatSuggestions 
-              activeSection={activeSection} 
+              activeSection={activeSection}
               onSelect={handleSend} 
               messages={messages} 
               isTyping={isTyping} 

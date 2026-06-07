@@ -1,9 +1,7 @@
 import * as knowledge from "@/content/knowledge";
+import type { KnowledgeSection } from "@/types/knowledge";
 
-export interface KnowledgeSection {
-  keywords?: readonly string[];
-  [key: string]: unknown;
-}
+export type KnowledgeSearchResult = KnowledgeSection & { id: string };
 
 const knowledgeMap = knowledge as Record<string, KnowledgeSection>;
 
@@ -32,7 +30,7 @@ function extractTextForSearch(value: unknown): string {
   
   if (typeof value === "object" && value !== null) {
     return Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => key !== "keywords") // keywords 메타데이터 제외
+      .filter(([key]) => key !== "keywords" && key !== "id") // 메타데이터 제외
       .map(([, val]) => extractTextForSearch(val))
       .join(" ")
       .toLowerCase();
@@ -50,7 +48,7 @@ function normalizeToken(word: string): string {
   return clean;
 }
 
-export function searchKnowledge(question: string, limit = 1): KnowledgeSection[] {
+export function searchKnowledge(question: string, limit = 1): KnowledgeSearchResult[] {
   // 3. 쿼리 전처리 (공백 유지 버전 vs 공백 제거 버전)
   const rawQuery = question.toLowerCase();
   const cleanQuery = rawQuery.replace(/[^\w\s가-힣]/g, "").trim(); // 특수문자 제거된 원문
@@ -79,10 +77,12 @@ export function searchKnowledge(question: string, limit = 1): KnowledgeSection[]
   return Object.entries(knowledgeMap)
     .map(([key, section]) => {
       let score = 0;
-      const titleLower = key.toLowerCase();
+      const sectionId = typeof section.id === "string" ? section.id : key;
+      const idLower = sectionId.toLowerCase();
+      const exportKeyLower = key.toLowerCase();
 
       // [가중치 1] 섹션명 매칭
-      if (rawQuery.includes(titleLower)) {
+      if (rawQuery.includes(idLower) || rawQuery.includes(exportKeyLower)) {
         score += 30;
       }
 
@@ -112,7 +112,7 @@ export function searchKnowledge(question: string, limit = 1): KnowledgeSection[]
         }
       });
 
-      return { key, section, score };
+      return { key, section: { ...section, id: sectionId }, score };
     })
     .filter((item) => item.score >= 5) // 임계점
     .sort((a, b) => b.score - a.score)
