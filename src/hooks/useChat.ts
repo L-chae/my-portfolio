@@ -24,7 +24,7 @@ const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 const INITIAL_MESSAGE: Message = {
   id: createId(),
   role: "assistant",
-  content: "안녕하세요. 기능 구현을 넘어 예외 상황을 통제하는 프론트엔드 개발자 [이름]의 AI입니다. 무엇이든 물어보세요!",
+  content: "안녕하세요. 기능 구현을 넘어 예외 상황을 통제하는 프론트엔드 개발자 이채은의 AI입니다. 무엇이든 물어보세요!",
 };
 
 export const useChat = create<ChatStore>((set, get) => ({
@@ -85,6 +85,18 @@ export const useChat = create<ChatStore>((set, get) => ({
       let buffer = "";
       let rafId: number | null = null;
 
+      const flushBuffer = () => {
+        if (!buffer) return;
+
+        const text = buffer;
+        buffer = "";
+        set((state) => ({
+          messages: state.messages.map((msg) =>
+            msg.id === assistantId ? { ...msg, content: msg.content + text } : msg
+          ),
+        }));
+      };
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -93,23 +105,16 @@ export const useChat = create<ChatStore>((set, get) => ({
         if (rafId) cancelAnimationFrame(rafId);
 
         rafId = requestAnimationFrame(() => {
-          const text = buffer;
-          buffer = "";
-          set((state) => ({
-            messages: state.messages.map((msg) =>
-              msg.id === assistantId ? { ...msg, content: msg.content + text } : msg
-            ),
-          }));
+          rafId = null;
+          flushBuffer();
         });
       }
 
-      if (buffer) {
-        set((state) => ({
-          messages: state.messages.map((msg) =>
-            msg.id === assistantId ? { ...msg, content: msg.content + buffer } : msg
-          ),
-        }));
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
       }
+      flushBuffer();
 
       set({ isStreaming: false });
     } catch (error) {
