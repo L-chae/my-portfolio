@@ -55,7 +55,7 @@ function HeroPrompt() {
 
   return (
     <div
-      className="hero-item mt-9 w-full max-w-[620px]"
+      className="hero-item mt-9 w-full-155"
       style={{ animationDelay: "520ms" }}
     >
       <form
