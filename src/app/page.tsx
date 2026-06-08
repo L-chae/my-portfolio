@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "@/components/Header";
 import ChatBar from "@/components/chat/ChatBar";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
@@ -12,14 +11,13 @@ import ProjectsSection from "@/components/ProjectsSection";
 
 export default function Home() {
   return (
-    <main className="w-full h-full relative">
-      <Header />
+    <div className="w-full h-full relative">
       <ChatBar />
       <HeroSection />
       <ExperienceSection />
       <CoreValuesSection />
       <ProjectsSection />
       <Footer />
-    </main>
+    </div>
   );
 }
