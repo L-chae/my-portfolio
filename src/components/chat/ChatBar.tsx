@@ -10,6 +10,8 @@ import ChatSuggestions from "./ChatSuggestions";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 
+const SECTION_IDS = ["hero", "experience", "core-values", "projects"];
+
 export default function ChatBar() {
   const {
     isExpanded,
@@ -22,7 +24,7 @@ export default function ChatBar() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
-  const activeSection = useActiveSection(["hero", "experience", "projects", "core-values"]);
+  const activeSection = useActiveSection(SECTION_IDS);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 배경 화면 스크롤 잠금

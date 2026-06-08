@@ -80,7 +80,7 @@ export default function ProjectsSection() {
           {PROJECTS.map((project) => (
             <article
               key={project.projectKey}
-              className="scroll-reveal rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md md:p-8"
+              className="scroll-reveal scroll-mt-24 snap-start rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md md:scroll-mt-32 md:p-8"
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
