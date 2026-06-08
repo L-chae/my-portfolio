@@ -22,24 +22,24 @@ const SUGGESTED_TOPICS = [
 ] as const;
 
 function HeroPrompt() {
-  const [inputValue, setInputValue] = useState("");
+  const [heroInput, setHeroInput] = useState("");
   const isComposingRef = useRef(false);
   const { handleSend, setIsExpanded, isTyping, isStreaming } = useChat();
 
-  const sendQuestion = async (question: string) => {
+  const sendHeroQuestion = async (question: string) => {
     const trimmedQuestion = question.trim();
     if (!trimmedQuestion || isTyping || isStreaming) return;
 
     setIsExpanded(true);
-    setInputValue("");
     await handleSend(trimmedQuestion);
+    setHeroInput("");
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isComposingRef.current) return;
 
-    void sendQuestion(inputValue);
+    void sendHeroQuestion(heroInput);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -51,7 +51,7 @@ function HeroPrompt() {
     }
   };
 
-  const isDisabled = !inputValue.trim() || isTyping || isStreaming;
+  const canSend = heroInput.trim().length > 0 && !isTyping && !isStreaming;
 
   return (
     <div
@@ -70,8 +70,8 @@ function HeroPrompt() {
 
         <input
           type="text"
-          value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
+          value={heroInput}
+          onChange={(event) => setHeroInput(event.target.value)}
           onKeyDown={handleKeyDown}
           onCompositionStart={() => {
             isComposingRef.current = true;
@@ -85,11 +85,11 @@ function HeroPrompt() {
 
         <button
           type="submit"
-          disabled={isDisabled}
+          disabled={!canSend}
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
-            isDisabled
-              ? "cursor-not-allowed bg-slate-100 text-slate-400 ring-1 ring-slate-900/5"
-              : "bg-slate-950 text-white hover:bg-blue-600"
+            canSend
+              ? "bg-slate-950 text-white hover:bg-blue-600"
+              : "bg-slate-100 text-slate-400 ring-1 ring-slate-900/5"
           }`}
           aria-label="질문 보내기"
         >
@@ -105,7 +105,7 @@ function HeroPrompt() {
             data-chat-intent="open"
             data-chat-topic={question}
             onClick={() => {
-              void sendQuestion(question);
+              void sendHeroQuestion(question);
             }}
             className="rounded-full bg-white/40 px-3 py-1.5 text-xs font-medium text-slate-500 ring-1 ring-slate-900/5 transition-colors hover:bg-white/70 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
           >
