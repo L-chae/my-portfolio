@@ -1,47 +1,174 @@
-'use client';
+"use client";
 
 export default function Background() {
   return (
-    // fixed와 z-[-1]을 사용하여 모든 콘텐츠의 뒤에 깔리도록 설정
-    <div className="fixed inset-0 z-[-1] overflow-hidden bg-slate-50 pointer-events-none">
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#f7fbff] contain-layout contain-paint">
       <style>{`
-        @keyframes fluid-1 {
-          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-          50% { transform: translate3d(5vw, -5vh, 0) rotate(180deg) scale(1.1); }
+        @keyframes aurora-drift-1 {
+          0%, 100% {
+            transform: translate3d(-6vw, -2vh, 0) rotate(-18deg) scale(1);
+          }
+          50% {
+            transform: translate3d(8vw, 4vh, 0) rotate(-8deg) scale(1.24);
+          }
         }
-        @keyframes fluid-2 {
-          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-          50% { transform: translate3d(-5vw, 5vh, 0) rotate(-180deg) scale(1.2); }
+
+        @keyframes aurora-drift-2 {
+          0%, 100% {
+            transform: translate3d(6vw, 2vh, 0) rotate(14deg) scale(1);
+          }
+          50% {
+            transform: translate3d(-8vw, 5vh, 0) rotate(5deg) scale(1.28);
+          }
         }
-        @keyframes fluid-3 {
-          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-          50% { transform: translate3d(5vw, 5vh, 0) rotate(90deg) scale(0.9); }
+
+        @keyframes aurora-drift-3 {
+          0%, 100% {
+            transform: translate3d(0, 4vh, 0) rotate(10deg) scale(1);
+          }
+          50% {
+            transform: translate3d(5vw, -5vh, 0) rotate(20deg) scale(1.2);
+          }
         }
-        .blob {
+
+        .aurora-beam {
           position: absolute;
-          border-radius: 50%;
-          mix-blend-mode: multiply;
-          opacity: 0.6;
-          will-change: transform; /* 하드웨어 가속 유도 */
+          border-radius: 9999px;
+          filter: blur(150px);
+          will-change: transform;
+          transform-origin: center;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
         }
-        .blob-purple {
-          background: radial-gradient(circle, rgba(216,180,254,0.8) 0%, rgba(216,180,254,0) 70%);
-          animation: fluid-1 12s infinite ease-in-out;
+
+        .beam-purple {
+          top: 2%;
+          left: -18%;
+          width: 74vw;
+          height: 28vw;
+          min-width: 680px;
+          min-height: 260px;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(168, 85, 247, 0.74) 0%,
+            rgba(192, 132, 252, 0.42) 42%,
+            rgba(192, 132, 252, 0) 76%
+          );
+          animation-name: aurora-drift-1;
+          animation-duration: 22s;
         }
-        .blob-cyan {
-          background: radial-gradient(circle, rgba(103,232,249,0.8) 0%, rgba(103,232,249,0) 70%);
-          animation: fluid-2 15s infinite ease-in-out reverse;
+
+        .beam-cyan {
+          top: 22%;
+          right: -22%;
+          width: 82vw;
+          height: 30vw;
+          min-width: 760px;
+          min-height: 300px;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(34, 211, 238, 0.84) 0%,
+            rgba(125, 211, 252, 0.46) 44%,
+            rgba(125, 211, 252, 0) 78%
+          );
+          animation-name: aurora-drift-2;
+          animation-duration: 26s;
         }
-        .blob-blue {
-          background: radial-gradient(circle, rgba(191,219,254,0.8) 0%, rgba(191,219,254,0) 70%);
-          animation: fluid-3 14s infinite ease-in-out;
+
+        .beam-blue {
+          bottom: -12%;
+          left: 8%;
+          width: 86vw;
+          height: 32vw;
+          min-width: 780px;
+          min-height: 320px;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(96, 165, 250, 0.62) 0%,
+            rgba(147, 197, 253, 0.36) 42%,
+            rgba(147, 197, 253, 0) 76%
+          );
+          animation-name: aurora-drift-3;
+          animation-duration: 28s;
+        }
+
+        .aurora-wash {
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.18), transparent 28%),
+            linear-gradient(
+              180deg,
+              rgba(247, 251, 255, 0.04) 0%,
+              rgba(247, 251, 255, 0.18) 36%,
+              rgba(247, 251, 255, 0.48) 72%,
+              rgba(247, 251, 255, 0.72) 100%
+            );
+        }
+
+        .aurora-grid {
+          position: absolute;
+          inset: 0;
+          opacity: 0.04;
+          background-image:
+            linear-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+          background-size: 56px 56px;
+        }
+
+        @media (min-width: 768px) {
+          .aurora-beam {
+            mix-blend-mode: multiply;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .aurora-beam {
+            filter: blur(96px);
+            mix-blend-mode: normal;
+          }
+
+          .beam-purple {
+            top: 4%;
+            left: -38%;
+            width: 120vw;
+            height: 56vw;
+            min-width: 0;
+            min-height: 0;
+          }
+
+          .beam-cyan {
+            top: 30%;
+            right: -42%;
+            width: 128vw;
+            height: 62vw;
+            min-width: 0;
+            min-height: 0;
+          }
+
+          .beam-blue {
+            bottom: -6%;
+            left: -18%;
+            width: 126vw;
+            height: 64vw;
+            min-width: 0;
+            min-height: 0;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .aurora-beam {
+            animation: none;
+          }
         }
       `}</style>
-      
-      <div className="blob blob-purple -top-10 -left-10 w-[50vw] h-[50vw] max-w-150 max-h-150" />
-      <div className="blob blob-cyan top-1/4 -right-10 w-[60vw] h-[60vw] max-w-175 max-h-175" />
-      <div className="blob blob-blue -bottom-1/4 left-1/4 w-[70vw] h-[70vw] max-w-200 max-h-200" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-size[40px_40px]" />
+
+      <div className="aurora-beam beam-purple" />
+      <div className="aurora-beam beam-cyan" />
+      <div className="aurora-beam beam-blue" />
+
+      <div className="aurora-wash" />
+      <div className="aurora-grid" />
     </div>
   );
 }

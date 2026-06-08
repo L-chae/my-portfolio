@@ -38,6 +38,7 @@ function HeroPrompt() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isComposingRef.current) return;
+
     void sendQuestion(inputValue);
   };
 
@@ -66,6 +67,7 @@ function HeroPrompt() {
           className="ml-1 shrink-0 text-blue-600 transition-transform group-hover:scale-110"
           aria-hidden="true"
         />
+
         <input
           type="text"
           value={inputValue}
@@ -80,14 +82,15 @@ function HeroPrompt() {
           placeholder="프로젝트와 기술 선택 과정을 물어보세요"
           className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm font-medium text-slate-950 placeholder:text-slate-400 focus:outline-none"
         />
+
         <button
           type="submit"
           disabled={isDisabled}
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
-  isDisabled
-    ? "cursor-not-allowed bg-slate-100 text-slate-400 ring-1 ring-slate-900/5"
-    : "bg-slate-950 text-white hover:bg-blue-600"
-}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
+            isDisabled
+              ? "cursor-not-allowed bg-slate-100 text-slate-400 ring-1 ring-slate-900/5"
+              : "bg-slate-950 text-white hover:bg-blue-600"
+          }`}
           aria-label="질문 보내기"
         >
           <Send size={14} className="translate-x-px" />
@@ -114,8 +117,7 @@ function HeroPrompt() {
       <div className="mt-5 flex justify-center">
         <a
           href="#projects"
-         className="hero-item inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
-          style={{ animationDelay: "640ms" }}
+          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
         >
           Projects 보기
           <ArrowUpRight size={14} aria-hidden="true" />
@@ -144,10 +146,10 @@ export default function HeroSection() {
   }, []);
 
   return (
-<section
-  id="hero"
-  className="relative min-h-[92vh] overflow-hidden px-6 pt-28 pb-14 md:pt-32 md:pb-20"
->
+    <section
+      id="hero"
+      className="relative min-h-[92vh] overflow-hidden px-6 pt-28 pb-14 md:pt-32 md:pb-20"
+    >
       <style>{`
         @keyframes hero-fade-up {
           from { opacity: 0; transform: translateY(16px); }
