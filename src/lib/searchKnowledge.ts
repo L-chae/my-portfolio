@@ -33,11 +33,13 @@ export interface RetrievalOptions {
   currentTopicHint?: string | null;
   messages?: readonly ChatMessageLike[];
   minScore?: number;
+  skipRewrite?: boolean;
 }
 
 interface KnowledgeChunk extends Omit<KnowledgeSearchResult, "score"> {
   document: string;
   tokens: string[];
+  termFrequencies: Record<string, number>;
 }
 
 const knowledgeMap = knowledge as KnowledgeMap;
@@ -508,6 +510,14 @@ function createChunk(
   const document = [sourceId, title, summary, explanation, tags.join(" ")]
     .filter(Boolean)
     .join("\n");
+  const tokens = tokenize(normalizeProjectAlias(document));
+  const termFrequencies = tokens.reduce<Record<string, number>>(
+    (acc, token) => {
+      acc[token] = (acc[token] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
   return {
     id,
@@ -517,7 +527,8 @@ function createChunk(
     explanation,
     tags,
     document,
-    tokens: tokenize(normalizeProjectAlias(document)),
+    tokens,
+    termFrequencies,
   };
 }
 
@@ -626,16 +637,8 @@ const documentFrequencies = knowledgeChunks.reduce<Record<string, number>>(
 function bm25Score(queryTokens: readonly string[], chunk: KnowledgeChunk) {
   if (queryTokens.length === 0 || chunk.tokens.length === 0) return 0;
 
-  const termFrequencies = chunk.tokens.reduce<Record<string, number>>(
-    (acc, token) => {
-      acc[token] = (acc[token] ?? 0) + 1;
-      return acc;
-    },
-    {},
-  );
-
   return queryTokens.reduce((score, token) => {
-    const termFrequency = termFrequencies[token] ?? 0;
+    const termFrequency = chunk.termFrequencies[token] ?? 0;
     if (termFrequency === 0) return score;
 
     const documentFrequency = documentFrequencies[token] ?? 0;
@@ -660,10 +663,9 @@ function bm25Score(queryTokens: readonly string[], chunk: KnowledgeChunk) {
 function rankChunks(query: string, limit: number, options: RetrievalOptions) {
   const normalizedHint = normalizeTopicHint(options.currentTopicHint);
   const aliasNormalizedQuery = normalizeProjectAlias(query);
-  const rewrittenQuery = rewriteQuery(
-    aliasNormalizedQuery,
-    options.messages ?? [],
-  );
+  const rewrittenQuery = options.skipRewrite
+    ? aliasNormalizedQuery
+    : rewriteQuery(aliasNormalizedQuery, options.messages ?? []);
   const expandedTokens = expandQuery(rewrittenQuery);
   const mentionedSourceIds = getMentionedSourceIds(rewrittenQuery);
 

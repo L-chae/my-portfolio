@@ -152,7 +152,7 @@ export default function Header() {
           onClick={() => scrollToSection('hero')}
           className="text-lg font-extrabold text-slate-900 tracking-tight hover:opacity-70 transition-opacity"
         >
-          Minjun<span className="text-blue-600">.dev</span>
+          Lee<span className="text-blue-600">.dev</span>
         </button>
 
         <nav

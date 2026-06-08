@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import { findPreparedAnswer } from "@/lib/preparedAnswers";
-import { searchKnowledge } from "@/lib/searchKnowledge";
 
 export interface Message {
   id: string;
@@ -28,23 +26,6 @@ const INITIAL_MESSAGE: Message = {
   role: "assistant",
   content: "안녕하세요. 기능 구현을 넘어 예외 상황을 통제하는 프론트엔드 개발자 [이름]의 AI입니다. 무엇이든 물어보세요!",
 };
-
-async function streamPreparedAnswer(
-  answer: string,
-  assistantId: string,
-  set: (partial: ChatStore | Partial<ChatStore> | ((state: ChatStore) => ChatStore | Partial<ChatStore>)) => void
-) {
-  let current = "";
-  for (const char of answer) {
-    await new Promise((resolve) => setTimeout(resolve, 6));
-    current += char;
-    set((state) => ({
-      messages: state.messages.map((msg) =>
-        msg.id === assistantId ? { ...msg, content: current } : msg
-      ),
-    }));
-  }
-}
 
 export const useChat = create<ChatStore>((set, get) => ({
   isExpanded: false,
@@ -74,22 +55,6 @@ export const useChat = create<ChatStore>((set, get) => ({
     }));
 
     const assistantId = createId();
-    const localRetrieval = searchKnowledge(trimmedContent, 1, { currentTopicHint })[0];
-    const nextTopicHint = localRetrieval?.sourceId ?? currentTopicHint;
-    set({ currentTopicHint: nextTopicHint });
-
-    const preparedAnswer = findPreparedAnswer(trimmedContent);
-    if (preparedAnswer) {
-      set((state) => ({
-        messages: [...state.messages, { id: assistantId, role: "assistant", content: "" }],
-        isStreaming: true,
-        isTyping: false,
-      }));
-
-      await streamPreparedAnswer(preparedAnswer, assistantId, set);
-      set({ isStreaming: false });
-      return;
-    }
 
     try {
       const currentMessages = get().messages.slice(-5).map(({ role, content }) => ({ role, content }));
@@ -98,13 +63,16 @@ export const useChat = create<ChatStore>((set, get) => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          currentTopicHint: nextTopicHint,
+          currentTopicHint,
           messages: currentMessages,
         }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (!res.body) throw new Error("No response body");
+
+      const nextTopicHint = res.headers.get("X-Current-Topic-Hint");
+      if (nextTopicHint) set({ currentTopicHint: nextTopicHint });
 
       set((state) => ({
         messages: [...state.messages, { id: assistantId, role: "assistant", content: "" }],

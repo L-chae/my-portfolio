@@ -6,26 +6,38 @@ import { streamText } from "ai";
 import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { rewriteQuery, searchKnowledge } from "@/lib/searchKnowledge";
 import { buildContextPrompt } from "@/lib/contextBuilder";
+import { findPreparedAnswer } from "@/lib/preparedAnswers";
 
 type Message = {
   role: "user" | "assistant" | "system";
   content: string;
 };
 
-function clarificationResponse() {
+function createTextResponse(text: string, topicHint?: string | null, status = 200) {
   return new Response(
-    "질문과 연결할 수 있는 포트폴리오 데이터가 충분하지 않습니다. Rodia, StoryLex, HiveLab 경험, AI 활용 방식처럼 조금 더 구체적인 주제로 다시 물어봐 주세요.",
+    text,
     {
+      status,
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
+        ...(topicHint ? { "X-Current-Topic-Hint": topicHint } : {}),
       },
     },
+  );
+}
+
+function clarificationResponse(topicHint?: string | null) {
+  return createTextResponse(
+    "질문과 연결할 수 있는 포트폴리오 데이터가 충분하지 않습니다. Rodia, StoryLex, HiveLab 경험, AI 활용 방식처럼 조금 더 구체적인 주제로 다시 물어봐 주세요.",
+    topicHint,
   );
 }
 
 export async function POST(req: Request) {
   try {
     const { currentTopicHint, messages } = await req.json();
+    const normalizedCurrentTopicHint =
+      typeof currentTopicHint === "string" ? currentTopicHint : null;
 
     const recentMessages: Message[] = messages.slice(-3);
     const lastUserMessage = [...recentMessages]
@@ -35,12 +47,18 @@ export async function POST(req: Request) {
     const question = lastUserMessage?.content ?? "";
     const rewrittenQuery = rewriteQuery(question, recentMessages.slice(-4));
     const sections = searchKnowledge(rewrittenQuery, 3, {
-      currentTopicHint:
-        typeof currentTopicHint === "string" ? currentTopicHint : null,
+      currentTopicHint: normalizedCurrentTopicHint,
+      skipRewrite: true,
     });
+    const nextTopicHint = sections[0]?.sourceId ?? normalizedCurrentTopicHint;
+
+    const preparedAnswer = findPreparedAnswer(question);
+    if (preparedAnswer) {
+      return createTextResponse(preparedAnswer, nextTopicHint);
+    }
 
     if (sections.length === 0) {
-      return clarificationResponse();
+      return clarificationResponse(nextTopicHint);
     }
 
     const { context, included } = buildContextPrompt(sections);
@@ -71,6 +89,7 @@ ${rewrittenQuery}`,
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Transfer-Encoding": "chunked",
+        ...(nextTopicHint ? { "X-Current-Topic-Hint": nextTopicHint } : {}),
       },
     });
   } catch (error) {
