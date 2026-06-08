@@ -148,7 +148,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-[92vh] overflow-hidden px-6 pt-28 pb-14 md:pt-32 md:pb-20"
+      className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden px-6 py-20 md:py-24"
     >
       <style>{`
         @keyframes hero-fade-up {
