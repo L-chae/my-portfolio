@@ -30,12 +30,12 @@ interface ChatMessageItemProps {
 
 const markdownComponents: Components = {
   h2: ({ children }) => (
-    <h2 className="text-[15px] font-bold text-slate-900 mt-6 mb-2 pb-1.5 border-b border-slate-100 first:mt-0">
+    <h2 className="mt-6 mb-2 border-b border-slate-100 pb-1.5 text-[15px] font-bold text-slate-900 first:mt-0">
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-[13.5px] font-semibold text-slate-800 mt-4 mb-1.5 first:mt-0">
+    <h3 className="mt-4 mb-1.5 text-[13.5px] font-semibold text-slate-800 first:mt-0">
       {children}
     </h3>
   ),
@@ -48,18 +48,17 @@ const markdownComponents: Components = {
     <strong className="font-semibold text-slate-900">{children}</strong>
   ),
   ul: ({ children }) => (
-    <ul className="mb-3 space-y-1.5 text-slate-700">{children}</ul>
+    <ul className="my-3 list-disc space-y-1.5 pl-5 text-slate-700 marker:text-slate-300">
+      {children}
+    </ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-3 space-y-1.5 pl-5 text-slate-700 list-decimal marker:text-slate-400">
+    <ol className="my-3 list-decimal space-y-1.5 pl-5 text-slate-700 marker:text-slate-300">
       {children}
     </ol>
   ),
   li: ({ children }) => (
-    <li className="flex items-start gap-2 text-[14px] leading-[1.7] list-none">
-      <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
-      <span>{children}</span>
-    </li>
+    <li className="text-[14px] leading-[1.8]">{children}</li>
   ),
   table: ({ children }) => (
     <div className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
@@ -67,16 +66,16 @@ const markdownComponents: Components = {
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-slate-50 border-b border-slate-200">{children}</thead>
+    <thead className="border-b border-slate-200 bg-slate-50">{children}</thead>
   ),
   tbody: ({ children }) => (
     <tbody className="divide-y divide-slate-100">{children}</tbody>
   ),
   tr: ({ children }) => (
-    <tr className="hover:bg-slate-50/60 transition-colors">{children}</tr>
+    <tr className="transition-colors hover:bg-slate-50/60">{children}</tr>
   ),
   th: ({ children }) => (
-    <th className="px-4 py-2.5 text-left text-[12px] font-semibold text-slate-500 uppercase tracking-wide">
+    <th className="px-4 py-2.5 text-left text-[12px] font-semibold uppercase tracking-wide text-slate-500">
       {children}
     </th>
   ),
@@ -85,7 +84,7 @@ const markdownComponents: Components = {
   ),
   hr: () => <hr className="my-5 border-slate-100" />,
   blockquote: ({ children }) => (
-    <blockquote className="my-3 rounded-r-xl border-l-[3px] border-blue-400 bg-blue-50/50 py-2.5 px-4 text-[13.5px] text-slate-600 italic">
+    <blockquote className="my-3 rounded-r-xl border-l-[3px] border-slate-300 bg-slate-50/70 px-4 py-2.5 text-[13.5px] text-slate-600">
       {children}
     </blockquote>
   ),
@@ -97,7 +96,7 @@ const markdownComponents: Components = {
 
     if (isInline) {
       return (
-        <code className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[12px] text-blue-600">
+        <code className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[12px] text-slate-700">
           {children}
         </code>
       );

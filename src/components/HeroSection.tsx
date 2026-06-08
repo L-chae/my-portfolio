@@ -9,7 +9,7 @@ const FULL_TEXT = "Frontend Developer";
 const SUGGESTED_TOPICS = [
   {
     label: "StoryLex 401 에러",
-    question: "StoryLex 401 에러 해결 과정 물어보기",
+    question: "StoryLex 401 에러 해결 과정 알려줘",
   },
   {
     label: "Rodia API 흐름",
