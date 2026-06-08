@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useActiveSection } from "@/hooks/useActiveSection";
@@ -51,10 +51,24 @@ export default function ChatBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleExpanded = (expanded: boolean) => {
+  const toggleExpanded = useCallback((expanded: boolean) => {
     if (!expanded) setIsFullScreen(false);
     setIsExpanded(expanded);
-  };
+  }, [setIsExpanded]);
+
+  useEffect(() => {
+    const handleChatIntent = (event: MouseEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const trigger = event.target.closest('[data-chat-intent="open"]');
+      if (!trigger) return;
+
+      event.preventDefault();
+      toggleExpanded(true);
+    };
+
+    document.addEventListener("click", handleChatIntent);
+    return () => document.removeEventListener("click", handleChatIntent);
+  }, [toggleExpanded]);
 
   return (
     <>
@@ -93,9 +107,7 @@ export default function ChatBar() {
             ? isFullScreen
               ? "inset-0 w-full max-w-full h-full bg-slate-50 rounded-none shadow-none border-none opacity-100"
               : "bottom-[2dvh] sm:bottom-[5dvh] w-[96vw] max-w-2xl h-[92dvh] sm:h-[85dvh] bg-slate-50 shadow-2xl border border-slate-200/80 rounded-[28px] overflow-hidden opacity-100 scale-100"
-            : !isScrolled
-              ? "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-100 scale-100"
-              : "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
+            : "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
         }`}
       >
         
@@ -126,13 +138,15 @@ export default function ChatBar() {
           </div>
         </div>
 
-        <ChatInput 
-          activeSection={activeSection} 
-          isExpanded={isExpanded} 
-          isTyping={isTyping} 
-          onSend={handleSend} 
-          onExpand={() => toggleExpanded(true)} 
-        />
+        {isExpanded && (
+          <ChatInput 
+            activeSection={activeSection} 
+            isExpanded={isExpanded} 
+            isTyping={isTyping} 
+            onSend={handleSend} 
+            onExpand={() => toggleExpanded(true)} 
+          />
+        )}
         
       </div>
     </>
