@@ -5,17 +5,17 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'inverse';
 type ButtonSize = 'sm' | 'md' | 'icon';
 
 const baseClass =
-  'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:hover:bg-slate-100';
+  'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full font-bold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-faint disabled:shadow-none disabled:hover:bg-surface-muted';
 
 const variantClass: Record<ButtonVariant, string> = {
   primary:
-    'bg-blue-600 text-white shadow-sm shadow-blue-600/10 hover:bg-blue-700',
+    'bg-brand text-white shadow-brand hover:bg-brand-hover',
   secondary:
-    'border border-slate-200 bg-white/75 text-slate-700 hover:bg-white hover:text-slate-950',
+    'border border-line bg-surface text-navy hover:bg-surface-soft',
   ghost:
-    'text-slate-500 hover:text-slate-950',
+    'text-ink-muted hover:text-navy',
   inverse:
-    'bg-white text-slate-950 shadow-sm hover:bg-slate-100 focus-visible:ring-white/25',
+    'bg-white text-navy shadow-sm hover:bg-accent-pale focus-visible:ring-white/25',
 };
 
 const sizeClass: Record<ButtonSize, string> = {

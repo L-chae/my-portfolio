@@ -8,16 +8,16 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-slate-200 bg-slate-50 py-12 px-6">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-        <p className="text-center text-xs leading-6 text-zinc-500 md:text-left">
+    <footer className="border-t border-line-dark bg-navy px-6 py-12 text-white">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 md:flex-row">
+        <p className="text-center text-xs leading-6 text-white/60 md:text-left">
           © 2026 이채은. Built with Next.js, TypeScript, and Portfolio AI. All rights reserved.
         </p>
 
         <button
           type="button"
           onClick={scrollToTop}
-          className="flex items-center gap-1.5 p-2 text-[12px] font-bold text-zinc-500 transition-colors hover:text-slate-900"
+          className="flex items-center gap-1.5 rounded-full border border-line-dark px-3 py-2 text-[12px] font-bold text-white/70 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
         >
           TOP <ArrowUp size={14} />
         </button>

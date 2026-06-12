@@ -3,9 +3,9 @@ import type { HTMLAttributes } from 'react';
 type BadgeTone = 'neutral' | 'accent' | 'muted';
 
 const toneClass: Record<BadgeTone, string> = {
-  neutral: 'border-slate-200 bg-white/70 text-slate-500',
-  accent: 'border-blue-100 bg-blue-50/70 text-blue-700',
-  muted: 'border-transparent bg-transparent text-slate-400',
+  neutral: 'border-line bg-surface-soft text-ink-muted',
+  accent: 'border-accent-soft bg-accent-soft text-accent',
+  muted: 'border-transparent bg-transparent text-ink-faint',
 };
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {

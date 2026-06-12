@@ -9,56 +9,88 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 디지털 정원 메인 모노톤 및 포인트 컬러
+        base: "#F7FBFF",
         surface: {
-          DEFAULT: '#ffffff',
-          muted: '#f8f9ff',  // slate-50 대체
-          border: '#f1f5f9', // slate-100 대체
+          DEFAULT: "#FFFFFF",
+          soft: "#F1F7FF",
+          muted: "#EAF2FC",
+        },
+        navy: {
+          DEFAULT: "#07111F",
+          soft: "#0F1E33",
+          subtle: "#172A46",
+        },
+        ink: {
+          DEFAULT: "#334155",
+          muted: "#64748B",
+          faint: "#94A3B8",
+        },
+        line: {
+          DEFAULT: "#DDE7F3",
+          soft: "rgba(221, 231, 243, 0.7)",
+          dark: "rgba(255, 255, 255, 0.12)",
         },
         brand: {
-          primary: '#2563eb', // blue-600
-          accent: '#06b6d4',  // cyan-500
-          blob1: '#d8b4fe',
-          blob2: '#67e8f9',
-          blob3: '#bfdbfe',
-        }
+          DEFAULT: "#2563EB",
+          hover: "#1D4ED8",
+          soft: "#DBEAFE",
+        },
+        accent: {
+          DEFAULT: "#A78BFA",
+          soft: "#EDE9FE",
+          pale: "#F5F3FF",
+        },
+      },
+      boxShadow: {
+        card: "0 10px 30px rgba(15, 23, 42, 0.045)",
+        soft: "0 8px 28px rgba(15, 23, 42, 0.055)",
+        brand: "0 8px 20px rgba(37, 99, 235, 0.22)",
       },
       fontFamily: {
-        // 로컬/웹 폰트 변수 매핑
-        sans: ['var(--font-pretendard)', 'Inter', 'sans-serif'],
-        display: ['var(--font-syne)', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        sans: ["var(--font-pretendard)", "Inter", "sans-serif"],
+        display: ["var(--font-syne)", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "monospace"],
       },
       fontSize: {
-        // 섹션 라벨 등 반복 사용되는 특수 타이포그래피 규격화
-        'label': ['0.6875rem', { letterSpacing: '0.2em', fontWeight: '700' }], // 11px
+        label: ["0.6875rem", { letterSpacing: "0.2em", fontWeight: "700" }],
       },
       spacing: {
-        // 섹션 간 통일된 여백 강제
-        'section-y': '8rem', // 128px
+        "section-y": "8rem",
       },
       animation: {
-        // Hero 섹션의 Fluid Blob 애니메이션 전역화
-        'fluid-1': 'fluid-1 12s infinite ease-in-out',
-        'fluid-2': 'fluid-2 15s infinite ease-in-out reverse',
-        'fluid-3': 'fluid-3 14s infinite ease-in-out',
+        "fluid-1": "fluid-1 12s infinite ease-in-out",
+        "fluid-2": "fluid-2 15s infinite ease-in-out reverse",
+        "fluid-3": "fluid-3 14s infinite ease-in-out",
       },
       keyframes: {
-        'fluid-1': {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0) rotate(0deg) scale(1)' },
-          '50%': { transform: 'translate3d(5vw, -5vh, 0) rotate(180deg) scale(1.1)' },
+        "fluid-1": {
+          "0%, 100%": {
+            transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)",
+          },
+          "50%": {
+            transform: "translate3d(5vw, -5vh, 0) rotate(180deg) scale(1.1)",
+          },
         },
-        'fluid-2': {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0) rotate(0deg) scale(1)' },
-          '50%': { transform: 'translate3d(-5vw, 5vh, 0) rotate(-180deg) scale(1.2)' },
+        "fluid-2": {
+          "0%, 100%": {
+            transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)",
+          },
+          "50%": {
+            transform: "translate3d(-5vw, 5vh, 0) rotate(-180deg) scale(1.2)",
+          },
         },
-        'fluid-3': {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0) rotate(0deg) scale(1)' },
-          '50%': { transform: 'translate3d(5vw, 5vh, 0) rotate(90deg) scale(0.9)' },
+        "fluid-3": {
+          "0%, 100%": {
+            transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)",
+          },
+          "50%": {
+            transform: "translate3d(5vw, 5vh, 0) rotate(90deg) scale(0.9)",
+          },
         },
       },
     },
   },
   plugins: [],
 };
+
 export default config;

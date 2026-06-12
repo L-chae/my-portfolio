@@ -8,10 +8,10 @@ interface SectionHeadingProps {
 export function SectionHeading({ eyebrow, children }: SectionHeadingProps) {
   return (
     <>
-      <h2 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-600 md:mb-4">
+      <h2 className="mb-3 text-2xl font-bold uppercase leading-tight text-brand md:mb-4 md:text-3xl">
         {eyebrow}
       </h2>
-      <h3 className="text-3xl font-extrabold leading-tight text-slate-900 break-keep md:text-2xl">
+      <h3 className="text-xl font-semibold leading-8 text-navy break-keep md:text-2xl">
         {children}
       </h3>
     </>

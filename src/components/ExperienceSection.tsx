@@ -24,25 +24,25 @@ export default function ExperienceSection() {
       <SectionLayout
         id="experience"
         aside={
-          <SectionHeading eyebrow="Experience">
+          <SectionHeading eyebrow="EXPERIENCE">
             데이터의 품질이 <br className="hidden md:block" />
             로직을 결정합니다.
           </SectionHeading>
         }
       >
         <article className="scroll-reveal space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 pb-6 border-b border-slate-200/60">
-            <h4 className="text-2xl sm:text-xl font-bold text-slate-900">HiveLab</h4>
-            <span className="text-[15px] sm:text-sm font-medium text-slate-500 break-keep">
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 pb-6 border-b border-line/70">
+            <h4 className="text-2xl sm:text-xl font-bold text-navy">HiveLab</h4>
+            <span className="text-[15px] sm:text-sm font-medium text-ink-muted break-keep">
               AI 학습 데이터 검수 및 관리
             </span>
-            <span className="text-[13px] font-semibold text-slate-400 sm:ml-auto mt-2 sm:mt-0">
+            <span className="text-[13px] font-semibold text-ink-faint sm:ml-auto mt-2 sm:mt-0">
               2020.09 - 현재
             </span>
           </div>
 
-          <SurfaceCard className="rounded-3xl bg-white/60 p-6 transition-shadow hover:shadow-md md:p-8">
-            <p className="text-[15px] font-medium text-slate-700 leading-relaxed break-keep">
+          <SurfaceCard className="rounded-3xl p-6 transition-shadow hover:shadow-soft md:p-8">
+            <p className="text-[15px] font-medium text-ink leading-relaxed break-keep">
               &quot;수만 건의 AI 학습 데이터를 검수하며 체득한 &apos;데이터 일관성&apos;의 감각을,
               프론트엔드 상태 관리와 예외 흐름(Edge Case) 방어 로직에 적용하고 있습니다.&quot;
             </p>
@@ -51,9 +51,9 @@ export default function ExperienceSection() {
           <ul className="space-y-5 pt-2">
             {EXPERIENCE_ITEMS.map(({ label, text }) => (
               <li key={label} className="flex gap-4 items-start">
-                <span className="text-blue-500 mt-1 shrink-0" aria-hidden="true">✦</span>
-                <p className="text-[15px] md:text-[14px] text-slate-600 leading-relaxed break-keep">
-                  <strong className="text-slate-900">{label}</strong> {text}
+                <span className="text-accent mt-1 shrink-0" aria-hidden="true">✦</span>
+                <p className="text-[15px] md:text-[14px] text-ink leading-relaxed break-keep">
+                  <strong className="text-navy">{label}</strong> {text}
                 </p>
               </li>
             ))}

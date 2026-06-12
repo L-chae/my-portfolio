@@ -50,15 +50,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,30%)_minmax(0,70%)] lg:gap-16">
           <aside className="self-start">
-            <p className="text-sm font-semibold text-slate-500">
+            <p className="text-sm font-semibold text-ink-muted">
               {project.displayLabel}
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-slate-950 break-keep md:text-5xl">
+            <h1 className="mt-4 text-4xl font-bold text-navy break-keep md:text-5xl">
               {project.name}
             </h1>
 
-            <p className="mt-5 text-[15px] leading-8 text-slate-600 break-keep">
+            <p className="mt-5 text-[15px] leading-8 text-ink break-keep">
               {project.summary}
             </p>
 
@@ -76,26 +76,26 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <SurfaceCard
                 as="section"
                 key={key}
-                className="bg-white/75 p-6 md:p-7"
+                className="p-6 md:p-7"
               >
-                <h2 className="text-sm font-bold text-slate-950">
+                <h2 className="text-sm font-bold text-navy">
                   {title}
                 </h2>
-                <p className="mt-3 text-[15px] leading-8 text-slate-600 break-keep">
-                  <strong className="font-semibold text-slate-900">
+                <p className="mt-3 text-[15px] leading-8 text-ink break-keep">
+                  <strong className="font-semibold text-navy">
                     {key === 'problem' ? project.problem : project[key]}
                   </strong>
                 </p>
               </SurfaceCard>
             ))}
 
-            <section className="rounded-2xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm md:p-7">
+            <section className="rounded-2xl border border-line-dark bg-navy p-6 text-white shadow-card md:p-7">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-sm font-bold">
                     이 프로젝트에 대해 AI에게 질문하기
                   </h2>
-                  <p className="mt-2 text-sm leading-7 text-slate-300 break-keep">
+                  <p className="mt-2 text-sm leading-7 text-white/60 break-keep">
                     상세 내용을 읽다가 궁금한 지점을 바로 이어서 물어볼 수 있습니다.
                   </p>
                 </div>

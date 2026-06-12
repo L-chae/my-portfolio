@@ -61,11 +61,11 @@ function HeroPrompt() {
     >
       <form
         onSubmit={handleSubmit}
-        className="group flex h-14 w-full items-center gap-2 rounded-full bg-white/90 px-4 text-left ring-1 ring-slate-900/10 shadow-xl shadow-slate-950/5 transition-all duration-200 hover:bg-white hover:ring-slate-900/20 focus-within:ring-4 focus-within:ring-blue-500/15"
+        className="group flex h-14 w-full items-center gap-2 rounded-full bg-surface/90 px-4 text-left ring-1 ring-line shadow-card transition-all duration-200 hover:bg-surface hover:ring-line focus-within:ring-4 focus-within:ring-brand/15"
       >
         <Sparkles
           size={18}
-          className="ml-1 shrink-0 text-blue-600 transition-transform group-hover:scale-110"
+          className="ml-1 shrink-0 text-brand transition-transform group-hover:scale-110"
           aria-hidden="true"
         />
 
@@ -81,7 +81,7 @@ function HeroPrompt() {
             isComposingRef.current = false;
           }}
           placeholder="프로젝트와 기술 선택 과정을 물어보세요"
-          className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm font-medium text-slate-950 placeholder:text-slate-400 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm font-medium text-navy placeholder:text-ink-faint focus:outline-none"
         />
 
         <Button
@@ -118,7 +118,6 @@ function HeroPrompt() {
           href="#projects"
           variant="ghost"
           size="sm"
-          className="uppercase tracking-[0.14em]"
         >
           Projects 보기
           <ArrowUpRight size={14} aria-hidden="true" />
@@ -149,7 +148,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden px-6 py-20 md:py-24"
+      className="relative flex min-h-screen scroll-mt-24 items-center overflow-hidden px-6 pb-20 pt-28 md:pb-24 md:pt-32"
     >
       <style>{`
         @keyframes hero-fade-up {
@@ -172,15 +171,15 @@ export default function HeroSection() {
 
       <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
         <div
-          className="hero-item font-mono text-sm font-bold uppercase tracking-widest text-blue-600"
+          className="hero-item text-sm font-semibold text-brand"
           style={{ animationDelay: "0ms" }}
         >
           {typedText}
-          <span className="animate-pulse text-blue-500">|</span>
+          <span className="animate-pulse text-brand">|</span>
         </div>
 
         <h1
-          className="hero-item mt-6 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 break-keep sm:text-5xl md:text-6xl"
+          className="hero-item mt-6 max-w-4xl text-4xl font-bold leading-[1.08] text-navy break-keep sm:text-5xl md:text-6xl"
           style={{ animationDelay: "150ms" }}
         >
           경험과 고민을
@@ -189,7 +188,7 @@ export default function HeroSection() {
         </h1>
 
         <p
-          className="hero-item mt-5 max-w-2xl text-base leading-8 text-slate-600 break-keep"
+          className="hero-item mt-5 max-w-2xl text-base leading-8 text-ink break-keep"
           style={{ animationDelay: "280ms" }}
         >
           구현 과정부터 기술적 선택의 근거까지, 무엇이든 물어보세요.

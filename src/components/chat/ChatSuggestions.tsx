@@ -28,7 +28,7 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
 
   return (
     <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <p className="text-[13px] font-bold text-slate-400">
+      <p className="text-[13px] font-bold text-ink-faint">
         {isInitialState ? "첫 질문을 선택해 대화를 시작해 보세요" : "현재 내용과 관련된 후속 질문"}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -38,8 +38,8 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
             onClick={() => onSelect(suggestion)}
             className={`px-4 py-2 text-[14px] font-medium transition-all shadow-sm text-left break-keep rounded-xl border ${
               isInitialState
-                ? "bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300"
-                : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300"
+                ? "bg-brand-soft/70 hover:bg-brand-soft text-brand border-brand-soft hover:border-brand/30"
+                : "bg-surface hover:bg-surface-soft text-ink hover:text-navy border-line hover:border-brand/30"
             }`}
           >
             {suggestion}

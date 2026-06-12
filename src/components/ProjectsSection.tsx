@@ -18,7 +18,7 @@ export default function ProjectsSection() {
       <SectionLayout
         id="projects"
         aside={
-          <SectionHeading eyebrow="Projects">
+          <SectionHeading eyebrow="PROJECTS">
             문제를 정의하고 <br className="hidden md:block" />
             흐름을 개선합니다.
           </SectionHeading>
@@ -29,12 +29,12 @@ export default function ProjectsSection() {
             <SurfaceCard
               as="article"
               key={project.projectKey}
-              className="scroll-reveal scroll-mt-24 rounded-3xl bg-white/60 p-6 transition-shadow hover:shadow-md md:scroll-mt-32 md:p-8"
+              className="scroll-reveal scroll-mt-24 rounded-3xl p-6 transition-shadow hover:shadow-soft md:scroll-mt-32 md:p-8"
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-500">
+                    <span className="text-sm font-semibold text-ink-muted">
                       {project.displayLabel}
                     </span>
 
@@ -45,38 +45,38 @@ export default function ProjectsSection() {
                     )}
                   </div>
 
-                  <h4 className="text-2xl font-extrabold tracking-tight text-slate-900 md:text-[28px]">
+                  <h4 className="text-2xl font-bold text-navy md:text-[28px]">
                     <Link
                       href={`/projects/${project.projectKey}`}
-                      className="transition-colors hover:text-slate-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
+                      className="transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15"
                     >
                       {project.name}
                     </Link>
                   </h4>
 
-                  <p className="mt-2 text-[15px] leading-relaxed text-slate-600 break-keep">
+                  <p className="mt-2 text-[15px] leading-relaxed text-ink break-keep">
                     {project.summary}
                   </p>
                 </div>
 
               </div>
 
-              <SurfaceCard className="mt-6 rounded-3xl bg-white/55 p-5 md:p-6">
+              <SurfaceCard className="mt-6 rounded-2xl border-line/80 bg-surface-soft/60 p-5 md:p-6">
                 <div className="grid gap-5 md:grid-cols-2">
                   <section>
-                    <h5 className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                    <h5 className="text-sm font-semibold text-ink-muted">
                       Problem
                     </h5>
-                    <p className="mt-2 text-[14px] leading-relaxed text-slate-700 break-keep">
+                    <p className="mt-2 text-[14px] leading-relaxed text-ink break-keep">
                       {project.problem}
                     </p>
                   </section>
 
                   <section>
-                    <h5 className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                    <h5 className="text-sm font-semibold text-ink-muted">
                       Solution
                     </h5>
-                    <p className="mt-2 text-[14px] leading-relaxed text-slate-700 break-keep">
+                    <p className="mt-2 text-[14px] leading-relaxed text-ink break-keep">
                       {project.solution}
                     </p>
                   </section>
@@ -85,33 +85,33 @@ export default function ProjectsSection() {
 
               <ul className="mt-5 space-y-4">
                 <li className="flex items-start gap-4">
-                  <span className="mt-1 shrink-0 text-blue-500" aria-hidden="true">
+                  <span className="mt-1 shrink-0 text-accent" aria-hidden="true">
                     ✦
                   </span>
-                  <p className="text-[15px] leading-relaxed text-slate-600 break-keep md:text-[14px]">
-                    <strong className="text-slate-900">Technical Decision:</strong>{' '}
+                  <p className="text-[15px] leading-relaxed text-ink break-keep md:text-[14px]">
+                    <strong className="text-navy">Technical Decision:</strong>{' '}
                     {project.technicalDecision}
                   </p>
                 </li>
 
                 <li className="flex items-start gap-4">
-                  <span className="mt-1 shrink-0 text-blue-500" aria-hidden="true">
+                  <span className="mt-1 shrink-0 text-accent" aria-hidden="true">
                     ✦
                   </span>
-                  <p className="text-[15px] leading-relaxed text-slate-600 break-keep md:text-[14px]">
-                    <strong className="text-slate-900">Trade-off:</strong>{' '}
+                  <p className="text-[15px] leading-relaxed text-ink break-keep md:text-[14px]">
+                    <strong className="text-navy">Trade-off:</strong>{' '}
                     {project.tradeOff}
                   </p>
                 </li>
               </ul>
 
-              <div className="mt-6 flex flex-col gap-4 border-t border-slate-200/60 pt-5 md:flex-row md:items-center md:justify-between">
-                <p className="text-xs font-medium leading-6 text-slate-500">
+              <div className="mt-6 flex flex-col gap-4 border-t border-line/70 pt-5 md:flex-row md:items-center md:justify-between">
+                <p className="text-xs font-medium leading-6 text-ink-muted">
                   {project.techStack.map((tech, index) => (
                     <span key={tech}>
                       {tech}
                       {index < project.techStack.length - 1 && (
-                        <span className="mx-2 text-slate-300">•</span>
+                        <span className="mx-2 text-ink-faint">•</span>
                       )}
                     </span>
                   ))}
@@ -130,7 +130,7 @@ export default function ProjectsSection() {
                     <a
                       key={link.label}
                       href={link.href}
-                      className="text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950"
+                      className="text-sm font-semibold text-ink transition-colors hover:text-navy"
                     >
                       {link.label}
                     </a>
