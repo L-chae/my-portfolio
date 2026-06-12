@@ -3,6 +3,7 @@
 import { Shield, Database, TerminalSquare } from "lucide-react";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import { SectionLayout } from "./ui/SectionLayout";
+import { SectionHeading } from "./ui/SectionHeading";
 
 const CORE_VALUES = [
   {
@@ -33,16 +34,11 @@ export default function CoreValuesSection() {
       <SectionLayout
         id="core-values"
         aside={
-          <>
-            <h2 className="text-xs font-bold tracking-[0.2em] text-blue-600 uppercase mb-3 md:mb-4">
-              Core Values
-            </h2>
-            <h3 className="text-3xl md:text-2xl font-extrabold text-slate-900 leading-tight break-keep">
-              기능 구현보다 <br className="hidden md:block" />
-              유지보수 비용을 <br className="hidden md:block" />
-              고민합니다.
-            </h3>
-          </>
+          <SectionHeading eyebrow="Core Values">
+            기능 구현보다 <br className="hidden md:block" />
+            유지보수 비용을 <br className="hidden md:block" />
+            고민합니다.
+          </SectionHeading>
         }
       >
         <div className="space-y-12 md:space-y-16">

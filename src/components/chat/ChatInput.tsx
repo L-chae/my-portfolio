@@ -33,7 +33,7 @@ export default function ChatInput({
     if (!isExpanded) return;
 
     const timer = setTimeout(() => {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     }, 150);
 
     return () => clearTimeout(timer);

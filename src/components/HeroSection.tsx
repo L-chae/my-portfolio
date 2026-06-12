@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Send, Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
+import { Button, LinkButton } from "@/components/ui/Button";
 
 const FULL_TEXT = "Frontend Developer";
 
@@ -83,45 +84,45 @@ function HeroPrompt() {
           className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm font-medium text-slate-950 placeholder:text-slate-400 focus:outline-none"
         />
 
-        <button
+        <Button
           type="submit"
           disabled={!canSend}
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
-            canSend
-              ? "bg-slate-950 text-white hover:bg-blue-600"
-              : "bg-slate-100 text-slate-400 ring-1 ring-slate-900/5"
-          }`}
+          variant="primary"
+          size="icon"
           aria-label="질문 보내기"
         >
           <Send size={14} className="translate-x-px" />
-        </button>
+        </Button>
       </form>
 
       <div className="mt-3 flex flex-wrap justify-center gap-2">
         {SUGGESTED_TOPICS.map(({ label, question }) => (
-          <button
+          <Button
             key={label}
             type="button"
+            variant="secondary"
+            size="sm"
             data-chat-intent="open"
             data-chat-topic={question}
             onClick={() => {
               void sendHeroQuestion(question);
             }}
-            className="rounded-full bg-white/40 px-3 py-1.5 text-xs font-medium text-slate-500 ring-1 ring-slate-900/5 transition-colors hover:bg-white/70 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
       <div className="mt-5 flex justify-center">
-        <a
+        <LinkButton
           href="#projects"
-          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15"
+          variant="ghost"
+          size="sm"
+          className="uppercase tracking-[0.14em]"
         >
           Projects 보기
           <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
+        </LinkButton>
       </div>
     </div>
   );

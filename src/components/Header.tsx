@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -13,6 +14,8 @@ const NAV_ITEMS = [
 const HEADER_HEIGHT = 64;
 
 export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState('hero');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,6 +26,12 @@ export default function Header() {
   const isClickScrolling = useRef(false);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollRafRef = useRef<number | null>(null);
+  const isHomePage = pathname === '/';
+  const activeNavSection = isHomePage
+    ? activeSection
+    : pathname.startsWith('/projects')
+      ? 'projects'
+      : 'hero';
 
   // 모바일 메뉴 오픈 시 배경 스크롤 차단
   useEffect(() => {
@@ -35,7 +44,7 @@ export default function Header() {
   useEffect(() => {
     if (!navRef.current) return;
     const activeEl = navRef.current.querySelector(
-      `[data-id="${activeSection}"]`
+      `[data-id="${activeNavSection}"]`
     ) as HTMLElement | null;
     if (!activeEl) return;
     setIndicator({
@@ -43,9 +52,14 @@ export default function Header() {
       width: activeEl.offsetWidth,
       opacity: 1,
     });
-  }, [activeSection]);
+  }, [activeNavSection]);
 
   const calculateOffsets = useCallback(() => {
+    if (!isHomePage) {
+      sectionOffsets.current = [];
+      return;
+    }
+
     sectionOffsets.current = NAV_ITEMS.map(({ id }) => {
       const el = document.getElementById(id);
       return {
@@ -53,11 +67,13 @@ export default function Header() {
         top: el ? el.getBoundingClientRect().top + window.scrollY : 0,
       };
     });
-  }, []);
+  }, [isHomePage]);
 
   const evaluateScrollPosition = useCallback(() => {
     const scrollY = window.scrollY;
-    setIsScrolled(scrollY > 20); // 💡 투명도 변화를 더 민감하게(50->20) 감지
+    setIsScrolled(scrollY > 20);
+
+    if (!isHomePage) return;
 
     if (isClickScrolling.current || sectionOffsets.current.length === 0) return;
 
@@ -75,10 +91,15 @@ export default function Header() {
     }
     
     setActiveSection(current);
-  }, []);
+  }, [isHomePage]);
 
   // 새로고침 시 인디케이터 즉시 동기화 로직 포함
   useEffect(() => {
+    if (!isHomePage) {
+      sectionOffsets.current = [];
+      return;
+    }
+
     calculateOffsets();
     
     const initTimer = setTimeout(() => {
@@ -98,7 +119,7 @@ export default function Header() {
       window.removeEventListener('load', handleLoadAndResize);
       window.removeEventListener('resize', handleLoadAndResize);
     };
-  }, [calculateOffsets, evaluateScrollPosition]);
+  }, [calculateOffsets, evaluateScrollPosition, isHomePage]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,21 +138,27 @@ export default function Header() {
   }, [evaluateScrollPosition]);
 
   const scrollToSection = useCallback((id: string) => {
+    setIsMobileMenuOpen(false);
+
+    if (!isHomePage) {
+      router.push(`/#${id}`);
+      return;
+    }
+
     const el = document.getElementById(id);
     if (!el) return;
 
     isClickScrolling.current = true;
     setActiveSection(id);
-    setIsMobileMenuOpen(false);
 
     const offsetTop = el.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT;
-    window.scrollTo({ top: Math.max(0, offsetTop), behavior: 'smooth' });
+    window.scrollTo({ top: Math.max(0, offsetTop), behavior: 'auto' });
 
     if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
     clickTimeoutRef.current = setTimeout(() => {
       isClickScrolling.current = false;
     }, 1000);
-  }, []);
+  }, [isHomePage, router]);
 
   useEffect(() => {
     return () => {
@@ -149,6 +176,7 @@ export default function Header() {
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
         <button
+          type="button"
           onClick={() => scrollToSection('hero')}
           className="text-lg font-extrabold text-slate-900 tracking-tight hover:opacity-70 transition-opacity"
         >
@@ -162,10 +190,11 @@ export default function Header() {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
+              type="button"
               data-id={item.id}
               onClick={() => scrollToSection(item.id)}
               className={`py-5 transition-colors duration-200 ${
-                activeSection === item.id ? 'text-slate-900' : 'hover:text-slate-900'
+                activeNavSection === item.id ? 'text-slate-900' : 'hover:text-slate-900'
               }`}
             >
               {item.label}
@@ -176,12 +205,13 @@ export default function Header() {
             style={{
               transform: `translateX(${indicator.left}px)`,
               width: `${indicator.width}px`,
-              opacity: indicator.opacity,
+              opacity: isHomePage ? indicator.opacity : 0,
             }}
           />
         </nav>
 
         <button
+          type="button"
           className="md:hidden p-2 text-slate-900 transition-transform"
           aria-label={isMobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -199,9 +229,10 @@ export default function Header() {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => scrollToSection(item.id)}
               className={`text-left py-2 transition-colors uppercase tracking-widest ${
-                activeSection === item.id ? 'text-blue-600' : 'hover:text-slate-900'
+                activeNavSection === item.id ? 'text-blue-600' : 'hover:text-slate-900'
               }`}
             >
               {item.label}

@@ -9,21 +9,13 @@
     --card-border: rgba(15, 23, 42, 0.06);
   }
   html {
-    scroll-snap-type: y mandatory;
     scroll-padding-top: 64px;
   }
   body {
     font-family: "Pretendard", sans-serif;
     background-color: var(--bg-page);
     color: var(--text-main);
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
-  }
-  section {
-    scroll-snap-align: start;
-  }
-  footer {
-    scroll-snap-align: end;
   }
 }
 
@@ -75,18 +67,18 @@
     left: -100px;
     background: radial-gradient(
       circle,
-      #93c5fd,
+      rgba(147, 197, 253, 0.42),
       transparent 70%
-    ); /* 블루 강화 */
+    );
   }
   .hero-gradient::after {
     bottom: -100px;
     right: -100px;
     background: radial-gradient(
       circle,
-      #c084fc,
+      rgba(192, 132, 252, 0.34),
       transparent 70%
-    ); /* 퍼플 강화 */
+    );
   }
 
   /* Glow Card */
@@ -111,14 +103,14 @@
     pointer-events: none;
     background: radial-gradient(
       500px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
-      rgba(37, 99, 235, 0.08),
+      rgba(51, 65, 85, 0.06),
       transparent 50%
     );
     transition: opacity 0.6s ease;
   }
   .glow-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(37, 99, 235, 0.2);
+    border-color: rgba(51, 65, 85, 0.16);
   }
   .glow-card:hover::before {
     opacity: 1;
@@ -132,31 +124,24 @@
 /* --- 유틸리티 및 애니메이션 --- */
 @layer utilities {
   .reveal {
-    opacity: 0;
-    transform: translateY(15px);
-    transition:
-      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 1;
+    transform: none;
   }
   .reveal.active {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 
   .scroll-reveal {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity 500ms ease-out,
-      transform 500ms ease-out;
-      visibility: hidden;
-      
+    opacity: 1;
+    transform: none;
+    visibility: visible;
   }
 
   .scroll-reveal.is-visible {
     opacity: 1;
-    transform: translateY(0);
-      visibility: visible;
+    transform: none;
+    visibility: visible;
   }
 }
 

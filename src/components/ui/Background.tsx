@@ -50,8 +50,8 @@ export default function Background() {
           min-height: 260px;
           background: radial-gradient(
             ellipse at center,
-            rgba(168, 85, 247, 0.74) 0%,
-            rgba(192, 132, 252, 0.42) 42%,
+            rgba(168, 85, 247, 0.42) 0%,
+            rgba(192, 132, 252, 0.24) 42%,
             rgba(192, 132, 252, 0) 76%
           );
           animation-name: aurora-drift-1;
@@ -67,8 +67,8 @@ export default function Background() {
           min-height: 300px;
           background: radial-gradient(
             ellipse at center,
-            rgba(34, 211, 238, 0.84) 0%,
-            rgba(125, 211, 252, 0.46) 44%,
+            rgba(34, 211, 238, 0.46) 0%,
+            rgba(125, 211, 252, 0.26) 44%,
             rgba(125, 211, 252, 0) 78%
           );
           animation-name: aurora-drift-2;
@@ -84,8 +84,8 @@ export default function Background() {
           min-height: 320px;
           background: radial-gradient(
             ellipse at center,
-            rgba(96, 165, 250, 0.62) 0%,
-            rgba(147, 197, 253, 0.36) 42%,
+            rgba(96, 165, 250, 0.36) 0%,
+            rgba(147, 197, 253, 0.22) 42%,
             rgba(147, 197, 253, 0) 76%
           );
           animation-name: aurora-drift-3;
@@ -96,13 +96,13 @@ export default function Background() {
           position: absolute;
           inset: 0;
           background:
-            radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.18), transparent 28%),
+            radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.22), transparent 28%),
             linear-gradient(
               180deg,
-              rgba(247, 251, 255, 0.04) 0%,
-              rgba(247, 251, 255, 0.18) 36%,
-              rgba(247, 251, 255, 0.48) 72%,
-              rgba(247, 251, 255, 0.72) 100%
+              rgba(247, 251, 255, 0.08) 0%,
+              rgba(247, 251, 255, 0.22) 36%,
+              rgba(247, 251, 255, 0.54) 72%,
+              rgba(247, 251, 255, 0.78) 100%
             );
         }
 

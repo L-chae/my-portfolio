@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { Button } from "@/components/ui/Button";
 
 import ChatHeader from "./ChatHeader";
 import ChatMessageItem from "./ChatMessageItem";
@@ -91,16 +92,18 @@ export default function ChatBar() {
             : "opacity-0 translate-y-8 scale-90 pointer-events-none"
         }`}
       >
-        <button
+        <Button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             toggleExpanded(true);
           }}
-          className="group h-14 px-5 bg-blue-600 text-white rounded-full shadow-[0_4px_20px_rgba(37,99,235,0.35)] hover:bg-blue-700 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)] flex items-center justify-center gap-2.5 transition-all duration-300 hover:-translate-y-1"
+          variant="primary"
+          className="group h-14 px-5 text-[15px] shadow-md shadow-blue-600/15"
         >
           <Sparkles size={20} className="transition-transform duration-300 group-hover:scale-110" />
           <span className="font-semibold text-[15px] tracking-tight">AI 질문하기</span>
-        </button>
+        </Button>
       </div>
 
       <div

@@ -2,6 +2,8 @@
 
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SectionLayout } from './ui/SectionLayout';
+import { SectionHeading } from './ui/SectionHeading';
+import { SurfaceCard } from './ui/SurfaceCard';
 
 const EXPERIENCE_ITEMS = [
   {
@@ -22,15 +24,10 @@ export default function ExperienceSection() {
       <SectionLayout
         id="experience"
         aside={
-          <>
-            <h2 className="text-xs font-bold tracking-[0.2em] text-blue-600 uppercase mb-3 md:mb-4">
-              Experience
-            </h2>
-            <h3 className="text-3xl md:text-2xl font-extrabold text-slate-900 leading-tight break-keep">
-              데이터의 품질이 <br className="hidden md:block" />
-              로직을 결정합니다.
-            </h3>
-          </>
+          <SectionHeading eyebrow="Experience">
+            데이터의 품질이 <br className="hidden md:block" />
+            로직을 결정합니다.
+          </SectionHeading>
         }
       >
         <article className="scroll-reveal space-y-6">
@@ -44,12 +41,12 @@ export default function ExperienceSection() {
             </span>
           </div>
 
-          <div className="p-6 md:p-8 bg-white/60 backdrop-blur-sm border border-slate-200/60 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+          <SurfaceCard className="rounded-3xl bg-white/60 p-6 transition-shadow hover:shadow-md md:p-8">
             <p className="text-[15px] font-medium text-slate-700 leading-relaxed break-keep">
               &quot;수만 건의 AI 학습 데이터를 검수하며 체득한 &apos;데이터 일관성&apos;의 감각을,
               프론트엔드 상태 관리와 예외 흐름(Edge Case) 방어 로직에 적용하고 있습니다.&quot;
             </p>
-          </div>
+          </SurfaceCard>
 
           <ul className="space-y-5 pt-2">
             {EXPERIENCE_ITEMS.map(({ label, text }) => (
