@@ -8,16 +8,16 @@ import { Button, LinkButton } from "@/components/ui/Button";
 const FULL_TEXT = "Frontend Developer";
 
 const SUGGESTED_TOPICS = [
-  {
-    label: "StoryLex 401 에러",
+   {
+    label: "토큰 만료 처리",
     question: "StoryLex 401 에러 해결 과정 알려줘",
   },
   {
-    label: "Rodia API 흐름",
+    label: "API 변경 관리",
     question: "Rodia API 흐름은 어떻게 개선했나요?",
   },
   {
-    label: "AI 챗봇 환각 방지",
+    label: "AI 답변 신뢰도",
     question: "AI 챗봇의 환각 방지는 어떻게 했나요?",
   },
 ] as const;

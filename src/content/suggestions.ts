@@ -35,8 +35,8 @@ export const SUGGESTION_MAP: Record<string, readonly string[]> = {
 
   rodia: [
     "Rodia 아키텍처를 더 자세히 설명해 줘",
-    "모노레포를 도입한 이유는?",
-    "Orval과 Feature API를 왜 분리했나요?",
+    "Orval을 도입한 구체적인 이유는?",
+    "생성 API도 공통 요청 규칙을 어떻게 적용했나요?",
   ],
 
   storylex: [

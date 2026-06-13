@@ -1,4 +1,5 @@
 import * as knowledge from "@/content/knowledge";
+import { rodia } from "@/content/knowledge/rodia";
 import { storylex } from "@/content/knowledge/storylex";
 import type { EvidenceImage, KnowledgeSection } from "@/types/knowledge";
 import type { KnowledgeSearchResult } from "@/lib/searchKnowledge";
@@ -27,6 +28,8 @@ const STORYLEX_AUTH_EVIDENCE_IDS = [
   "storylex-auth-refresh-success",
   "storylex-auth-refresh-failure",
 ] as const;
+
+const RODIA_API_DEBUG_EVIDENCE_ID = "rodia-api-debug-curl" as const;
 
 const STORYLEX_VISUAL_EVIDENCE_TERMS = [
   "캡처",
@@ -66,7 +69,31 @@ const STORYLEX_AUTH_TOPIC_TERMS = [
   "확인",
 ];
 
+const RODIA_API_DEBUG_TOPIC_TERMS = [
+  "rodia",
+  "로디아",
+  "인앱api디버거",
+  "인앱디버거",
+  "api디버거",
+  "apidebuglogs",
+  "api debug logs",
+  "debuglogs",
+  "curl",
+  "모바일통신",
+  "모바일api",
+  "통신문제",
+  "재현가능",
+  "재현가능한요청",
+  "요청재현",
+  "api로그",
+  "로그",
+  "디버깅",
+  "네트워크",
+  "network",
+];
+
 const SUCCESS_TERMS = ["성공", "복구", "200", "재시도성공", "refresh성공"];
+
 const FAILURE_TERMS = [
   "실패",
   "400",
@@ -131,6 +158,12 @@ const STORYLEX_AUTH_SUGGESTED_ACTIONS = {
   },
 } satisfies Record<string, SuggestedAction>;
 
+const RODIA_API_DEBUG_SUGGESTED_ACTION = {
+  id: "rodia-api-debug-curl-capture",
+  label: "API Debug Logs 흐름 보기",
+  prompt: "Rodia API Debug Logs 캡처 보여줘",
+} satisfies SuggestedAction;
+
 const STORYLEX_AUTH_ACTION_META = {
   title: "관련 검증 자료",
   description:
@@ -141,6 +174,12 @@ const STORYLEX_MSW_ACTION_META = {
   title: "MSW 검증 자료",
   description:
     "MSW로 재현한 refresh 성공/실패 흐름을 캡처로 확인할 수 있습니다.",
+} as const;
+
+const RODIA_API_DEBUG_ACTION_META = {
+  title: "API Debug Logs 자료",
+  description:
+    "모바일에서는 Network 탭을 바로 공유하기 어렵기 때문에, 앱 내부 로그와 cURL 재현 흐름을 캡처로 확인할 수 있습니다.",
 } as const;
 
 const STORYLEX_AUTH_EVIDENCE_GROUPS = {
@@ -167,6 +206,13 @@ const STORYLEX_AUTH_EVIDENCE_GROUPS = {
   },
 } satisfies Record<string, EvidenceImageGroup>;
 
+const RODIA_API_DEBUG_EVIDENCE_GROUP = {
+  title: "API Debug Logs 흐름",
+  description:
+    "이 자료는 React Native 앱 내부에서 API 요청 실패 로그를 확인하고, cURL로 같은 요청을 재현 가능한 형태로 공유하는 흐름을 보여줍니다.",
+  imageIds: [RODIA_API_DEBUG_EVIDENCE_ID],
+} satisfies EvidenceImageGroup;
+
 function normalize(value: string) {
   return value.toLowerCase().replace(/\s+/g, "");
 }
@@ -184,18 +230,17 @@ function isEvidenceImage(value: unknown): value is EvidenceImage {
 }
 
 function createEvidenceImageRegistry() {
-  return Object.values(knowledge as KnowledgeMap).reduce<Record<string, EvidenceImage>>(
-    (registry, section) => {
-      Object.entries(section.evidenceImages ?? {}).forEach(([id, image]) => {
-        if (image.id === id && isEvidenceImage(image)) {
-          registry[id] = image;
-        }
-      });
+  return Object.values(knowledge as KnowledgeMap).reduce<
+    Record<string, EvidenceImage>
+  >((registry, section) => {
+    Object.entries(section.evidenceImages ?? {}).forEach(([id, image]) => {
+      if (image.id === id && isEvidenceImage(image)) {
+        registry[id] = image;
+      }
+    });
 
-      return registry;
-    },
-    {},
-  );
+    return registry;
+  }, {});
 }
 
 export const evidenceImagesById = createEvidenceImageRegistry();
@@ -207,9 +252,17 @@ export function getEvidenceImagesByIds(ids: readonly string[] = []) {
 }
 
 export function getEvidenceImageGroupByIds(ids: readonly string[] = []) {
-  const validIds = new Set(getEvidenceImagesByIds(ids).map((image) => image.id));
+  const validIds = new Set(
+    getEvidenceImagesByIds(ids).map((image) => image.id),
+  );
+
   const hasSuccess = validIds.has("storylex-auth-refresh-success");
   const hasFailure = validIds.has("storylex-auth-refresh-failure");
+  const hasRodiaApiDebug = validIds.has(RODIA_API_DEBUG_EVIDENCE_ID);
+
+  if (hasRodiaApiDebug) {
+    return RODIA_API_DEBUG_EVIDENCE_GROUP;
+  }
 
   if (hasSuccess && hasFailure) {
     return STORYLEX_AUTH_EVIDENCE_GROUPS.combined;
@@ -249,6 +302,44 @@ function isStoryLexQuestion(
   );
 }
 
+function isRodiaQuestion(
+  text: string,
+  sections: readonly Pick<KnowledgeSearchResult, "sourceId">[],
+) {
+  return (
+    text.includes("rodia") ||
+    text.includes("로디아") ||
+    sections.some((section) => section.sourceId === "rodia")
+  );
+}
+
+function hasRodiaApiDebugIntent(text: string) {
+  return hasAnyTerm(text, RODIA_API_DEBUG_TOPIC_TERMS);
+}
+
+function getStringArrayProperty(value: unknown, key: string) {
+  if (typeof value !== "object" || value === null || !(key in value)) {
+    return [];
+  }
+
+  const candidate = (value as Record<string, unknown>)[key];
+
+  if (!Array.isArray(candidate)) {
+    return [];
+  }
+
+  return candidate.filter((item): item is string => typeof item === "string");
+}
+
+function getRodiaFollowUpEvidenceIds(text: string) {
+  const matchedQuestion = rodia.followUpQuestions.find((item) => {
+    const normalizedQuestion = normalize(item.question);
+    return text.includes(normalizedQuestion) || normalizedQuestion.includes(text);
+  });
+
+  return getStringArrayProperty(matchedQuestion, "evidenceImageIds");
+}
+
 function getStoryLexFollowUpEvidenceIds(text: string) {
   const matchedQuestion = storylex.followUpQuestions.find((item) => {
     const normalizedQuestion = normalize(item.question);
@@ -269,6 +360,24 @@ export function findEvidenceImageIds(params: {
 }) {
   const text = normalize(`${params.question} ${params.rewrittenQuery}`);
 
+  if (isRodiaQuestion(text, params.sections)) {
+    if (!hasDirectImageIntent(text)) {
+      return [];
+    }
+
+    const followUpEvidenceIds = getRodiaFollowUpEvidenceIds(text);
+
+    if (followUpEvidenceIds.length > 0) {
+      return filterExistingEvidenceIds(followUpEvidenceIds);
+    }
+
+    if (hasRodiaApiDebugIntent(text)) {
+      return filterExistingEvidenceIds([RODIA_API_DEBUG_EVIDENCE_ID]);
+    }
+
+    return [];
+  }
+
   if (!isStoryLexQuestion(text, params.sections)) {
     return [];
   }
@@ -278,6 +387,7 @@ export function findEvidenceImageIds(params: {
   }
 
   const followUpEvidenceIds = getStoryLexFollowUpEvidenceIds(text);
+
   if (followUpEvidenceIds.length > 0) {
     return filterExistingEvidenceIds(followUpEvidenceIds);
   }
@@ -307,6 +417,17 @@ export function findSuggestedActionsPayload(params: {
   sections: readonly Pick<KnowledgeSearchResult, "sourceId">[];
 }): SuggestedActionsPayload | null {
   const text = normalize(`${params.question} ${params.rewrittenQuery}`);
+
+  if (
+    isRodiaQuestion(text, params.sections) &&
+    !hasDirectImageIntent(text) &&
+    hasRodiaApiDebugIntent(text)
+  ) {
+    return {
+      ...RODIA_API_DEBUG_ACTION_META,
+      actions: [RODIA_API_DEBUG_SUGGESTED_ACTION],
+    };
+  }
 
   if (!isStoryLexQuestion(text, params.sections) || hasDirectImageIntent(text)) {
     return null;
