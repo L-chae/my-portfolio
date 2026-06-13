@@ -61,7 +61,7 @@ function HeroPrompt() {
     >
       <form
         onSubmit={handleSubmit}
-        className="group flex h-14 w-full items-center gap-2 rounded-full bg-surface/90 px-4 text-left ring-1 ring-line shadow-card transition-all duration-200 hover:bg-surface hover:ring-line focus-within:ring-4 focus-within:ring-brand/15"
+        className="group flex h-14 w-full items-center gap-2 rounded-pill bg-surface-glass px-4 text-left ring-1 ring-line shadow-card transition-all duration-200 hover:bg-surface hover:ring-line focus-within:ring-4 focus-within:ring-brand-ring"
       >
         <Sparkles
           size={18}

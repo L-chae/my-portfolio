@@ -295,7 +295,7 @@ export default function Header() {
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
         isScrolled || isMobileMenuOpen
-          ? 'border-line/80 bg-base/80 shadow-soft backdrop-blur-xl'
+          ? 'border-line-soft bg-surface-glass shadow-soft backdrop-blur-xl'
           : 'border-transparent bg-transparent'
       }`}
     >
@@ -324,7 +324,7 @@ export default function Header() {
                 data-id={item.id}
                 aria-current={isActive ? 'page' : undefined}
                 onClick={(event) => handleNavClick(item, event)}
-                className={`relative py-5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
+                className={`relative py-5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${
                   isActive
                     ? 'text-navy'
                     : 'hover:text-navy'
@@ -351,7 +351,7 @@ export default function Header() {
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-navy transition-colors hover:bg-surface/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-navy transition-colors hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring md:hidden"
         >
           {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -359,7 +359,7 @@ export default function Header() {
 
       <div
         id="mobile-navigation"
-        className={`absolute inset-x-0 top-full overflow-hidden border-t border-line/70 bg-base/90 shadow-soft backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
+        className={`absolute inset-x-0 top-full overflow-hidden border-t border-line-soft bg-surface-glass shadow-soft backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
           isMobileMenuOpen
             ? 'max-h-72 opacity-100'
             : 'pointer-events-none max-h-0 opacity-0'

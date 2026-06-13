@@ -15,7 +15,6 @@ export interface ProjectDetail {
   techStack: string[];
   links: { label: string; href: string }[];
   aiQuestion: string;
-  featured?: boolean;
 }
 
 export const PROJECTS_MOCK: ProjectDetail[] = [
@@ -44,7 +43,6 @@ export const PROJECTS_MOCK: ProjectDetail[] = [
     techStack: ['React', 'JavaScript JSX', 'React Query', 'Zustand', 'Axios', 'MSW'],
     links: [],
     aiQuestion: 'StoryLex 401 에러 해결 과정 알려줘',
-    featured: true,
   },
   {
     projectKey: 'rodia',

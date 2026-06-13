@@ -5,7 +5,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'inverse';
 type ButtonSize = 'sm' | 'md' | 'icon';
 
 const baseClass =
-  'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full font-bold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-faint disabled:shadow-none disabled:hover:bg-surface-muted';
+  'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-pill font-bold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-faint disabled:shadow-none disabled:hover:bg-surface-muted';
 
 const variantClass: Record<ButtonVariant, string> = {
   primary:
@@ -15,7 +15,7 @@ const variantClass: Record<ButtonVariant, string> = {
   ghost:
     'text-ink-muted hover:text-navy',
   inverse:
-    'bg-white text-navy shadow-sm hover:bg-accent-pale focus-visible:ring-white/25',
+    'bg-surface text-navy shadow-card hover:bg-accent-pale',
 };
 
 const sizeClass: Record<ButtonSize, string> = {

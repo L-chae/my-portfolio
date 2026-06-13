@@ -17,7 +17,7 @@ export default function Footer() {
         <button
           type="button"
           onClick={scrollToTop}
-          className="flex items-center gap-1.5 rounded-full border border-line-dark px-3 py-2 text-[12px] font-bold text-white/70 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
+          className="flex items-center gap-1.5 rounded-pill border border-line-dark bg-navy px-3 py-2 text-[12px] font-bold text-white/70 transition-colors hover:bg-navy-soft hover:text-white"
         >
           TOP <ArrowUp size={14} />
         </button>

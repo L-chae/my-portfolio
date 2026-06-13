@@ -16,7 +16,7 @@ export function SurfaceCard({
   return createElement(
     as,
     {
-      className: `rounded-2xl border border-line bg-surface/85 shadow-card backdrop-blur-sm ${className}`,
+      className: `rounded-card border border-line bg-surface-glass shadow-card backdrop-blur-sm ${className}`,
       ...props,
     },
     children

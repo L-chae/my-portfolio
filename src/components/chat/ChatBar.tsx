@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
@@ -14,64 +15,78 @@ import TypingIndicator from "./TypingIndicator";
 const SECTION_IDS = ["hero", "experience", "core-values", "projects"];
 
 export default function ChatBar() {
-  const {
-    isExpanded,
-    setIsExpanded,
-    isTyping,
-    messages,
-    handleSend,
-  } = useChat();
+  const { isExpanded, setIsExpanded, isTyping, messages, handleSend } =
+    useChat();
 
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  
+
   const activeSection = useActiveSection(SECTION_IDS);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 배경 화면 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = isExpanded ? "hidden" : "unset";
-    return () => { document.body.style.overflow = "unset"; };
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isExpanded]);
 
-  // 오토 스크롤
   useEffect(() => {
-    if (scrollRef.current) {
-      setTimeout(() => {
-        scrollRef.current?.scrollTo({
-          top: scrollRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }, 50);
-    }
+    if (!scrollRef.current) return;
+
+    const timer = setTimeout(() => {
+      scrollRef.current?.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [messages, isTyping]);
 
-  // 스크롤 감지 (300px 이상일 때 FAB 노출)
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 300);
+
     window.addEventListener("scroll", handleScroll);
     handleScroll();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleExpanded = useCallback((expanded: boolean) => {
-    if (!expanded) setIsFullScreen(false);
-    setIsExpanded(expanded);
-  }, [setIsExpanded]);
+  const toggleExpanded = useCallback(
+    (expanded: boolean) => {
+      if (!expanded) setIsFullScreen(false);
+      setIsExpanded(expanded);
+    },
+    [setIsExpanded],
+  );
 
   useEffect(() => {
     const handleChatIntent = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
+
       const trigger = event.target.closest('[data-chat-intent="open"]');
+
       if (!trigger) return;
 
       event.preventDefault();
+
+      const topic = trigger.getAttribute("data-chat-topic")?.trim();
+
       toggleExpanded(true);
+
+      if (!topic || isTyping) return;
+
+      window.setTimeout(() => {
+        handleSend(topic);
+      }, 0);
     };
 
     document.addEventListener("click", handleChatIntent);
+
     return () => document.removeEventListener("click", handleChatIntent);
-  }, [toggleExpanded]);
+  }, [toggleExpanded, handleSend, isTyping]);
 
   return (
     <>
@@ -84,7 +99,6 @@ export default function ChatBar() {
         }}
       />
 
-      {/* FAB: 스크롤 조건만 확인하여 항상 유지 */}
       <div
         className={`fixed bottom-6 right-6 z-40 flex items-center justify-end transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
           !isExpanded && isScrolled
@@ -94,14 +108,17 @@ export default function ChatBar() {
       >
         <Button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
+          onClick={(event) => {
+            event.stopPropagation();
             toggleExpanded(true);
           }}
           variant="primary"
           className="group h-14 px-5 text-[15px]"
         >
-          <Sparkles size={20} className="transition-transform duration-300 group-hover:scale-110" />
+          <Sparkles
+            size={20}
+            className="transition-transform duration-300 group-hover:scale-110"
+          />
           <span className="font-semibold text-[15px]">AI 질문하기</span>
         </Button>
       </div>
@@ -115,17 +132,18 @@ export default function ChatBar() {
             : "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
         }`}
       >
-        
-        <ChatHeader 
-          isExpanded={isExpanded} 
-          isFullScreen={isFullScreen} 
-          setIsFullScreen={setIsFullScreen} 
-          onClose={() => toggleExpanded(false)} 
+        <ChatHeader
+          isExpanded={isExpanded}
+          isFullScreen={isFullScreen}
+          setIsFullScreen={setIsFullScreen}
+          onClose={() => toggleExpanded(false)}
         />
 
         <div
           ref={scrollRef}
-          className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-35 transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0 hidden"}`}
+          className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-35 transition-opacity duration-300 ${
+            isExpanded ? "opacity-100" : "opacity-0 hidden"
+          }`}
         >
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
             {messages.map((msg, idx) => (
@@ -138,25 +156,24 @@ export default function ChatBar() {
 
             {isTyping && <TypingIndicator />}
 
-            <ChatSuggestions 
+            <ChatSuggestions
               activeSection={activeSection}
-              onSelect={handleSend} 
-              messages={messages} 
-              isTyping={isTyping} 
+              onSelect={handleSend}
+              messages={messages}
+              isTyping={isTyping}
             />
           </div>
         </div>
 
         {isExpanded && (
-          <ChatInput 
-            activeSection={activeSection} 
-            isExpanded={isExpanded} 
-            isTyping={isTyping} 
-            onSend={handleSend} 
-            onExpand={() => toggleExpanded(true)} 
+          <ChatInput
+            activeSection={activeSection}
+            isExpanded={isExpanded}
+            isTyping={isTyping}
+            onSend={handleSend}
+            onExpand={() => toggleExpanded(true)}
           />
         )}
-        
       </div>
     </>
   );
