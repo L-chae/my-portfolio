@@ -206,25 +206,41 @@
 
 /* --- 유틸리티 및 애니메이션 --- */
 @layer utilities {
-  .reveal {
-    opacity: 1;
-    transform: none;
+  .motion-card {
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 180ms ease,
+      background-color 180ms ease;
   }
-  .reveal.active {
-    opacity: 1;
+
+  .motion-card:hover,
+  .motion-card:focus-within {
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .motion-link-arrow svg {
+    transition: transform 160ms ease;
+  }
+
+  .motion-link-arrow:hover svg,
+  .motion-link-arrow:focus-visible svg {
+    transform: translate3d(3px, -2px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-card,
+  .motion-link-arrow svg {
+    transition: none;
     transform: none;
   }
 
-  .scroll-reveal {
-    opacity: 1;
+  .motion-card:hover,
+  .motion-card:focus-within,
+  .motion-link-arrow:hover svg,
+  .motion-link-arrow:focus-visible svg {
     transform: none;
-    visibility: visible;
-  }
-
-  .scroll-reveal.is-visible {
-    opacity: 1;
-    transform: none;
-    visibility: visible;
   }
 }
 
@@ -243,11 +259,23 @@
     opacity: 1;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
+  .motion-card,
+  .motion-link-arrow svg,
+  .scroll-reveal {
+    transition: none;
+    transform: none;
+  }
+
+  .motion-card:hover,
+  .motion-card:focus-within,
+  .motion-link-arrow:hover svg,
+  .motion-link-arrow:focus-visible svg {
+    transform: none;
+  }
+
   .scroll-reveal {
     opacity: 1;
-    transform: none;
-    transition: none;
+    visibility: visible;
   }
 }

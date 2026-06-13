@@ -12,11 +12,11 @@ export function SectionLayout({ id, aside, children }: SectionLayoutProps) {
       id={id}
       className="scroll-mt-24 py-16 md:py-32 max-w-5xl mx-auto px-6"
     >
-      <div className="flex flex-col md:flex-row gap-8 md:gap-24 items-start">
-        <aside className="scroll-reveal md:w-1/3 shrink-0 self-start">
+      <div className="flex flex-col gap-8 items-start xl:flex-row xl:gap-24">
+        <aside className="scroll-reveal w-full shrink-0 self-start xl:w-1/3">
           {aside}
         </aside>
-        <div className="md:w-2/3 w-full">{children}</div>
+        <div className="w-full xl:w-2/3">{children}</div>
       </div>
     </section>
   );

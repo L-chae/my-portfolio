@@ -27,17 +27,17 @@ const NAV_ITEMS = [
     type: 'section',
   },
   {
-    id: 'core-values',
-    label: 'Core Values',
-    href: '/#core-values',
-    sectionId: 'core-values',
-    type: 'section',
-  },
-  {
     id: 'projects',
     label: 'Projects',
     href: '/#projects',
     sectionId: 'projects',
+    type: 'section',
+  },
+  {
+    id: 'core-values',
+    label: 'Core Values',
+    href: '/#core-values',
+    sectionId: 'core-values',
     type: 'section',
   },
 ] as const;

@@ -1,5 +1,6 @@
 'use client';
 
+import { Building2 } from 'lucide-react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SectionLayout } from './ui/SectionLayout';
 import { SectionHeading } from './ui/SectionHeading';
@@ -30,34 +31,50 @@ export default function ExperienceSection() {
           </SectionHeading>
         }
       >
-        <article className="scroll-reveal space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 pb-6 border-b border-line/70">
-            <h4 className="text-2xl sm:text-xl font-bold text-navy">HiveLab</h4>
-            <span className="text-[15px] sm:text-sm font-medium text-ink-muted break-keep">
-              AI 학습 데이터 검수 및 관리
-            </span>
-            <span className="text-[13px] font-semibold text-ink-faint sm:ml-auto mt-2 sm:mt-0">
-              2020.09 - 현재
-            </span>
-          </div>
+        <article className="scroll-reveal max-w-3xl">
+          <SurfaceCard className="rounded-card border-line-soft bg-surface-glass p-6 md:p-7">
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-4 border-b border-line-soft pb-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-panel bg-brand-pale text-brand">
+                    <Building2 size={22} aria-hidden="true" />
+                  </div>
 
-          <SurfaceCard className="rounded-3xl p-6 transition-shadow hover:shadow-soft md:p-8">
-            <p className="text-[15px] font-medium text-ink leading-relaxed break-keep">
-              &quot;수만 건의 AI 학습 데이터를 검수하며 체득한 &apos;데이터 일관성&apos;의 감각을,
-              프론트엔드 상태 관리와 예외 흐름(Edge Case) 방어 로직에 적용하고 있습니다.&quot;
-            </p>
-          </SurfaceCard>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-brand">Experience</p>
+                    <h4 className="mt-1 text-2xl font-bold text-navy sm:text-xl">HiveLab</h4>
+                    <p className="mt-2 break-keep text-[15px] font-medium text-ink-muted">
+                      AI 학습 데이터 검수 및 관리
+                    </p>
+                  </div>
+                </div>
 
-          <ul className="space-y-5 pt-2">
-            {EXPERIENCE_ITEMS.map(({ label, text }) => (
-              <li key={label} className="flex gap-4 items-start">
-                <span className="text-accent mt-1 shrink-0" aria-hidden="true">✦</span>
-                <p className="text-[15px] md:text-[14px] text-ink leading-relaxed break-keep">
-                  <strong className="text-navy">{label}</strong> {text}
+                <p className="text-[13px] font-semibold text-ink-faint sm:pt-1">
+                  2020.09 - 현재
                 </p>
-              </li>
-            ))}
-          </ul>
+              </div>
+
+              <div className="rounded-panel border border-line-soft bg-surface-soft p-5">
+                <p className="break-keep text-[15px] font-medium leading-relaxed text-ink">
+                  &quot;수만 건의 AI 학습 데이터를 검수하며 체득한 &apos;데이터 일관성&apos;의 감각을,
+                  프론트엔드 상태 관리와 예외 흐름(Edge Case) 방어 로직에 적용하고 있습니다.&quot;
+                </p>
+              </div>
+
+              <ul className="space-y-4">
+                {EXPERIENCE_ITEMS.map(({ label, text }) => (
+                  <li key={label} className="flex items-start gap-4">
+                    <span className="mt-1 shrink-0 text-brand" aria-hidden="true">
+                      ✦
+                    </span>
+                    <p className="break-keep text-[15px] leading-relaxed text-ink">
+                      <strong className="text-navy">{label}</strong> {text}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SurfaceCard>
         </article>
       </SectionLayout>
     </div>
