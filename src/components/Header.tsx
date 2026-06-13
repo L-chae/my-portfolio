@@ -45,7 +45,16 @@ const NAV_ITEMS = [
 type NavItem = (typeof NAV_ITEMS)[number];
 type NavId = NavItem['id'];
 
-const HEADER_HEIGHT = 64;
+const HEADER_HEIGHT = 80;
+const SECTION_THRESHOLDS = [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1];
+
+function getPreferredScrollBehavior(): ScrollBehavior {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return 'auto';
+  }
+
+  return 'smooth';
+}
 
 export default function Header() {
   const pathname = usePathname();
@@ -59,8 +68,9 @@ export default function Header() {
     opacity: 0,
   });
 
+  const headerRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
-  const sectionOffsets = useRef<{ id: NavId; top: number }[]>([]);
+  const sectionRatiosRef = useRef<Map<NavId, number>>(new Map());
   const isClickScrolling = useRef(false);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollRafRef = useRef<number | null>(null);
@@ -82,6 +92,22 @@ export default function Header() {
     },
     [isHomePage]
   );
+
+  const pickMostVisibleSection = useCallback(() => {
+    let nextActive: NavId = 'hero';
+    let maxRatio = 0;
+
+    sectionRatiosRef.current.forEach((ratio, id) => {
+      if (ratio > maxRatio) {
+        maxRatio = ratio;
+        nextActive = id;
+      }
+    });
+
+    if (maxRatio > 0) {
+      setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
+    }
+  }, []);
 
   const updateIndicator = useCallback(() => {
     const nav = navRef.current;
@@ -105,6 +131,17 @@ export default function Header() {
       opacity: 1,
     });
   }, [activeNavId]);
+
+  const updateScrollState = useCallback(() => {
+    const scrollingElement = document.scrollingElement ?? document.documentElement;
+    const scrollY = window.scrollY;
+    const maxScroll = scrollingElement.scrollHeight - window.innerHeight;
+    const progress =
+      maxScroll > 0 ? Math.min(1, Math.max(0, scrollY / maxScroll)) : 0;
+
+    setIsScrolled(scrollY > 16);
+    headerRef.current?.style.setProperty('--scroll-progress', progress.toString());
+  }, []);
 
   useEffect(() => {
     updateIndicator();
@@ -139,13 +176,13 @@ export default function Header() {
     };
   }, [pathname]);
 
-  const calculateOffsets = useCallback(() => {
+  useEffect(() => {
     if (!isHomePage) {
-      sectionOffsets.current = [];
+      sectionRatiosRef.current = new Map();
       return;
     }
 
-    sectionOffsets.current = NAV_ITEMS.flatMap((item) => {
+    const sections = NAV_ITEMS.flatMap((item) => {
       if (item.type !== 'section') return [];
 
       const el = document.getElementById(item.sectionId);
@@ -154,93 +191,93 @@ export default function Header() {
       return [
         {
           id: item.id,
-          top: el.getBoundingClientRect().top + window.scrollY,
+          el,
         },
       ];
     });
-  }, [isHomePage]);
 
-  const evaluateScrollPosition = useCallback(() => {
-    const scrollY = window.scrollY;
+    if (sections.length === 0) return;
 
-    setIsScrolled(scrollY > 16);
+    sectionRatiosRef.current = new Map<NavId, number>(
+      sections.map(({ id }) => [id, 0])
+    );
 
-    if (!isHomePage) return;
-    if (isClickScrolling.current) return;
-    if (sectionOffsets.current.length === 0) return;
+    const syncRatiosFromViewport = () => {
+      const viewportTop = HEADER_HEIGHT;
+      const viewportBottom = window.innerHeight;
 
-    const triggerPoint = scrollY + window.innerHeight * 0.38;
-    const isBottomReached =
-      Math.ceil(scrollY + window.innerHeight) >=
-      document.documentElement.scrollHeight;
+      sections.forEach(({ id, el }) => {
+        const rect = el.getBoundingClientRect();
+        const visibleTop = Math.max(rect.top, viewportTop);
+        const visibleBottom = Math.min(rect.bottom, viewportBottom);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+        const ratio = rect.height > 0 ? Math.min(1, visibleHeight / rect.height) : 0;
 
-    let current: NavId = sectionOffsets.current[0]?.id ?? 'hero';
+        sectionRatiosRef.current.set(id, ratio);
+      });
 
-    if (isBottomReached) {
-      current = sectionOffsets.current[sectionOffsets.current.length - 1].id;
-    } else {
-      for (const { id, top } of sectionOffsets.current) {
-        if (triggerPoint >= top) current = id;
+      if (!isClickScrolling.current) {
+        pickMostVisibleSection();
       }
-    }
-
-    setActiveSection(current);
-  }, [isHomePage]);
-
-  useEffect(() => {
-    if (!isHomePage) {
-      sectionOffsets.current = [];
-      return;
-    }
-
-    calculateOffsets();
-
-    const initTimer = setTimeout(() => {
-      calculateOffsets();
-      evaluateScrollPosition();
-      updateIndicator();
-    }, 80);
-
-    const handleResize = () => {
-      calculateOffsets();
-      evaluateScrollPosition();
-      updateIndicator();
     };
 
-    window.addEventListener('resize', handleResize);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const matched = sections.find(({ el }) => el === entry.target);
+          if (!matched) return;
+
+          sectionRatiosRef.current.set(
+            matched.id,
+            entry.isIntersecting ? entry.intersectionRatio : 0
+          );
+        });
+
+        if (isClickScrolling.current) return;
+        pickMostVisibleSection();
+      },
+      {
+        root: null,
+        rootMargin: `-${HEADER_HEIGHT}px 0px 0px 0px`,
+        threshold: SECTION_THRESHOLDS,
+      }
+    );
+
+    sections.forEach(({ el }) => {
+      observer.observe(el);
+    });
+
+    const initFrame = requestAnimationFrame(syncRatiosFromViewport);
 
     return () => {
-      clearTimeout(initTimer);
-      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(initFrame);
+      observer.disconnect();
     };
-  }, [
-    calculateOffsets,
-    evaluateScrollPosition,
-    updateIndicator,
-    isHomePage,
-  ]);
+  }, [isHomePage, pickMostVisibleSection]);
 
   useEffect(() => {
     const handleScroll = () => {
       if (scrollRafRef.current) return;
 
       scrollRafRef.current = requestAnimationFrame(() => {
-        evaluateScrollPosition();
+        updateScrollState();
         scrollRafRef.current = null;
       });
     };
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
 
       if (scrollRafRef.current) {
         cancelAnimationFrame(scrollRafRef.current);
       }
     };
-  }, [evaluateScrollPosition]);
+  }, [pathname, updateScrollState]);
 
   const handleNavClick = useCallback(
     (item: NavItem, event: MouseEvent<HTMLAnchorElement>) => {
@@ -256,18 +293,15 @@ export default function Header() {
       isClickScrolling.current = true;
       setActiveSection(item.id);
 
-      const offsetTop =
-        el.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT;
-
-      window.scrollTo({
-        top: Math.max(0, offsetTop),
-        behavior: 'smooth',
+      el.scrollIntoView({
+        behavior: getPreferredScrollBehavior(),
+        block: 'start',
       });
 
       window.history.replaceState(
         null,
         '',
-        item.sectionId === 'hero' ? '/' : `#${item.sectionId}`
+        item.sectionId === 'hero' ? '/' : `/#${item.sectionId}`
       );
 
       if (clickTimeoutRef.current) {
@@ -276,11 +310,10 @@ export default function Header() {
 
       clickTimeoutRef.current = setTimeout(() => {
         isClickScrolling.current = false;
-        calculateOffsets();
-        evaluateScrollPosition();
-      }, 700);
+        pickMostVisibleSection();
+      }, 650);
     },
-    [calculateOffsets, evaluateScrollPosition, isHomePage]
+    [isHomePage, pickMostVisibleSection]
   );
 
   useEffect(() => {
@@ -293,6 +326,7 @@ export default function Header() {
 
   return (
     <header
+      ref={headerRef}
       className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
         isScrolled || isMobileMenuOpen
           ? 'border-line-soft bg-surface-glass shadow-soft backdrop-blur-xl'
@@ -336,7 +370,7 @@ export default function Header() {
           })}
 
           <span
-            className="pointer-events-none absolute bottom-3.5 left-0 h-[2px] rounded-full bg-navy transition-all duration-300 ease-out"
+            className="pointer-events-none absolute bottom-3.5 left-0 h-0.5 rounded-full bg-navy transition-[transform,width,opacity] duration-500 ease-[cubic-bezier(0.34,1.28,0.64,1)]"
             style={{
               transform: `translateX(${indicator.left}px)`,
               width: `${indicator.width}px`,
@@ -356,6 +390,8 @@ export default function Header() {
           {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
+
+      <span aria-hidden="true" className="header-scroll-progress" />
 
       <div
         id="mobile-navigation"

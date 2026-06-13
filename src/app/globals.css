@@ -65,7 +65,7 @@
     --glow-border-hover: color-mix(in srgb, var(--color-ink) 16%, transparent);
   }
   html {
-    scroll-padding-top: 64px;
+    scroll-padding-top: 80px;
   }
   body {
     font-family: var(--font-sans);
@@ -212,6 +212,26 @@
     will-change: opacity, transform;
   }
 
+  .header-scroll-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    pointer-events: none;
+    transform-origin: left;
+    transform: scaleX(var(--scroll-progress, 0));
+    background: linear-gradient(
+      90deg,
+      var(--color-brand),
+      var(--color-accent)
+    );
+    opacity: 0.24;
+    transition:
+      transform 120ms ease-out,
+      opacity 180ms ease;
+  }
+
   .scroll-reveal {
     opacity: 0;
     visibility: hidden;
@@ -346,6 +366,10 @@
 
   .scroll-reveal {
     opacity: 1;
+  }
+
+  .header-scroll-progress {
+    transition: none;
   }
 }
 

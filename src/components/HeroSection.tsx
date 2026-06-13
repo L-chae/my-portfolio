@@ -148,7 +148,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen scroll-mt-24 items-center overflow-hidden px-6 pb-20 pt-28 md:pb-24 md:pt-32"
+      className="relative flex min-h-screen items-center overflow-hidden px-6 pb-20 pt-28 md:pb-24 md:pt-32"
     >
       <style>{`
         @keyframes hero-fade-up {
