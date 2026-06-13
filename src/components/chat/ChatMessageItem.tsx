@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
@@ -10,6 +11,11 @@ import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typesc
 import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
 import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
 import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
+import {
+  getEvidenceImageGroupByIds,
+  getEvidenceImagesByIds,
+} from "@/lib/evidenceImages";
+import type { SuggestedAction } from "@/lib/evidenceImages";
 
 SyntaxHighlighter.registerLanguage("tsx", tsx);
 SyntaxHighlighter.registerLanguage("typescript", typescript);
@@ -21,11 +27,16 @@ export interface Message {
   id: string | number;
   role: "user" | "bot" | "assistant";
   content: string;
+  evidenceImageIds?: string[];
+  suggestedActions?: SuggestedAction[];
+  suggestedActionsDescription?: string;
+  suggestedActionsTitle?: string;
 }
 
 interface ChatMessageItemProps {
   message: Message;
   isLast?: boolean;
+  onSuggestedActionSelect?: (prompt: string) => void;
 }
 
 const markdownComponents: Components = {
@@ -133,7 +144,90 @@ const markdownComponents: Components = {
   },
 };
 
-function ChatMessageItem({ message }: ChatMessageItemProps) {
+function EvidenceImageCards({ ids }: { ids?: readonly string[] }) {
+  const images = getEvidenceImagesByIds(ids);
+  const group = getEvidenceImageGroupByIds(ids);
+
+  if (images.length === 0) return null;
+
+  return (
+    <div className="mt-4">
+      {group ? (
+        <div className="mb-3 rounded-xl border border-line bg-surface-soft px-3.5 py-3">
+          <p className="mb-1 text-[12px] font-semibold text-navy">
+            {group.title}
+          </p>
+          <p className="text-[12px] leading-relaxed text-ink-muted">
+            {group.description}
+          </p>
+        </div>
+      ) : null}
+      <div className="grid gap-3">
+        {images.map((image) => (
+          <figure
+            key={image.id}
+            className="overflow-hidden rounded-xl border border-line bg-surface-soft"
+          >
+            <img
+              src={image.src}
+              alt={image.alt}
+              title={image.title}
+              loading="lazy"
+              className="block h-auto max-w-full border-b border-line/70 bg-white"
+            />
+            <figcaption className="px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-muted">
+              <span className="font-semibold text-ink">{image.title}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SuggestedActionButtons({
+  actions,
+  description,
+  onSelect,
+  title,
+}: {
+  actions?: readonly SuggestedAction[];
+  description?: string;
+  onSelect?: (prompt: string) => void;
+  title?: string;
+}) {
+  if (!actions || actions.length === 0 || !onSelect) return null;
+
+  return (
+    <div className="mt-4 rounded-xl border border-line bg-surface-soft px-3.5 py-3">
+      {title ? (
+        <p className="mb-1 text-[12px] font-semibold text-navy">{title}</p>
+      ) : null}
+      {description ? (
+        <p className="mb-2.5 text-[12px] leading-relaxed text-ink-muted">
+          {description}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        {actions.map((action) => (
+          <button
+            key={action.id}
+            type="button"
+            onClick={() => onSelect(action.prompt)}
+            className="rounded-full border border-line bg-surface px-3 py-1.5 text-[12px] font-medium text-ink-muted transition-colors hover:border-accent hover:bg-accent-pale hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {action.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChatMessageItem({
+  message,
+  onSuggestedActionSelect,
+}: ChatMessageItemProps) {
   const isUser = message.role === "user";
 
   return (
@@ -173,6 +267,13 @@ function ChatMessageItem({ message }: ChatMessageItemProps) {
             >
               {message.content}
             </ReactMarkdown>
+            <SuggestedActionButtons
+              actions={message.suggestedActions}
+              description={message.suggestedActionsDescription}
+              onSelect={onSuggestedActionSelect}
+              title={message.suggestedActionsTitle}
+            />
+            <EvidenceImageCards ids={message.evidenceImageIds} />
           </div>
         )}
       </div>
@@ -184,5 +285,13 @@ export default memo(
   ChatMessageItem,
   (prev, next) =>
     prev.message.id === next.message.id &&
-    prev.message.content === next.message.content,
+    prev.message.content === next.message.content &&
+    (prev.message.evidenceImageIds ?? []).join(",") ===
+      (next.message.evidenceImageIds ?? []).join(",") &&
+    (prev.message.suggestedActions ?? []).map((action) => action.id).join(",") ===
+      (next.message.suggestedActions ?? []).map((action) => action.id).join(",") &&
+    prev.message.suggestedActionsDescription ===
+      next.message.suggestedActionsDescription &&
+    prev.message.suggestedActionsTitle === next.message.suggestedActionsTitle &&
+    prev.onSuggestedActionSelect === next.onSuggestedActionSelect,
 );

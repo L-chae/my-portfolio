@@ -46,6 +46,8 @@ const knowledgeMap = knowledge as KnowledgeMap;
 
 const META_KEYS = new Set([
   "id",
+  "evidenceImageIds",
+  "evidenceImages",
   "keywords",
   "suggestedQuestions",
   "preparedAnswers",

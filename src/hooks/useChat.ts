@@ -1,9 +1,14 @@
 import { create } from "zustand";
+import type { SuggestedAction } from "@/lib/evidenceImages";
 
 export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  evidenceImageIds?: string[];
+  suggestedActions?: SuggestedAction[];
+  suggestedActionsDescription?: string;
+  suggestedActionsTitle?: string;
 }
 
 interface ChatStore {
@@ -20,6 +25,104 @@ interface ChatStore {
 }
 
 const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+function parseEvidenceImageIds(headerValue: string | null) {
+  if (!headerValue) return undefined;
+
+  const ids = headerValue
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  return ids.length > 0 ? ids : undefined;
+}
+
+function isSuggestedAction(value: unknown): value is SuggestedAction {
+  if (typeof value !== "object" || value === null) return false;
+
+  const action = value as Partial<SuggestedAction>;
+  return (
+    typeof action.id === "string" &&
+    typeof action.label === "string" &&
+    typeof action.prompt === "string"
+  );
+}
+
+function parseSuggestedActions(headerValue: string | null) {
+  if (!headerValue) return undefined;
+
+  try {
+    const parsed = JSON.parse(decodeURIComponent(headerValue));
+    if (!Array.isArray(parsed)) return undefined;
+
+    const actions = parsed.filter(isSuggestedAction);
+    return actions.length > 0 ? actions : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function parseHeaderText(headerValue: string | null) {
+  if (!headerValue) return undefined;
+
+  try {
+    return decodeURIComponent(headerValue);
+  } catch {
+    return undefined;
+  }
+}
+
+function normalizeIntentText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, "");
+}
+
+function isExplicitEvidenceReplayRequest(value: string) {
+  const text = normalizeIntentText(value);
+
+  return [
+    "다시보여줘",
+    "또보여줘",
+    "다시캡처",
+    "캡처다시",
+    "캡처보여줘",
+    "캡쳐보여줘",
+    "이미지보여줘",
+    "스크린샷보여줘",
+  ].some((term) => text.includes(term));
+}
+
+function getDisplayedEvidenceImageIds(messages: readonly Message[]) {
+  return new Set(
+    messages
+      .filter((message) => message.role === "assistant")
+      .flatMap((message) => message.evidenceImageIds ?? []),
+  );
+}
+
+function removeDisplayedEvidenceImageIds(
+  ids: string[] | undefined,
+  displayedIds: ReadonlySet<string>,
+) {
+  if (!ids) return undefined;
+
+  const filteredIds = ids.filter((id) => !displayedIds.has(id));
+  return filteredIds.length > 0 ? filteredIds : undefined;
+}
+
+export function getNextEvidenceImageIdsForMessage(params: {
+  evidenceImageIds: string[] | undefined;
+  messages: readonly Message[];
+  userContent: string;
+}) {
+  if (isExplicitEvidenceReplayRequest(params.userContent)) {
+    return params.evidenceImageIds;
+  }
+
+  return removeDisplayedEvidenceImageIds(
+    params.evidenceImageIds,
+    getDisplayedEvidenceImageIds(params.messages),
+  );
+}
 
 const INITIAL_MESSAGE: Message = {
   id: createId(),
@@ -73,9 +176,37 @@ export const useChat = create<ChatStore>((set, get) => ({
 
       const nextTopicHint = res.headers.get("X-Current-Topic-Hint");
       if (nextTopicHint) set({ currentTopicHint: nextTopicHint });
+      const evidenceImageIds = parseEvidenceImageIds(
+        res.headers.get("X-Evidence-Image-Ids"),
+      );
+      const suggestedActions = parseSuggestedActions(
+        res.headers.get("X-Suggested-Actions"),
+      );
+      const suggestedActionsTitle = parseHeaderText(
+        res.headers.get("X-Suggested-Actions-Title"),
+      );
+      const suggestedActionsDescription = parseHeaderText(
+        res.headers.get("X-Suggested-Actions-Description"),
+      );
+      const nextEvidenceImageIds = getNextEvidenceImageIdsForMessage({
+        evidenceImageIds,
+        messages: get().messages,
+        userContent: trimmedContent,
+      });
 
       set((state) => ({
-        messages: [...state.messages, { id: assistantId, role: "assistant", content: "" }],
+        messages: [
+          ...state.messages,
+          {
+            id: assistantId,
+            role: "assistant",
+            content: "",
+            evidenceImageIds: nextEvidenceImageIds,
+            suggestedActions,
+            suggestedActionsDescription,
+            suggestedActionsTitle,
+          },
+        ],
         isTyping: false,
         isStreaming: true,
       }));

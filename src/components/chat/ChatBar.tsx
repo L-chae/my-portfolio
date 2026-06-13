@@ -129,7 +129,11 @@ export default function ChatBar() {
         >
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
             {messages.map((msg, idx) => (
-              <ChatMessageItem key={idx} message={msg} />
+              <ChatMessageItem
+                key={idx}
+                message={msg}
+                onSuggestedActionSelect={handleSend}
+              />
             ))}
 
             {isTyping && <TypingIndicator />}
