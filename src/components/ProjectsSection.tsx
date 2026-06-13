@@ -38,15 +38,17 @@ export default function ProjectsSection() {
         }
       >
         <div className="space-y-5">
-          {PROJECTS_MOCK.map((project) => {
+          {PROJECTS_MOCK.map((project, index) => {
             const visibleTechStack = project.techStack.slice(0, VISIBLE_TECH_COUNT);
             const hiddenTechCount = project.techStack.length - visibleTechStack.length;
+            const revealDelayClass =
+              index === 0 ? '' : index === 1 ? 'reveal-delay-1' : 'reveal-delay-2';
 
             return (
               <SurfaceCard
                 as="article"
                 key={project.projectKey}
-                className="motion-card scroll-reveal scroll-mt-24 rounded-card border border-line-soft bg-surface-glass p-6 shadow-card hover:border-brand-ring hover:bg-surface hover:shadow-soft md:scroll-mt-32 md:p-7"
+                className={`motion-card scroll-reveal ${revealDelayClass} scroll-mt-24 rounded-card border border-line-soft bg-surface-glass p-6 shadow-card hover:border-brand-ring hover:bg-surface hover:shadow-soft md:scroll-mt-32 md:p-7`}
               >
                 <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
                   <div className="min-w-0">

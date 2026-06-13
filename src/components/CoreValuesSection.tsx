@@ -44,7 +44,7 @@ export default function CoreValuesSection() {
           </SectionHeading>
         }
       >
-        <div className="scroll-reveal max-w-3xl overflow-hidden rounded-card border border-line-soft bg-surface-glass">
+        <div className="scroll-reveal reveal-delay-1 max-w-3xl overflow-hidden rounded-card border border-line-soft bg-surface-glass">
           <div className="divide-y divide-line-soft">
             {CORE_VALUES.map(({ Icon, title, description, chipClassName }) => (
               <article

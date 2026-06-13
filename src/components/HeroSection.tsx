@@ -152,19 +152,22 @@ export default function HeroSection() {
     >
       <style>{`
         @keyframes hero-fade-up {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.985); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
         }
 
         .hero-item {
           opacity: 0;
-          animation: hero-fade-up 600ms ease-out forwards;
+          will-change: opacity, transform;
+          animation: hero-fade-up 820ms cubic-bezier(0.34, 1.32, 0.64, 1) forwards;
         }
 
         @media (prefers-reduced-motion: reduce) {
           .hero-item {
             opacity: 1;
             animation: none;
+            transform: none;
+            will-change: auto;
           }
         }
       `}</style>

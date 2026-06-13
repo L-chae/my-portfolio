@@ -31,7 +31,7 @@ export default function ExperienceSection() {
           </SectionHeading>
         }
       >
-        <article className="scroll-reveal max-w-3xl">
+        <article className="scroll-reveal reveal-delay-1 max-w-3xl">
           <SurfaceCard className="rounded-card border-line-soft bg-surface-glass p-6 md:p-7">
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-4 border-b border-line-soft pb-5 sm:flex-row sm:items-start sm:justify-between">
