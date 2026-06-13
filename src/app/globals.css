@@ -206,6 +206,12 @@
 
 /* --- 유틸리티 및 애니메이션 --- */
 @layer utilities {
+  .page-enter {
+    animation: page-enter 720ms cubic-bezier(0.34, 1.28, 0.64, 1) both;
+    transform-origin: top center;
+    will-change: opacity, transform;
+  }
+
   .scroll-reveal {
     opacity: 0;
     visibility: hidden;
@@ -288,6 +294,18 @@
   }
 }
 
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.99);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 @media (max-width: 767px) {
   .scroll-reveal,
   .reveal-soft-right,
@@ -305,6 +323,7 @@
 @media (prefers-reduced-motion: reduce) {
   .motion-card,
   .motion-link-arrow svg,
+  .page-enter,
   .scroll-reveal,
   .scroll-reveal.is-visible,
   .reveal-soft-right,

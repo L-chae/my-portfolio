@@ -15,6 +15,7 @@ function ProjectDetailLink({ projectKey }: { projectKey: string }) {
   return (
     <Link
       href={`/projects/${projectKey}`}
+      scroll={false}
       className="motion-link-arrow inline-flex w-max items-center gap-1 text-sm font-semibold text-brand transition-colors hover:text-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
     >
       상세보기
@@ -59,6 +60,7 @@ export default function ProjectsSection() {
                     <h4 className="mt-2 text-2xl font-bold text-navy md:text-[28px]">
                       <Link
                         href={`/projects/${project.projectKey}`}
+                        scroll={false}
                         className="transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
                       >
                         {project.name}

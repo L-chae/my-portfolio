@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import ScrollToTopInstant from "@/components/ScrollToTopInstant";
 import ChatBar from "@/components/chat/ChatBar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
@@ -54,9 +55,10 @@ export default async function ProjectDetailPage({
   ];
   return (
     <>
+      <ScrollToTopInstant />
       <ChatBar />
 
-      <main className="mx-auto max-w-6xl px-6 pb-20 pt-28 md:pb-28 md:pt-36">
+      <main className="page-enter mx-auto max-w-6xl px-6 pb-20 pt-28 md:pb-28 md:pt-36">
         <LinkButton href="/#projects" variant="ghost" size="sm">
           <ArrowLeft size={16} aria-hidden="true" />
           Projects로 돌아가기
