@@ -49,11 +49,11 @@ const HEADER_HEIGHT = 80;
 const SECTION_THRESHOLDS = [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1];
 
 function getPreferredScrollBehavior(): ScrollBehavior {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return 'auto';
-  }
+  if (typeof window === 'undefined') return 'auto';
 
-  return 'smooth';
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
 }
 
 export default function Header() {
@@ -131,6 +131,43 @@ export default function Header() {
       opacity: 1,
     });
   }, [activeNavId]);
+
+  const scrollToSection = useCallback((item: NavItem) => {
+    const el = document.getElementById(item.sectionId);
+    if (!el) return;
+
+    const behavior = getPreferredScrollBehavior();
+
+    isClickScrolling.current = true;
+    setActiveSection(item.id);
+
+    if (item.sectionId === 'hero') {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior,
+      });
+    } else {
+      el.scrollIntoView({
+        behavior,
+        block: 'start',
+      });
+    }
+
+    window.history.replaceState(
+      null,
+      '',
+      item.sectionId === 'hero' ? '/' : `#${item.sectionId}`
+    );
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+
+    clickTimeoutRef.current = setTimeout(() => {
+      isClickScrolling.current = false;
+    }, behavior === 'smooth' ? 750 : 0);
+  }, []);
 
   const updateScrollState = useCallback(() => {
     const scrollingElement = document.scrollingElement ?? document.documentElement;
@@ -256,6 +293,24 @@ export default function Header() {
   }, [isHomePage, pickMostVisibleSection]);
 
   useEffect(() => {
+    if (!isHomePage) return;
+
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+
+    const matchedItem = NAV_ITEMS.find((item) => item.sectionId === hash);
+    if (!matchedItem) return;
+
+    const timer = window.setTimeout(() => {
+      scrollToSection(matchedItem);
+    }, 80);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isHomePage, pathname, scrollToSection]);
+
+  useEffect(() => {
     const handleScroll = () => {
       if (scrollRafRef.current) return;
 
@@ -283,37 +338,13 @@ export default function Header() {
     (item: NavItem, event: MouseEvent<HTMLAnchorElement>) => {
       setIsMobileMenuOpen(false);
 
-      if (!isHomePage || item.type !== 'section') return;
-
-      const el = document.getElementById(item.sectionId);
-      if (!el) return;
+      if (item.type !== 'section') return;
+      if (!isHomePage) return;
 
       event.preventDefault();
-
-      isClickScrolling.current = true;
-      setActiveSection(item.id);
-
-      el.scrollIntoView({
-        behavior: getPreferredScrollBehavior(),
-        block: 'start',
-      });
-
-      window.history.replaceState(
-        null,
-        '',
-        item.sectionId === 'hero' ? '/' : `/#${item.sectionId}`
-      );
-
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-
-      clickTimeoutRef.current = setTimeout(() => {
-        isClickScrolling.current = false;
-        pickMostVisibleSection();
-      }, 650);
+      scrollToSection(item);
     },
-    [isHomePage, pickMostVisibleSection]
+    [isHomePage, scrollToSection]
   );
 
   useEffect(() => {

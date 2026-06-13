@@ -95,34 +95,29 @@ function HeroPrompt() {
         </Button>
       </form>
 
-      <div className="mt-3 flex flex-wrap justify-center gap-2">
-        {SUGGESTED_TOPICS.map(({ label, question }) => (
-          <Button
-            key={label}
-            type="button"
-            variant="secondary"
-            size="sm"
-            data-chat-intent="open"
-            data-chat-topic={question}
-            onClick={() => {
-              void sendHeroQuestion(question);
-            }}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
+     <div className="mt-4 flex flex-wrap justify-center gap-2">
+  {SUGGESTED_TOPICS.map(({ label, question }) => (
+    <button
+      key={label}
+      type="button"
+      data-chat-intent="open"
+      data-chat-topic={question}
+      disabled={isTyping || isStreaming}
+      onClick={() => {
+        void sendHeroQuestion(question);
+      }}
+      className="inline-flex h-9 items-center rounded-pill border border-line-soft bg-surface-glass px-4 text-[13px] font-semibold text-ink-muted transition-colors duration-200 hover:border-brand-ring hover:bg-brand-pale hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring disabled:pointer-events-none disabled:opacity-45"  >
+      {label}
+    </button>
+  ))}
+</div>
 
-      <div className="mt-5 flex justify-center">
-        <LinkButton
-          href="#projects"
-          variant="ghost"
-          size="sm"
-        >
-          Projects 보기
-          <ArrowUpRight size={14} aria-hidden="true" />
-        </LinkButton>
-      </div>
+      <div className="mt-6 flex justify-center">
+  <LinkButton href="#projects" variant="ghost" size="sm">
+    Projects 보기
+    <ArrowUpRight size={14} aria-hidden="true" />
+  </LinkButton>
+</div>
     </div>
   );
 }
