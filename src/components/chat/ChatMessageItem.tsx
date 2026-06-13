@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { memo } from "react";
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -23,7 +23,7 @@ SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("bash", bash);
 
-export interface Message {
+interface Message {
   id: string | number;
   role: "user" | "bot" | "assistant";
   content: string;
