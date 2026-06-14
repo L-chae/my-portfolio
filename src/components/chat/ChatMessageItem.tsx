@@ -1,16 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { memo } from "react";
-import ReactMarkdown from "react-markdown";
-import type { Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { User } from "lucide-react";
-import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
-import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
-import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
-import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
-import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
 import {
   getEvidenceImageGroupByIds,
   getEvidenceImagesByIds,
@@ -18,16 +8,17 @@ import {
 import type { SuggestedAction } from "@/lib/evidenceImages";
 
 import ChatAiLogo from "./ChatAiLogo";
+import {
+  markdownComponents,
+  markdownRemarkPlugins,
+} from "./MessageMarkdown";
+import StreamingAssistantContent from "./StreamingAssistantContent";
 
-SyntaxHighlighter.registerLanguage("tsx", tsx);
-SyntaxHighlighter.registerLanguage("typescript", typescript);
-SyntaxHighlighter.registerLanguage("javascript", javascript);
-SyntaxHighlighter.registerLanguage("json", json);
-SyntaxHighlighter.registerLanguage("bash", bash);
+type MessageRole = "user" | "bot" | "assistant";
 
 interface Message {
   id: string | number;
-  role: "user" | "bot" | "assistant";
+  role: MessageRole;
   content: string;
   evidenceImageIds?: string[];
   suggestedActions?: SuggestedAction[];
@@ -37,115 +28,27 @@ interface Message {
 
 interface ChatMessageItemProps {
   message: Message;
-  isLast?: boolean;
   onSuggestedActionSelect?: (prompt: string) => void;
   showAssistantAvatar?: boolean;
+  isStreamingMessage?: boolean;
 }
 
-const markdownComponents: Components = {
-  h2: ({ children }) => (
-    <h2 className="mt-6 mb-2 border-b border-line/60 pb-1.5 text-[15px] font-bold text-navy first:mt-0">
-      {children}
-    </h2>
-  ),
-  h3: ({ children }) => (
-    <h3 className="mt-4 mb-1.5 text-[13.5px] font-semibold text-navy first:mt-0">
-      {children}
-    </h3>
-  ),
-  p: ({ children }) => (
-    <p className="mb-2.5 text-[14px] leading-[1.75] text-ink last:mb-0">
-      {children}
-    </p>
-  ),
-  strong: ({ children }) => (
-    <strong className="font-semibold text-navy">{children}</strong>
-  ),
-  ul: ({ children }) => (
-    <ul className="my-3 list-disc space-y-1.5 pl-5 text-ink marker:text-ink-faint">
-      {children}
-    </ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="my-3 list-decimal space-y-1.5 pl-5 text-ink marker:text-ink-faint">
-      {children}
-    </ol>
-  ),
-  li: ({ children }) => (
-    <li className="text-[14px] leading-[1.8]">{children}</li>
-  ),
-  table: ({ children }) => (
-    <div className="my-4 overflow-x-auto rounded-xl border border-line shadow-sm">
-      <table className="w-full text-[13px]">{children}</table>
-    </div>
-  ),
-  thead: ({ children }) => (
-    <thead className="border-b border-line bg-surface-soft">{children}</thead>
-  ),
-  tbody: ({ children }) => (
-    <tbody className="divide-y divide-line/60">{children}</tbody>
-  ),
-  tr: ({ children }) => (
-    <tr className="transition-colors hover:bg-surface-soft/60">{children}</tr>
-  ),
-  th: ({ children }) => (
-    <th className="px-4 py-2.5 text-left text-[12px] font-semibold text-ink-muted">
-      {children}
-    </th>
-  ),
-  td: ({ children }) => (
-    <td className="px-4 py-2.5 text-[13.5px] text-ink">{children}</td>
-  ),
-  hr: () => <hr className="my-5 border-line/60" />,
-  blockquote: ({ children }) => (
-    <blockquote className="my-3 rounded-r-xl border-l-[3px] border-accent bg-accent-pale px-4 py-2.5 text-[13.5px] text-ink">
-      {children}
-    </blockquote>
-  ),
-  code({ className, children }) {
-    const content = String(children).replace(/\n$/, "");
-    const match = /language-(\w+)/.exec(className || "");
-    const language = match?.[1] ?? "";
-    const isInline = !match && !content.includes("\n");
-
-    if (isInline) {
-      return (
-        <code className="rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-[12px] text-ink">
-          {children}
-        </code>
-      );
-    }
-
-    return (
-      <div className="my-4 overflow-hidden rounded-xl border border-line-dark shadow-md">
-        <div className="flex items-center justify-between border-b border-line-dark bg-navy-soft px-4 py-2">
-          <span className="text-[11px] font-medium text-white/60">
-            {language || "code"}
-          </span>
-          <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-          </div>
-        </div>
-        <SyntaxHighlighter
-          language={language}
-          style={oneDark}
-          PreTag="div"
-          customStyle={{
-            margin: 0,
-            padding: "1rem",
-            background: "#07111F",
-            fontSize: "13px",
-            lineHeight: 1.7,
-          }}
-        >
-          {content}
-        </SyntaxHighlighter>
+function StreamingStatus({ label }: { label: string }) {
+  return (
+    <div className="mt-3 flex items-center gap-2 text-xs text-ink-muted">
+      <div className="flex items-center gap-1" aria-hidden="true">
+        {[0, 1, 2].map((index) => (
+          <span
+            key={index}
+            className="typing-dot h-1.5 w-1.5 rounded-full bg-ink-faint motion-reduce:animate-none"
+            style={{ animationDelay: `${index * 160}ms` }}
+          />
+        ))}
       </div>
-    );
-  },
-};
+      <span>{label}</span>
+    </div>
+  );
+}
 
 function EvidenceImageCards({ ids }: { ids?: readonly string[] }) {
   const images = getEvidenceImagesByIds(ids);
@@ -231,15 +134,15 @@ function ChatMessageItem({
   message,
   onSuggestedActionSelect,
   showAssistantAvatar = true,
+  isStreamingMessage = false,
 }: ChatMessageItemProps) {
   const isUser = message.role === "user";
   const shouldRenderAssistantAvatar = !isUser && showAssistantAvatar;
 
   return (
     <div
-      className={`flex gap-3 w-full ${isUser ? "flex-row-reverse" : "flex-row"}`}
+      className={`flex w-full gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
     >
-      {/* Avatar */}
       {isUser ? (
         <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-soft">
           <User size={13} className="text-white" strokeWidth={2.5} />
@@ -252,31 +155,37 @@ function ChatMessageItem({
         <div aria-hidden="true" className="mt-0.5 h-7 w-7 shrink-0" />
       )}
 
-      {/* Bubble */}
       <div
         className={`relative max-w-[88%] ${
           isUser
-            ? "rounded-2xl rounded-tr-sm bg-navy-soft px-4 py-3 text-[14px] text-white leading-relaxed shadow-sm"
+            ? "rounded-2xl rounded-tr-sm bg-navy-soft px-4 py-3 text-[14px] leading-relaxed text-white shadow-sm"
             : "rounded-2xl rounded-tl-sm border border-line bg-surface px-5 py-4 text-ink shadow-sm"
         }`}
       >
         {isUser ? (
           <span className="whitespace-pre-wrap">{message.content}</span>
         ) : (
-          <div className="break-words min-w-0">
-            <ReactMarkdown
+          <div className="min-w-0 break-words">
+            <StreamingAssistantContent
+              content={message.content}
+              isStreaming={isStreamingMessage}
               components={markdownComponents}
-              remarkPlugins={[remarkGfm]}
-            >
-              {message.content}
-            </ReactMarkdown>
-            <SuggestedActionButtons
-              actions={message.suggestedActions}
-              description={message.suggestedActionsDescription}
-              onSelect={onSuggestedActionSelect}
-              title={message.suggestedActionsTitle}
+              remarkPlugins={markdownRemarkPlugins}
             />
-            <EvidenceImageCards ids={message.evidenceImageIds} />
+            {!isStreamingMessage ? (
+              <>
+                <SuggestedActionButtons
+                  actions={message.suggestedActions}
+                  description={message.suggestedActionsDescription}
+                  onSelect={onSuggestedActionSelect}
+                  title={message.suggestedActionsTitle}
+                />
+                <EvidenceImageCards ids={message.evidenceImageIds} />
+              </>
+            ) : null}
+            {isStreamingMessage ? (
+              <StreamingStatus label="답변 생성 중" />
+            ) : null}
           </div>
         )}
       </div>
@@ -284,18 +193,40 @@ function ChatMessageItem({
   );
 }
 
-export default memo(
-  ChatMessageItem,
-  (prev, next) =>
-    prev.message.id === next.message.id &&
-    prev.message.content === next.message.content &&
-    (prev.message.evidenceImageIds ?? []).join(",") ===
-      (next.message.evidenceImageIds ?? []).join(",") &&
-    (prev.message.suggestedActions ?? []).map((action) => action.id).join(",") ===
-      (next.message.suggestedActions ?? []).map((action) => action.id).join(",") &&
+export default memo(ChatMessageItem, (prev, next) => {
+  if (
+    prev.message.id !== next.message.id ||
+    prev.message.content !== next.message.content
+  ) {
+    return false;
+  }
+
+  const prevEvidIds = prev.message.evidenceImageIds ?? [];
+  const nextEvidIds = next.message.evidenceImageIds ?? [];
+  if (
+    prevEvidIds.length !== nextEvidIds.length ||
+    prevEvidIds.join(",") !== nextEvidIds.join(",")
+  ) {
+    return false;
+  }
+
+  const prevActions = prev.message.suggestedActions ?? [];
+  const nextActions = next.message.suggestedActions ?? [];
+  if (
+    prevActions.length !== nextActions.length ||
+    prevActions.map((action) => action.id).join(",") !==
+      nextActions.map((action) => action.id).join(",")
+  ) {
+    return false;
+  }
+
+  return (
     prev.message.suggestedActionsDescription ===
       next.message.suggestedActionsDescription &&
-    prev.message.suggestedActionsTitle === next.message.suggestedActionsTitle &&
+    prev.message.suggestedActionsTitle ===
+      next.message.suggestedActionsTitle &&
     prev.onSuggestedActionSelect === next.onSuggestedActionSelect &&
-    prev.showAssistantAvatar === next.showAssistantAvatar,
-);
+    prev.showAssistantAvatar === next.showAssistantAvatar &&
+    prev.isStreamingMessage === next.isStreamingMessage
+  );
+});

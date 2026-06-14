@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
 
+import { useChat } from "@/hooks/useChat";
+
 import ChatAiLogo from "./ChatAiLogo";
 
 interface ChatInputProps {
   activeSection: string;
   isExpanded: boolean;
-  isTyping: boolean;
-  isStreaming: boolean;
-  onSend: (message: string) => void;
   onExpand: () => void;
 }
 
@@ -23,11 +22,11 @@ const PLACEHOLDER_DATA: Record<string, string> = {
 export default function ChatInput({
   activeSection,
   isExpanded,
-  isTyping,
-  isStreaming,
-  onSend,
   onExpand,
 }: ChatInputProps) {
+  const isTyping = useChat((state) => state.isTyping);
+  const isStreaming = useChat((state) => state.isStreaming);
+  const handleSend = useChat((state) => state.handleSend);
   const [inputValue, setInputValue] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +76,7 @@ export default function ChatInput({
       return;
     }
 
-    onSend(message);
+    handleSend(message);
     setInputValue("");
   };
 

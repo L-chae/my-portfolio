@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className="scroll-smooth">
+    <html lang="ko" data-scroll-behavior="smooth" className="scroll-smooth">
       <body className="bg-base text-navy antialiased">
         <MouseGlowEffect />
         <Background />

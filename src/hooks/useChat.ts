@@ -24,6 +24,8 @@ interface ChatStore {
   resetChat: () => void;
 }
 
+const INITIAL_MESSAGE_ID = "chat-welcome-message";
+
 const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 function parseEvidenceImageIds(headerValue: string | null) {
@@ -125,7 +127,7 @@ export function getNextEvidenceImageIdsForMessage(params: {
 }
 
 const INITIAL_MESSAGE: Message = {
-  id: createId(),
+  id: INITIAL_MESSAGE_ID,
   role: "assistant",
   content: "안녕하세요. 기능 구현을 넘어 예외 상황을 통제하는 프론트엔드 개발자 이채은의 AI입니다. 무엇이든 물어보세요!",
 };
@@ -142,7 +144,7 @@ export const useChat = create<ChatStore>((set, get) => ({
 
   resetChat: () =>
     set({
-      messages: [{ ...INITIAL_MESSAGE, id: createId() }],
+      messages: [INITIAL_MESSAGE],
       currentTopicHint: null,
     }),
 
