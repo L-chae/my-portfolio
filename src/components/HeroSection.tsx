@@ -186,7 +186,7 @@ export default function HeroSection() {
         </h1>
 
         <p
-          className="hero-item mt-5 max-w-2xl text-base leading-8 text-ink break-keep"
+          className="hero-item mt-5 max-w-2xl  leading-8 text-ink break-keep"
           style={{ animationDelay: "280ms" }}
         >
           구현 과정부터 기술적 선택의 근거까지, 무엇이든 물어보세요.

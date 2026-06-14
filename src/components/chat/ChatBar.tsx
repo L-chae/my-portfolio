@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { Button } from "@/components/ui/Button";
 
+import ChatAiLogo from "./ChatAiLogo";
 import ChatHeader from "./ChatHeader";
 import ChatMessageItem from "./ChatMessageItem";
 import ChatSuggestions from "./ChatSuggestions";
@@ -13,6 +13,10 @@ import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 
 const SECTION_IDS = ["hero", "experience", "core-values", "projects"];
+
+function isAssistantRole(role: string) {
+  return role === "assistant" || role === "bot";
+}
 
 export default function ChatBar() {
   const { isExpanded, setIsExpanded, isTyping, messages, handleSend } =
@@ -114,10 +118,12 @@ export default function ChatBar() {
           }}
           variant="primary"
           className="group h-14 px-5 text-[15px]"
+          aria-label="AI 챗봇 열기"
         >
-          <Sparkles
-            size={20}
-            className="transition-transform duration-300 group-hover:scale-110"
+          <ChatAiLogo
+            decorative
+            size={24}
+            className="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110"
           />
           <span className="font-semibold text-[15px]">AI 질문하기</span>
         </Button>
@@ -146,15 +152,31 @@ export default function ChatBar() {
           }`}
         >
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
-            {messages.map((msg, idx) => (
-              <ChatMessageItem
-                key={idx}
-                message={msg}
-                onSuggestedActionSelect={handleSend}
-              />
-            ))}
+            {messages.map((msg, idx) => {
+              const previousMessage = idx > 0 ? messages[idx - 1] : undefined;
+              const showAssistantAvatar =
+                !isAssistantRole(msg.role) ||
+                !previousMessage ||
+                !isAssistantRole(previousMessage.role);
 
-            {isTyping && <TypingIndicator />}
+              return (
+                <ChatMessageItem
+                  key={idx}
+                  message={msg}
+                  onSuggestedActionSelect={handleSend}
+                  showAssistantAvatar={showAssistantAvatar}
+                />
+              );
+            })}
+
+            {isTyping && (
+              <TypingIndicator
+                showAvatar={
+                  messages.length === 0 ||
+                  !isAssistantRole(messages[messages.length - 1]?.role ?? "")
+                }
+              />
+            )}
 
             <ChatSuggestions
               activeSection={activeSection}

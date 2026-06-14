@@ -33,9 +33,9 @@ function getProjectLogoSrc(projectKey: string) {
     case 'rodia':
       return '/projects/rodia-logo.png';
     case 'portfolio-ai':
-      return '/projects/ai-logo.png';
+      return '/projects/chat-ai.svg';
     default:
-      return '/projects/ai-logo.png';
+      return '/projects/chat-ai.svg';
   }
 }
 
@@ -109,7 +109,7 @@ export default function ProjectsSection() {
 
                 <div className="mt-3 min-w-0 space-y-2">
                   <p className="text-sm font-medium text-ink-muted">{project.displayLabel}</p>
-                  <p className="break-keep text-base leading-7 text-ink">{project.summary}</p>
+                  <p className="break-keep leading-7 text-ink">{project.summary}</p>
                 </div>
 
                 <div className="mt-6 border-t border-line-soft pt-4">

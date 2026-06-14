@@ -28,7 +28,7 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
 
   return (
     <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <p className="text-[13px] font-bold text-ink-faint">
+      <p className="text-sm text-ink-muted">
         {isInitialState ? "첫 질문을 선택해 대화를 시작해 보세요" : "현재 내용과 관련된 후속 질문"}
       </p>
       <div className="flex flex-wrap gap-2">

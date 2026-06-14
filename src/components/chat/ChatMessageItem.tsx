@@ -3,7 +3,7 @@ import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Bot, User } from "lucide-react";
+import { User } from "lucide-react";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
@@ -16,6 +16,8 @@ import {
   getEvidenceImagesByIds,
 } from "@/lib/evidenceImages";
 import type { SuggestedAction } from "@/lib/evidenceImages";
+
+import ChatAiLogo from "./ChatAiLogo";
 
 SyntaxHighlighter.registerLanguage("tsx", tsx);
 SyntaxHighlighter.registerLanguage("typescript", typescript);
@@ -37,6 +39,7 @@ interface ChatMessageItemProps {
   message: Message;
   isLast?: boolean;
   onSuggestedActionSelect?: (prompt: string) => void;
+  showAssistantAvatar?: boolean;
 }
 
 const markdownComponents: Components = {
@@ -227,27 +230,27 @@ function SuggestedActionButtons({
 function ChatMessageItem({
   message,
   onSuggestedActionSelect,
+  showAssistantAvatar = true,
 }: ChatMessageItemProps) {
   const isUser = message.role === "user";
+  const shouldRenderAssistantAvatar = !isUser && showAssistantAvatar;
 
   return (
     <div
       className={`flex gap-3 w-full ${isUser ? "flex-row-reverse" : "flex-row"}`}
     >
       {/* Avatar */}
-      <div
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full mt-0.5 ${
-          isUser
-            ? "bg-navy-soft"
-            : "bg-brand shadow-sm"
-        }`}
-      >
-        {isUser ? (
+      {isUser ? (
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-soft">
           <User size={13} className="text-white" strokeWidth={2.5} />
-        ) : (
-          <Bot size={13} className="text-white" strokeWidth={2.5} />
-        )}
-      </div>
+        </div>
+      ) : shouldRenderAssistantAvatar ? (
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-soft bg-brand-pale shadow-sm">
+          <ChatAiLogo decorative size={16} className="h-4 w-4 text-brand" />
+        </div>
+      ) : (
+        <div aria-hidden="true" className="mt-0.5 h-7 w-7 shrink-0" />
+      )}
 
       {/* Bubble */}
       <div
@@ -293,5 +296,6 @@ export default memo(
     prev.message.suggestedActionsDescription ===
       next.message.suggestedActionsDescription &&
     prev.message.suggestedActionsTitle === next.message.suggestedActionsTitle &&
-    prev.onSuggestedActionSelect === next.onSuggestedActionSelect,
+    prev.onSuggestedActionSelect === next.onSuggestedActionSelect &&
+    prev.showAssistantAvatar === next.showAssistantAvatar,
 );

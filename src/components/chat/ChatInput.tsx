@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
+
+import ChatAiLogo from "./ChatAiLogo";
 
 interface ChatInputProps {
   activeSection: string;
@@ -99,11 +101,12 @@ export default function ChatInput({
             ? "max-w-2xl min-h-14 px-4 py-2 bg-base border border-line rounded-[28px] focus-within:bg-surface focus-within:shadow-sm focus-within:border-brand/40 focus-within:ring-4 focus-within:ring-brand/10"
             : "max-w-100 h-14 px-4 bg-surface border border-line shadow-card hover:shadow-soft rounded-full group"
         }`}
-      >
+        >
         {!isExpanded && (
-          <Sparkles
-            size={18}
-            className="text-brand shrink-0 ml-1 transition-transform group-hover:scale-110"
+          <ChatAiLogo
+            decorative
+            size={20}
+            className="ml-1 h-5 w-5 text-brand transition-transform duration-300 group-hover:scale-110"
           />
         )}
 

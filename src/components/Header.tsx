@@ -317,7 +317,7 @@ export default function Header() {
             href="/"
             onClick={(event) => handleNavClick(NAV_ITEMS[0], event)}
             aria-label="Lee.dev 홈으로 이동"
-            className="text-base font-extrabold tracking-tight text-navy transition-opacity duration-150 hover:opacity-70"
+            className="font-extrabold tracking-tight text-navy transition-opacity duration-150 hover:opacity-70"
           >
             Lee<span className="text-brand">.dev</span>
           </Link>

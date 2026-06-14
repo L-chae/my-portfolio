@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   title: '이채은 | Frontend Developer',
   description: 'Frontend Developer Portfolio',
   icons: {
-    icon: '/projects/ai-logo.png',
-    shortcut: '/projects/ai-logo.png',
-    apple: '/projects/ai-logo.png',
+    icon: '/projects/chat-ai.svg',
+    shortcut: '/projects/chat-ai.svg',
+    apple: '/projects/chat-ai.svg',
   },
   robots: {
     index: false,
