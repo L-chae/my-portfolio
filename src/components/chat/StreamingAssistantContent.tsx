@@ -121,7 +121,7 @@ export default function StreamingAssistantContent({
   }
 
   return (
-    <div className="whitespace-pre-wrap break-words leading-relaxed text-ink">
+    <div className="whitespace-pre-wrap break-words text-[14px] leading-[1.75] text-ink">
       {displayContent}
     </div>
   );

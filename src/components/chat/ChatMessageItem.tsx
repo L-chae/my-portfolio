@@ -159,7 +159,7 @@ function ChatMessageItem({
         className={`relative max-w-[88%] ${
           isUser
             ? "rounded-2xl rounded-tr-sm bg-navy-soft px-4 py-3 text-[14px] leading-relaxed text-white shadow-sm"
-            : "rounded-2xl rounded-tl-sm border border-line bg-surface px-5 py-4 text-ink shadow-sm"
+            : "rounded-2xl rounded-tl-sm border border-line bg-surface px-5 py-4 text-[14px] leading-[1.75] text-ink shadow-sm"
         }`}
       >
         {isUser ? (
