@@ -449,11 +449,18 @@ function getMentionedSourceIds(query: string) {
     sourceIds.add("portfolio-ai");
   }
 
+  const hasProjectSourceMention =
+    sourceIds.has("rodia") ||
+    sourceIds.has("storylex") ||
+    sourceIds.has("career");
+
   if (
     compact.includes("codex") ||
     compact.includes("claude") ||
     compact.includes("cursor") ||
-    (compact.includes("ai") && !sourceIds.has("portfolio-ai"))
+    (compact.includes("ai") &&
+      !sourceIds.has("portfolio-ai") &&
+      !hasProjectSourceMention)
   ) {
     sourceIds.add("ai-engineering");
   }
@@ -477,6 +484,81 @@ function hasAnyToken(
   tokens: readonly string[],
 ) {
   return tokens.some((token) => tokenSet.has(token));
+}
+
+function hasProjectIntent(intentTokenSet: ReadonlySet<string>) {
+  return hasAnyToken(intentTokenSet, [
+    "storylex",
+    "rodia",
+    "hivelab",
+    "portfolio",
+  ]);
+}
+
+function isStoryLexAiStoryIntent(intentTokenSet: ReadonlySet<string>) {
+  return (
+    intentTokenSet.has("storylex") &&
+    intentTokenSet.has("ai") &&
+    hasAnyToken(intentTokenSet, ["스토리", "기능", "직접"])
+  );
+}
+
+function isStoryLexLearningIntent(intentTokenSet: ReadonlySet<string>) {
+  return (
+    intentTokenSet.has("storylex") &&
+    hasAnyToken(intentTokenSet, [
+      "경험",
+      "배웠어",
+      "배웠",
+      "배운",
+      "배움",
+      "느낀",
+      "회고",
+      "개선",
+    ])
+  );
+}
+
+function isRodiaDesignTokenIntent(tokenSet: ReadonlySet<string>) {
+  const hasTokenWord = hasAnyToken(tokenSet, ["토큰", "token", "tokens"]);
+  const hasDesignWord = tokenSet.has("디자인");
+  const hasDesignTokenQualifier = hasAnyToken(tokenSet, [
+    "json",
+    "css",
+    "스키마",
+    "zod",
+    "변수",
+    "검증",
+    "오류",
+    "동기화",
+    "웹",
+    "모바일",
+    "web",
+    "app",
+  ]);
+  const hasUiImpactIntent =
+    tokenSet.has("ui") &&
+    hasAnyToken(tokenSet, ["영향", "줄였어", "줄이기", "줄였"]);
+
+  if (hasUiImpactIntent && tokenSet.has("api")) return false;
+
+  return (
+    (hasDesignWord && hasTokenWord) ||
+    (hasTokenWord && hasDesignTokenQualifier)
+  );
+}
+
+function isGeneralProblemSolvingIntent(intentTokenSet: ReadonlySet<string>) {
+  const hasExceptionControlIntent =
+    intentTokenSet.has("예외") &&
+    hasAnyToken(intentTokenSet, ["상황", "통제", "방어"]);
+  const hasProblemSolvingIntent =
+    intentTokenSet.has("문제") && intentTokenSet.has("해결");
+
+  return (
+    !hasProjectIntent(intentTokenSet) &&
+    (hasExceptionControlIntent || hasProblemSolvingIntent)
+  );
 }
 
 function isCoreProjectChunk(chunk: KnowledgeChunk) {
@@ -543,6 +625,61 @@ function getDomainSpecificBoost(
     intentTokenSet,
     TECHNICAL_INTENT_HINTS,
   );
+
+  if (isStoryLexAiStoryIntent(intentTokenSet) && chunk.sourceId === "storylex") {
+    if (chunk.id.includes("keyFeatures.aiStory")) {
+      boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    }
+
+    if (chunk.id.includes("implementationScope")) {
+      boost += INTENT_DOMAIN_BOOST;
+    }
+
+    if (chunk.id.includes("publicDescription")) {
+      boost += INTENT_CHUNK_BOOST / 2;
+    }
+  }
+
+  if (isStoryLexLearningIntent(intentTokenSet) && chunk.sourceId === "storylex") {
+    if (chunk.id.includes("retrospective")) {
+      boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    }
+
+    if (
+      chunk.id.includes("interviewAnswers") ||
+      chunk.id.includes("publicDescription")
+    ) {
+      boost += INTENT_DOMAIN_BOOST;
+    }
+  }
+
+  if (
+    isRodiaDesignTokenIntent(tokenSet) &&
+    chunk.sourceId === "rodia" &&
+    chunk.id.includes("designTokens")
+  ) {
+    boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST * 2;
+
+    if (isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+
+  if (
+    isGeneralProblemSolvingIntent(intentTokenSet) &&
+    chunk.sourceId === "problem-solving"
+  ) {
+    boost += INTENT_DOMAIN_BOOST;
+
+    if (
+      chunk.id.includes("summary") ||
+      chunk.id.includes("defensiveProgramming") ||
+      chunk.id.includes("philosophy")
+    ) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+
   const hasAuthIntent =
     ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some((token) =>
       tokenSet.has(token),

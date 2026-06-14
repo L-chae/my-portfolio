@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:retrieval": "tsx scripts/test-retrieval.ts",
     "test:prepared": "tsx scripts/test-prepared-suggestions.ts",
+    "test:chat-quality": "tsx scripts/test-chat-knowledge-quality.ts",
     "test:qa": "npm run test:retrieval && npm run test:prepared"
   },
   "dependencies": {
