@@ -5,6 +5,13 @@ import Background from '../components/ui/Background';
 import MouseGlowEffect from '../components/ui/MouseGlowEffect';
 
 export const metadata: Metadata = {
+  title: '이채은 | Frontend Developer',
+  description: 'Frontend Developer Portfolio',
+  icons: {
+    icon: '/projects/ai-logo.png',
+    shortcut: '/projects/ai-logo.png',
+    apple: '/projects/ai-logo.png',
+  },
   robots: {
     index: false,
     follow: false,

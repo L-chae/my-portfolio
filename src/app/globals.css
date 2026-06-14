@@ -65,7 +65,7 @@
     --glow-border-hover: color-mix(in srgb, var(--color-ink) 16%, transparent);
   }
   html {
-    scroll-padding-top: 80px;
+    scroll-padding-top: 4rem;
   }
   body {
     font-family: var(--font-sans);
@@ -292,20 +292,29 @@
   }
 
   .motion-card {
+    will-change: transform, box-shadow;
     transition:
-      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 180ms ease,
-      background-color 180ms ease;
+      transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 140ms ease-out,
+      background-color 140ms ease-out;
   }
 
   .motion-card:hover,
   .motion-card:focus-within {
-    transform: translate3d(0, -2px, 0);
+    transform: translate3d(0, -4px, 0) scale(1.01);
   }
 
   .motion-link-arrow svg {
     transition: transform 160ms ease;
+  }
+
+  .motion-indicator {
+    transition:
+      transform 480ms cubic-bezier(0.34, 1.28, 0.64, 1),
+      width 420ms cubic-bezier(0.34, 1.28, 0.64, 1),
+      opacity 200ms ease;
+    will-change: transform, width, opacity;
   }
 
   .motion-link-arrow:hover svg,
@@ -342,6 +351,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .motion-card,
+  .motion-indicator,
   .motion-link-arrow svg,
   .page-enter,
   .scroll-reveal,
