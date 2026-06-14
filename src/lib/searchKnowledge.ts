@@ -46,9 +46,13 @@ const knowledgeMap = knowledge as KnowledgeMap;
 
 const META_KEYS = new Set([
   "id",
+  "answerPolicy",
   "evidenceImageIds",
   "evidenceImages",
+  "exposeOnlyWhenAsked",
+  "followUpQuestions",
   "keywords",
+  "name",
   "suggestedQuestions",
   "preparedAnswers",
 ]);
@@ -57,10 +61,12 @@ const DEFAULT_MIN_SCORE = 0.75;
 const HINT_BOOST = 3.2;
 const SOURCE_MENTION_BOOST = 12;
 const PATH_MATCH_BOOST = 2.5;
-const AUTH401_DOMAIN_BOOST = 8;
+const AUTH_FLOW_DOMAIN_BOOST = 8;
 const STATE_MANAGEMENT_DOMAIN_BOOST = 4;
 const INTENT_DOMAIN_BOOST = 10;
 const INTENT_CHUNK_BOOST = 8;
+const BASIC_INTENT_CHUNK_BOOST = 14;
+const BASIC_INTENT_TECHNICAL_PENALTY = 12;
 
 const BM25_K1 = 1.2;
 const BM25_B = 0.75;
@@ -88,6 +94,49 @@ const STOP_WORDS = new Set([
   "해주세요",
   "해줘",
 ]);
+
+const BASIC_INTENT_HINTS = [
+  "프로젝트",
+  "설명",
+  "쉽게",
+  "역할",
+  "맡은",
+  "기여도",
+  "배운",
+  "의미",
+  "상황",
+  "고려",
+  "고려했나요",
+];
+
+const TECHNICAL_INTENT_HINTS = [
+  "구현",
+  "구조",
+  "코드",
+  "로직",
+  "401",
+  "refresh",
+  "single",
+  "flight",
+  "subscriber",
+  "queue",
+  "promise",
+  "interceptor",
+  "mutator",
+  "orval",
+  "openapi",
+  "zod",
+  "관리",
+  "토큰",
+  "tokens",
+  "json",
+  "requestid",
+  "curl",
+  "debug",
+  "logs",
+  "전처리",
+  "safeparse",
+];
 
 /**
  * 프로젝트명은 동의어 확장보다 먼저 canonical keyword로 정규화한다.
@@ -300,11 +349,14 @@ function normalizeToken(word: string) {
 
   const particles = [
     "에서는",
+    "인가요",
     "으로는",
     "한테는",
     "이랑은",
+    "인가",
     "에서",
     "으로",
+    "나요",
     "이나",
     "이랑",
     "한테",
@@ -420,12 +472,77 @@ function getPathMatchBoost(
   }, 0);
 }
 
+function hasAnyToken(
+  tokenSet: ReadonlySet<string>,
+  tokens: readonly string[],
+) {
+  return tokens.some((token) => tokenSet.has(token));
+}
+
+function isCoreProjectChunk(chunk: KnowledgeChunk) {
+  return [
+    ".summary",
+    ".publicDescription",
+    ".contributionScope",
+    ".interviewAnswers",
+  ].some((path) => chunk.id.includes(path));
+}
+
+function isTechnicalDetailChunk(chunk: KnowledgeChunk) {
+  return chunk.id.includes("technicalDetail");
+}
+
+function isPublicProjectChunk(chunk: KnowledgeChunk) {
+  return (
+    !isTechnicalDetailChunk(chunk) &&
+    (chunk.id.includes(".public") || chunk.id.includes(".simpleFlow"))
+  );
+}
+
+function getProjectIntentBoost(
+  intentTokenSet: ReadonlySet<string>,
+  chunk: KnowledgeChunk,
+) {
+  if (chunk.sourceId !== "storylex" && chunk.sourceId !== "rodia") return 0;
+
+  let boost = 0;
+  const hasBasicIntent = hasAnyToken(intentTokenSet, BASIC_INTENT_HINTS);
+  const hasTechnicalIntent = hasAnyToken(
+    intentTokenSet,
+    TECHNICAL_INTENT_HINTS,
+  );
+
+  if (hasBasicIntent && isCoreProjectChunk(chunk)) {
+    boost += BASIC_INTENT_CHUNK_BOOST;
+  }
+
+  if (hasBasicIntent && isPublicProjectChunk(chunk)) {
+    boost += BASIC_INTENT_CHUNK_BOOST / 2;
+  }
+
+  if (hasBasicIntent && !hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+    boost -= BASIC_INTENT_TECHNICAL_PENALTY;
+  }
+
+  if (hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+    boost += INTENT_CHUNK_BOOST;
+  }
+
+  return boost;
+}
+
 function getDomainSpecificBoost(
   queryTokens: readonly string[],
   chunk: KnowledgeChunk,
+  intentTokens: readonly string[] = queryTokens,
 ) {
   const tokenSet = new Set(queryTokens);
-  let boost = 0;
+  const intentTokenSet = new Set(intentTokens);
+  let boost = getProjectIntentBoost(intentTokenSet, chunk);
+  const hasTechnicalIntent = hasAnyToken(
+    intentTokenSet,
+    TECHNICAL_INTENT_HINTS,
+  );
   const hasAuthIntent =
     ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some((token) =>
       tokenSet.has(token),
@@ -435,9 +552,13 @@ function getDomainSpecificBoost(
   if (
     hasAuthIntent &&
     chunk.sourceId === "storylex" &&
-    chunk.id.includes("auth401")
+    chunk.id.includes("authFlow")
   ) {
-    boost += AUTH401_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    boost += AUTH_FLOW_DOMAIN_BOOST;
+
+    if (hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
   }
 
   const hasStateManagementIntent = [
@@ -474,7 +595,9 @@ function getDomainSpecificBoost(
   if (
     hasRodiaApiIntent &&
     chunk.sourceId === "rodia" &&
-    chunk.id.includes("apiArchitecture") &&
+    (chunk.id.includes("apiAutomation") ||
+      chunk.id.includes("customInstance") ||
+      chunk.id.includes("apiDebugLogger")) &&
     (tokenSet.has("rodia") ||
       tokenSet.has("feature") ||
       tokenSet.has("피처") ||
@@ -486,7 +609,7 @@ function getDomainSpecificBoost(
     boost += INTENT_DOMAIN_BOOST;
 
     if (
-      chunk.id.includes("featureApi") &&
+      chunk.id.includes("apiAutomation") &&
       ["feature", "피처", "mapper", "매퍼", "서버", "응답", "영향"].some(
         (token) => tokenSet.has(token),
       )
@@ -502,9 +625,13 @@ function getDomainSpecificBoost(
   if (
     hasOrvalIntent &&
     chunk.sourceId === "rodia" &&
-    chunk.id.includes("apiArchitecture.orval")
+    chunk.id.includes("apiAutomation")
   ) {
     boost += INTENT_DOMAIN_BOOST;
+
+    if (isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
   }
 
   const hasRetrospectiveIntent = [
@@ -903,6 +1030,7 @@ function rankChunks(query: string, limit: number, options: RetrievalOptions) {
   const rewrittenQuery = options.skipRewrite
     ? aliasNormalizedQuery
     : rewriteQuery(aliasNormalizedQuery, options.messages ?? []);
+  const intentTokens = tokenize(rewrittenQuery);
   const expandedTokens = expandQuery(rewrittenQuery);
   const mentionedSourceIds = getMentionedSourceIds(rewrittenQuery);
 
@@ -927,6 +1055,7 @@ function rankChunks(query: string, limit: number, options: RetrievalOptions) {
       const domainSpecificBoost = getDomainSpecificBoost(
         expandedTokens,
         chunk,
+        intentTokens,
       );
 
       return {

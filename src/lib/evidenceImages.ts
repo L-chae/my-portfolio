@@ -32,20 +32,25 @@ const STORYLEX_AUTH_EVIDENCE_IDS = [
 const RODIA_API_DEBUG_EVIDENCE_ID = "rodia-api-debug-curl" as const;
 
 const STORYLEX_VISUAL_EVIDENCE_TERMS = [
+  "증거",
   "캡처",
   "캡쳐",
   "스크린샷",
+  "화면",
   "이미지",
+  "gif",
   "network",
+  "네트워크",
   "devtools",
-  "증거",
   "검증",
   "재현",
+  "확인",
   "proof",
 ];
 
 const STORYLEX_DIRECT_VIEW_TERMS = [
   "보여",
+  "볼수",
   "열어",
   "띄워",
   "보고싶",
@@ -53,41 +58,58 @@ const STORYLEX_DIRECT_VIEW_TERMS = [
 ];
 
 const STORYLEX_AUTH_TOPIC_TERMS = [
+  "storylex",
+  "스토리렉스",
+  "스토리랙스",
   "401",
   "refresh",
-  "인증",
-  "토큰",
-  "queue",
-  "큐",
-  "singleflight",
-  "subscriber",
+  "로그인만료",
+  "토큰재발급",
   "msw",
-  "검증",
-  "증거",
-  "proof",
-  "재현",
-  "확인",
+  "network",
+  "네트워크",
+];
+
+const STORYLEX_STRONG_EVIDENCE_TERMS = [
+  "msw",
+  "network",
+  "네트워크",
+  "토큰재발급성공",
+  "토큰재발급실패",
+  "refresh성공",
+  "refresh실패",
+  "로그인만료재현",
+];
+
+const RODIA_EVIDENCE_TOPIC_TERMS = [
+  "rodia",
+  "로디아",
+  "모바일api디버거",
+  "apidebuglogs",
+  "api debug logs",
+  "api로그",
+  "curl",
+  "모바일디버깅",
+  "인앱api디버거",
 ];
 
 const RODIA_API_DEBUG_TOPIC_TERMS = [
-  "rodia",
-  "로디아",
   "인앱api디버거",
   "인앱디버거",
   "api디버거",
+  "api디버깅",
   "apidebuglogs",
   "api debug logs",
   "debuglogs",
+  "디버그로그",
   "curl",
   "모바일통신",
   "모바일api",
+  "모바일디버깅",
+  "통신이슈",
   "통신문제",
-  "재현가능",
-  "재현가능한요청",
   "요청재현",
   "api로그",
-  "로그",
-  "디버깅",
   "네트워크",
   "network",
 ];
@@ -285,8 +307,31 @@ function hasAnyTerm(text: string, terms: readonly string[]) {
 
 function hasDirectImageIntent(text: string) {
   return (
-    hasAnyTerm(text, STORYLEX_VISUAL_EVIDENCE_TERMS) &&
-    hasAnyTerm(text, STORYLEX_DIRECT_VIEW_TERMS)
+    hasEvidenceIntent(text) && hasAnyTerm(text, STORYLEX_DIRECT_VIEW_TERMS)
+  );
+}
+
+function hasEvidenceIntent(text: string) {
+  return hasAnyTerm(text, STORYLEX_VISUAL_EVIDENCE_TERMS);
+}
+
+function hasStoryLexEvidenceTopic(text: string) {
+  return hasAnyTerm(text, STORYLEX_AUTH_TOPIC_TERMS);
+}
+
+function hasStoryLexEvidenceIntent(text: string) {
+  return (
+    hasEvidenceIntent(text) || hasAnyTerm(text, STORYLEX_STRONG_EVIDENCE_TERMS)
+  );
+}
+
+function hasRodiaEvidenceTopic(text: string) {
+  return hasAnyTerm(text, RODIA_EVIDENCE_TOPIC_TERMS);
+}
+
+function hasRodiaEvidenceIntent(text: string) {
+  return (
+    hasEvidenceIntent(text) || hasAnyTerm(text, RODIA_API_DEBUG_TOPIC_TERMS)
   );
 }
 
@@ -360,7 +405,11 @@ export function findEvidenceImageIds(params: {
 }) {
   const text = normalize(`${params.question} ${params.rewrittenQuery}`);
 
-  if (isRodiaQuestion(text, params.sections)) {
+  if (isRodiaQuestion(text, params.sections) && hasRodiaEvidenceTopic(text)) {
+    if (!hasRodiaEvidenceIntent(text)) {
+      return [];
+    }
+
     if (!hasDirectImageIntent(text)) {
       return [];
     }
@@ -378,7 +427,14 @@ export function findEvidenceImageIds(params: {
     return [];
   }
 
-  if (!isStoryLexQuestion(text, params.sections)) {
+  if (
+    !isStoryLexQuestion(text, params.sections) ||
+    !hasStoryLexEvidenceTopic(text)
+  ) {
+    return [];
+  }
+
+  if (!hasStoryLexEvidenceIntent(text)) {
     return [];
   }
 
@@ -420,6 +476,8 @@ export function findSuggestedActionsPayload(params: {
 
   if (
     isRodiaQuestion(text, params.sections) &&
+    hasRodiaEvidenceTopic(text) &&
+    hasRodiaEvidenceIntent(text) &&
     !hasDirectImageIntent(text) &&
     hasRodiaApiDebugIntent(text)
   ) {
@@ -429,7 +487,12 @@ export function findSuggestedActionsPayload(params: {
     };
   }
 
-  if (!isStoryLexQuestion(text, params.sections) || hasDirectImageIntent(text)) {
+  if (
+    !isStoryLexQuestion(text, params.sections) ||
+    !hasStoryLexEvidenceTopic(text) ||
+    !hasStoryLexEvidenceIntent(text) ||
+    hasDirectImageIntent(text)
+  ) {
     return null;
   }
 
