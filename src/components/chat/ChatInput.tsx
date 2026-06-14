@@ -7,6 +7,7 @@ interface ChatInputProps {
   activeSection: string;
   isExpanded: boolean;
   isTyping: boolean;
+  isStreaming: boolean;
   onSend: (message: string) => void;
   onExpand: () => void;
 }
@@ -23,6 +24,7 @@ export default function ChatInput({
   activeSection,
   isExpanded,
   isTyping,
+  isStreaming,
   onSend,
   onExpand,
 }: ChatInputProps) {
@@ -69,6 +71,7 @@ export default function ChatInput({
     if (
       !message ||
       isTyping ||
+      isStreaming ||
       isComposingRef.current
     ) {
       return;
@@ -119,8 +122,9 @@ export default function ChatInput({
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
           placeholder={placeholder}
-          disabled={isTyping}
-          readOnly={!isExpanded}
+          disabled={isTyping || isStreaming}
+          readOnly={!isExpanded || isStreaming}
+          aria-label="질문 입력"
           className={`flex-1 min-w-0 bg-transparent px-2 py-2 focus:outline-none transition-all text-navy placeholder:text-ink-muted truncate ${
             isExpanded
               ? "text-[15.5px]"
@@ -132,12 +136,13 @@ export default function ChatInput({
           type="submit"
           disabled={
             isExpanded &&
-            (!inputValue.trim() || isTyping)
+            (!inputValue.trim() || isTyping || isStreaming)
           }
+          aria-label="질문 보내기"
           className={`shrink-0 rounded-full flex items-center justify-center transition-all duration-300 ${
             isExpanded
               ? `w-10 h-10 ${
-                  inputValue.trim() && !isTyping
+                  inputValue.trim() && !isTyping && !isStreaming
                     ? "bg-brand text-white shadow-sm hover:bg-brand-hover"
                     : "bg-surface-muted text-ink-faint"
                 }`

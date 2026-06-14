@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useId } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { Button } from "@/components/ui/Button";
@@ -19,7 +19,7 @@ function isAssistantRole(role: string) {
 }
 
 export default function ChatBar() {
-  const { isExpanded, setIsExpanded, isTyping, messages, handleSend } =
+  const { isExpanded, setIsExpanded, isTyping, isStreaming, messages, handleSend } =
     useChat();
 
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -27,6 +27,27 @@ export default function ChatBar() {
 
   const activeSection = useActiveSection(SECTION_IDS);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+
+  const toggleExpanded = useCallback(
+    (expanded: boolean) => {
+      if (!expanded) {
+        setIsFullScreen(false);
+      }
+
+      setIsExpanded(expanded);
+
+      if (!expanded) {
+        window.setTimeout(() => {
+          const floatingButton = document.querySelector<HTMLButtonElement>(
+            '[data-chat-floating-button="true"]',
+          );
+          floatingButton?.focus();
+        }, 0);
+      }
+    },
+    [setIsExpanded],
+  );
 
   useEffect(() => {
     document.body.style.overflow = isExpanded ? "hidden" : "unset";
@@ -58,14 +79,6 @@ export default function ChatBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleExpanded = useCallback(
-    (expanded: boolean) => {
-      if (!expanded) setIsFullScreen(false);
-      setIsExpanded(expanded);
-    },
-    [setIsExpanded],
-  );
-
   useEffect(() => {
     const handleChatIntent = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
@@ -91,6 +104,21 @@ export default function ChatBar() {
 
     return () => document.removeEventListener("click", handleChatIntent);
   }, [toggleExpanded, handleSend, isTyping]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || isTyping) return;
+
+      event.preventDefault();
+      toggleExpanded(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isExpanded, isTyping, toggleExpanded]);
 
   return (
     <>
@@ -119,6 +147,7 @@ export default function ChatBar() {
           variant="primary"
           className="group h-14 px-5 text-[15px]"
           aria-label="AI 챗봇 열기"
+          data-chat-floating-button="true"
         >
           <ChatAiLogo
             decorative
@@ -137,8 +166,13 @@ export default function ChatBar() {
               : "bottom-[2dvh] sm:bottom-[5dvh] w-[96vw] max-w-2xl h-[92dvh] sm:h-[85dvh] bg-base shadow-2xl border border-line rounded-[28px] overflow-hidden opacity-100 scale-100"
             : "bottom-6 w-[calc(100%-2rem)] max-w-2xl h-14 bg-transparent border-transparent shadow-none pointer-events-none opacity-0 scale-95"
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-hidden={!isExpanded}
       >
         <ChatHeader
+          titleId={titleId}
           isExpanded={isExpanded}
           isFullScreen={isFullScreen}
           setIsFullScreen={setIsFullScreen}
@@ -150,6 +184,11 @@ export default function ChatBar() {
           className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-35 transition-opacity duration-300 ${
             isExpanded ? "opacity-100" : "opacity-0 hidden"
           }`}
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-atomic="false"
+          aria-busy={isTyping || isStreaming}
         >
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
             {messages.map((msg, idx) => {
@@ -161,7 +200,7 @@ export default function ChatBar() {
 
               return (
                 <ChatMessageItem
-                  key={idx}
+                  key={msg.id}
                   message={msg}
                   onSuggestedActionSelect={handleSend}
                   showAssistantAvatar={showAssistantAvatar}
@@ -183,6 +222,7 @@ export default function ChatBar() {
               onSelect={handleSend}
               messages={messages}
               isTyping={isTyping}
+              isStreaming={isStreaming}
             />
           </div>
         </div>
@@ -192,6 +232,7 @@ export default function ChatBar() {
             activeSection={activeSection}
             isExpanded={isExpanded}
             isTyping={isTyping}
+            isStreaming={isStreaming}
             onSend={handleSend}
             onExpand={() => toggleExpanded(true)}
           />

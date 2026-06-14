@@ -7,9 +7,16 @@ interface ChatSuggestionsProps {
   onSelect: (suggestion: string) => void;
   messages: { role: string; content: string }[];
   isTyping: boolean;
+  isStreaming: boolean;
 }
 
-function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
+function ChatSuggestions({
+  activeSection,
+  onSelect,
+  messages,
+  isTyping,
+  isStreaming,
+}: ChatSuggestionsProps) {
   const currentTopicHint = useChat((state) => state.currentTopicHint);
   const isInitialState = messages.length === 1;
 
@@ -24,7 +31,7 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
       .slice(0, 3);
   }, [currentTopicHint, activeSection, messages]);
 
-  if (isTyping || suggestions.length === 0) return null;
+  if (isTyping || isStreaming || suggestions.length === 0) return null;
 
   return (
     <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
