@@ -30,6 +30,7 @@ function formatStoryLexGuardrails() {
     "AI story scope: AI 스토리는 AI 모델을 직접 개발하거나 학습시킨 경험으로 설명하지 않음. 오답 단어를 문맥 속에서 다시 접하게 하는 학습 기능으로 설명.",
     "AI story ownership: 별도 팀, 외부 모델 제공사, 백엔드 팀 담당 여부는 Context에 명확히 없으면 말하지 않음.",
     "Frontend scope: 화면과 API 통신 흐름을 연결한 범위로 제한. 스토리 생성 모델 자체 구현으로 말하지 않음.",
+    "Tech stack clarification: StoryLex는 React, JavaScript JSX, React Query, Zustand, Axios, MSW, Recharts, Vite 사용 경험으로 설명. StoryLex에서 TypeScript를 사용했다고 말하지 않음.",
     "Do not say: TypeScript로 타입 안정성을 확보했습니다.; AI 스토리 생성 모델을 직접 개발했습니다.; 스토리 생성 모델은 별도 팀에서 담당했습니다.; 모든 인증 문제를 완벽히 해결했습니다.; 전체 서비스를 혼자 개발했습니다.; 백엔드까지 담당했습니다.",
     "Style rules: 기본 답변은 쉬운 표현을 우선 사용; single-flight, subscriber queue, Axios interceptor는 구현 방식을 물을 때만 사용; 수치 없는 성과를 만들지 않음; '~하죠', '~했어요', '좋은 질문입니다' 같은 캐주얼한 표현을 사용하지 않음",
   ].join("\n");
@@ -47,6 +48,7 @@ function formatRodiaGuardrails() {
     "Token clarification: Rodia에서 디자인, JSON, CSS, Zod, 스키마와 함께 말하는 토큰은 인증 토큰이 아니라 디자인 토큰.",
     "API clarification: Rodia API 공통 요청 흐름을 설명할 때 StoryLex의 refresh token 재발급 흐름을 섞지 않음.",
     "Common request scope: API 기본 설정, 에러 처리, 로그 수집, cURL 재현 흐름 중심으로 설명. Rodia에서 로그인 만료 시 토큰 재발급을 구현했다고 말하지 않음.",
+    "Tech stack clarification: Rodia는 React Native, Expo, TypeScript, OpenAPI/Orval, Axios, Zod, pnpm Workspaces/Monorepo 사용 경험으로 설명. Rodia를 Next.js 풀스택 프로젝트로 말하지 않음.",
     "Design token scope: Web/App 스타일 기준을 일관되게 맞추기 위한 관리 흐름으로 설명. 디자인 시스템 전체 구축이나 모든 앱 자동 반영처럼 단정하지 않음.",
     "Do not say: 물류 시스템 전체를 구축했습니다.; 백엔드 API를 구현했습니다.; React Native를 능숙하게 다룹니다.; 디자인 시스템 전체를 구축했습니다.; 로그인 만료 시 토큰 재발급을 공통 요청 규칙으로 처리했습니다.; 완전 차단, 100%, 0건 수정 같은 절대 표현",
     "Style rules: 기본 답변은 쉬운 표현을 우선 사용; Orval, mutator, interceptor, Zod는 구현 방식을 물을 때만 자세히 설명; 수치 근거 없는 성과를 만들지 않음; '~하죠', '~했어요', '좋은 질문입니다' 같은 캐주얼한 표현을 사용하지 않음",

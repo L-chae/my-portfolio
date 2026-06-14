@@ -211,14 +211,7 @@ const SYNONYMS: Record<string, readonly string[]> = {
     "zod",
   ],
 
-  모노레포: [
-    "monorepo",
-    "pnpm",
-    "workspace",
-    "웹",
-    "모바일",
-    "동기화",
-  ],
+  모노레포: ["monorepo", "pnpm", "workspace", "웹", "모바일", "동기화"],
 
   api: ["요청", "응답", "서버"],
 
@@ -281,14 +274,9 @@ const SYNONYMS: Record<string, readonly string[]> = {
 
   "코드 검증": ["validation", "cross validation", "교차 검증", "의사결정"],
 
-  rodia: [
-    "로디아",
-  ],
+  rodia: ["로디아"],
 
-  storylex: [
-    "스토리렉스",
-    "스토리랙스",
-  ],
+  storylex: ["스토리렉스", "스토리랙스"],
 
   hivelab: ["하이브랩", "career", "데이터", "검수", "라벨링", "데이터 정합성"],
 
@@ -421,7 +409,83 @@ function normalizeTopicHint(currentTopicHint?: string | null) {
 
   return matched?.[1] ?? null;
 }
+function getTopicSeed(currentTopicHint?: string | null) {
+  const normalizedHint = normalizeTopicHint(currentTopicHint);
 
+  if (normalizedHint === "storylex") {
+    return "StoryLex 스토리렉스 영어 단어 반복 학습 서비스 AI 스토리 인증 상태관리";
+  }
+
+  if (normalizedHint === "rodia") {
+    return "Rodia 로디아 화물 운송 중개 플랫폼 React Native API 디버깅 디자인 토큰";
+  }
+
+  if (normalizedHint === "portfolio-ai") {
+    return "포트폴리오 AI 챗봇 Static Context Injection prepared answer guardrail";
+  }
+
+  if (normalizedHint === "career") {
+    return "HiveLab 하이브랩 AI 데이터 품질 관리 디자인 데이터 정리 마크업 준비";
+  }
+
+  if (normalizedHint === "problem-solving") {
+    return "문제 해결 재현 검증 예외 상황 방어적 프로그래밍";
+  }
+
+  if (normalizedHint === "ai-engineering") {
+    return "AI 활용 코드 검증 Codex Claude Cursor 의사결정";
+  }
+
+  return null;
+}
+
+function isFollowUpQuestion(question: string) {
+  const compact = normalizeProjectAlias(question).replace(/\s+/g, "");
+
+  return [
+    "그럼",
+    "그거",
+    "그건",
+    "그기능",
+    "그프로젝트",
+    "그토큰",
+    "그과정",
+    "거기서",
+    "여기서",
+    "해당기능",
+    "해당프로젝트",
+    "이기능",
+    "이프로젝트",
+    "이어서",
+    "방금",
+    "아까",
+    "직전",
+    "왜",
+    "더",
+    "자세히",
+    "예시",
+    "결과",
+    "대안",
+    "어려웠던",
+    "배웠",
+    "과정",
+  ].some((marker) => compact.includes(marker));
+}
+
+function getRecentUserContext(
+  question: string,
+  messages: readonly ChatMessageLike[],
+) {
+  return [...messages]
+    .reverse()
+    .filter(
+      (message) => message.role === "user" && message.content !== question,
+    )
+    .slice(0, 2)
+    .reverse()
+    .map((message) => normalizeProjectAlias(message.content))
+    .join(" ");
+}
 function getMentionedSourceIds(query: string) {
   const normalized = normalizeText(normalizeProjectAlias(query));
   const compact = normalized.replace(/\s+/g, "");
@@ -479,10 +543,7 @@ function getPathMatchBoost(
   }, 0);
 }
 
-function hasAnyToken(
-  tokenSet: ReadonlySet<string>,
-  tokens: readonly string[],
-) {
+function hasAnyToken(tokenSet: ReadonlySet<string>, tokens: readonly string[]) {
   return tokens.some((token) => tokenSet.has(token));
 }
 
@@ -543,8 +604,7 @@ function isRodiaDesignTokenIntent(tokenSet: ReadonlySet<string>) {
   if (hasUiImpactIntent && tokenSet.has("api")) return false;
 
   return (
-    (hasDesignWord && hasTokenWord) ||
-    (hasTokenWord && hasDesignTokenQualifier)
+    (hasDesignWord && hasTokenWord) || (hasTokenWord && hasDesignTokenQualifier)
   );
 }
 
@@ -560,7 +620,20 @@ function isGeneralProblemSolvingIntent(intentTokenSet: ReadonlySet<string>) {
     (hasExceptionControlIntent || hasProblemSolvingIntent)
   );
 }
-
+function isTechStackScopeIntent(tokenSet: ReadonlySet<string>) {
+  return (
+    hasAnyToken(tokenSet, [
+      "기술",
+      "스택",
+      "tech",
+      "stack",
+      "숙련도",
+      "순위",
+    ]) ||
+    (hasAnyToken(tokenSet, ["잘하는", "자신", "많이", "깊이"]) &&
+      hasAnyToken(tokenSet, ["기술", "스택", "사용", "다룬"]))
+  );
+}
 function isCoreProjectChunk(chunk: KnowledgeChunk) {
   return [
     ".summary",
@@ -625,8 +698,25 @@ function getDomainSpecificBoost(
     intentTokenSet,
     TECHNICAL_INTENT_HINTS,
   );
+  const hasTechStackScopeIntent = isTechStackScopeIntent(intentTokenSet);
 
-  if (isStoryLexAiStoryIntent(intentTokenSet) && chunk.sourceId === "storylex") {
+  if (
+    hasTechStackScopeIntent &&
+    ["storylex", "rodia", "portfolio-ai"].includes(chunk.sourceId) &&
+    (chunk.id.includes("techStack") ||
+      chunk.id.includes("technologies") ||
+      chunk.id.includes("implementationScope"))
+  ) {
+    boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+
+    if (chunk.id.includes("technologies") || chunk.id.includes("techStack")) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+  if (
+    isStoryLexAiStoryIntent(intentTokenSet) &&
+    chunk.sourceId === "storylex"
+  ) {
     if (chunk.id.includes("keyFeatures.aiStory")) {
       boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
     }
@@ -640,7 +730,10 @@ function getDomainSpecificBoost(
     }
   }
 
-  if (isStoryLexLearningIntent(intentTokenSet) && chunk.sourceId === "storylex") {
+  if (
+    isStoryLexLearningIntent(intentTokenSet) &&
+    chunk.sourceId === "storylex"
+  ) {
     if (chunk.id.includes("retrospective")) {
       boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
     }
@@ -681,8 +774,8 @@ function getDomainSpecificBoost(
   }
 
   const hasAuthIntent =
-    ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some((token) =>
-      tokenSet.has(token),
+    ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some(
+      (token) => tokenSet.has(token),
     ) ||
     (tokenSet.has("토큰") && tokenSet.has("storylex"));
 
@@ -755,9 +848,13 @@ function getDomainSpecificBoost(
     }
   }
 
-  const hasOrvalIntent = ["orval", "오벌", "openapi", "swagger", "codegen"].some(
-    (token) => tokenSet.has(token),
-  );
+  const hasOrvalIntent = [
+    "orval",
+    "오벌",
+    "openapi",
+    "swagger",
+    "codegen",
+  ].some((token) => tokenSet.has(token));
 
   if (
     hasOrvalIntent &&
@@ -837,8 +934,7 @@ function getDomainSpecificBoost(
   if (
     hasAiFutureIntent &&
     chunk.sourceId === "ai-engineering" &&
-    (chunk.id.includes("ultimateQuestion") ||
-      chunk.id.includes("highestValue"))
+    (chunk.id.includes("ultimateQuestion") || chunk.id.includes("highestValue"))
   ) {
     boost += INTENT_CHUNK_BOOST;
   }
@@ -860,8 +956,7 @@ function getDomainSpecificBoost(
     boost += INTENT_DOMAIN_BOOST;
   }
 
-  const hasMobileDebugIntent =
-    tokenSet.has("모바일") && tokenSet.has("디버깅");
+  const hasMobileDebugIntent = tokenSet.has("모바일") && tokenSet.has("디버깅");
 
   if (
     hasMobileDebugIntent &&
@@ -910,39 +1005,34 @@ function getDomainSpecificBoost(
 export function rewriteQuery(
   question: string,
   messages: readonly ChatMessageLike[] = [],
+  currentTopicHint?: string | null,
 ) {
   const normalized = normalizeProjectAlias(question.trim());
-  const compact = normalized.replace(/\s+/g, "");
-
-  const isFollowUp = [
-    "그럼",
-    "그거",
-    "그건",
-    "왜",
-    "더",
-    "자세히",
-    "이어서",
-    "방금",
-    "아까",
-    "예시",
-    "결과",
-    "대안",
-    "어려웠던",
-    "배웠",
-    "과정",
-  ].some((marker) => compact.includes(marker));
+  const isFollowUp = isFollowUpQuestion(normalized);
 
   if (!isFollowUp) return normalized;
 
-  const previousUserMessage = [...messages]
-    .reverse()
-    .find((message) => message.role === "user" && message.content !== question);
+  const recentUserContext = getRecentUserContext(question, messages);
+  const recentMentionedSources = getMentionedSourceIds(recentUserContext);
+  const topicSeed = getTopicSeed(currentTopicHint);
 
-  if (!previousUserMessage) return normalized;
+  if (recentUserContext && recentMentionedSources.size > 0) {
+    return `${recentUserContext} ${normalized}`;
+  }
 
-  const previous = normalizeProjectAlias(previousUserMessage.content);
+  if (topicSeed && recentUserContext) {
+    return `${topicSeed} ${recentUserContext} ${normalized}`;
+  }
 
-  return `${previous} ${normalized}`;
+  if (topicSeed) {
+    return `${topicSeed} ${normalized}`;
+  }
+
+  if (recentUserContext) {
+    return `${recentUserContext} ${normalized}`;
+  }
+
+  return normalized;
 }
 
 export function expandQuery(query: string) {
@@ -1166,7 +1256,11 @@ function rankChunks(query: string, limit: number, options: RetrievalOptions) {
   const aliasNormalizedQuery = normalizeProjectAlias(query);
   const rewrittenQuery = options.skipRewrite
     ? aliasNormalizedQuery
-    : rewriteQuery(aliasNormalizedQuery, options.messages ?? []);
+    : rewriteQuery(
+        aliasNormalizedQuery,
+        options.messages ?? [],
+        normalizedHint,
+      );
   const intentTokens = tokenize(rewrittenQuery);
   const expandedTokens = expandQuery(rewrittenQuery);
   const mentionedSourceIds = getMentionedSourceIds(rewrittenQuery);

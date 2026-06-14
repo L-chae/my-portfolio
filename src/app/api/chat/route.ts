@@ -38,40 +38,37 @@ function createTextResponse(
     topicHint,
   } = options;
 
-  return new Response(
-    text,
-    {
-      status,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        ...(topicHint ? { "X-Current-Topic-Hint": topicHint } : {}),
-        ...(evidenceImageIds.length > 0
-          ? { "X-Evidence-Image-Ids": evidenceImageIds.join(",") }
-          : {}),
-        ...(suggestedActions.length > 0
-          ? {
-              "X-Suggested-Actions": encodeURIComponent(
-                JSON.stringify(suggestedActions),
-              ),
-              ...(suggestedActionsTitle
-                ? {
-                    "X-Suggested-Actions-Title": encodeURIComponent(
-                      suggestedActionsTitle,
-                    ),
-                  }
-                : {}),
-              ...(suggestedActionsDescription
-                ? {
-                    "X-Suggested-Actions-Description": encodeURIComponent(
-                      suggestedActionsDescription,
-                    ),
-                  }
-                : {}),
-            }
-          : {}),
-      },
+  return new Response(text, {
+    status,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...(topicHint ? { "X-Current-Topic-Hint": topicHint } : {}),
+      ...(evidenceImageIds.length > 0
+        ? { "X-Evidence-Image-Ids": evidenceImageIds.join(",") }
+        : {}),
+      ...(suggestedActions.length > 0
+        ? {
+            "X-Suggested-Actions": encodeURIComponent(
+              JSON.stringify(suggestedActions),
+            ),
+            ...(suggestedActionsTitle
+              ? {
+                  "X-Suggested-Actions-Title": encodeURIComponent(
+                    suggestedActionsTitle,
+                  ),
+                }
+              : {}),
+            ...(suggestedActionsDescription
+              ? {
+                  "X-Suggested-Actions-Description": encodeURIComponent(
+                    suggestedActionsDescription,
+                  ),
+                }
+              : {}),
+          }
+        : {}),
     },
-  );
+  });
 }
 
 function clarificationResponse(topicHint?: string | null) {
@@ -87,15 +84,25 @@ export async function POST(req: Request) {
     const normalizedCurrentTopicHint =
       typeof currentTopicHint === "string" ? currentTopicHint : null;
 
-    const recentMessages: Message[] = messages.slice(-3);
+    const recentMessages: Message[] = messages.slice(-6);
     const lastUserMessage = [...recentMessages]
       .reverse()
       .find((msg): msg is Message => msg.role === "user");
 
     const question = lastUserMessage?.content ?? "";
-    const rewrittenQuery = rewriteQuery(question, recentMessages.slice(-4));
+    const historyMessages = lastUserMessage
+      ? recentMessages.filter((msg) => msg !== lastUserMessage)
+      : recentMessages;
+
+    const rewrittenQuery = rewriteQuery(
+      question,
+      historyMessages,
+      normalizedCurrentTopicHint,
+    );
+
     const sections = searchKnowledge(rewrittenQuery, 3, {
       currentTopicHint: normalizedCurrentTopicHint,
+      messages: historyMessages,
       skipRewrite: true,
     });
     const nextTopicHint = sections[0]?.sourceId ?? normalizedCurrentTopicHint;
@@ -157,7 +164,8 @@ ${rewrittenQuery}`,
         ...(evidenceImageIds.length > 0
           ? { "X-Evidence-Image-Ids": evidenceImageIds.join(",") }
           : {}),
-        ...(suggestedActionsPayload && suggestedActionsPayload.actions.length > 0
+        ...(suggestedActionsPayload &&
+        suggestedActionsPayload.actions.length > 0
           ? {
               "X-Suggested-Actions": encodeURIComponent(
                 JSON.stringify(suggestedActionsPayload.actions),
