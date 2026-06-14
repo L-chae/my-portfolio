@@ -1,53 +1,72 @@
-import { useEffect, useRef, DependencyList } from 'react';
+'use client';
 
-export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(deps: DependencyList = []) {
+import { useEffect, useRef } from 'react';
+
+export function useScrollReveal<T extends HTMLElement = HTMLDivElement>() {
   const containerRef = useRef<T>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const root = containerRef.current;
+    if (!root) return;
+
+    const revealTargets = Array.from(root.querySelectorAll<HTMLElement>('.scroll-reveal'));
+
+    if (root.matches('.scroll-reveal')) {
+      revealTargets.unshift(root);
+    }
+
+    if (revealTargets.length === 0) return;
+
+    const showAll = () => {
+      revealTargets.forEach((element) => {
+        element.classList.add('is-visible');
+      });
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      showAll();
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const element = entry.target as HTMLElement;
+          const shouldRepeat = element.dataset.revealRepeat === 'true';
+
           if (entry.isIntersecting) {
-            requestAnimationFrame(() => {
-              entry.target.classList.add('is-visible');
-            });
-            observer.unobserve(entry.target);
+            element.classList.add('is-visible');
+
+            if (!shouldRepeat) {
+              observer.unobserve(element);
+            }
+
+            return;
+          }
+
+          if (!shouldRepeat) return;
+
+          const isBelowViewport = entry.boundingClientRect.top > window.innerHeight * 0.85;
+
+          if (isBelowViewport) {
+            element.classList.remove('is-visible');
           }
         });
       },
-      { threshold: 0.05, rootMargin: '0px 0px -5% 0px' }
+      {
+        threshold: 0.16,
+        rootMargin: '0px 0px -12% 0px',
+      }
     );
 
-    const outerRaf = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const elements = container.querySelectorAll<HTMLElement>('.scroll-reveal');
-
-        elements.forEach((el) => {
-          const { top, bottom } = el.getBoundingClientRect();
-          if (top < window.innerHeight && bottom > 0) {
-            // 트랜지션 없이 즉시 표시
-            el.style.transition = 'none';
-            el.classList.add('is-visible');
-            el.getBoundingClientRect(); // force reflow
-            requestAnimationFrame(() => {
-              el.style.transition = '';
-            });
-          } else {
-            observer.observe(el);
-          }
-        });
-      });
+    revealTargets.forEach((element) => {
+      observer.observe(element);
     });
 
     return () => {
-      cancelAnimationFrame(outerRaf);
       observer.disconnect();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, []);
 
   return containerRef;
 }

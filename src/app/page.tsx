@@ -15,8 +15,8 @@ export default function Home() {
       <ChatBar />
       <HeroSection />
       <ExperienceSection />
-      <CoreValuesSection />
       <ProjectsSection />
+      <CoreValuesSection />
       <Footer />
     </div>
   );

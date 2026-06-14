@@ -20,8 +20,8 @@ export const SECTION_SUGGESTION_MAP: Record<string, readonly string[]> = {
   ],
 
   projects: [
-    "Rodia API 흐름은 어떻게 개선했나요?",
-    "StoryLex 401 에러 해결 과정 알려줘",
+    "Rodia는 어떤 프로젝트인가요?",
+    "StoryLex는 어떤 프로젝트인가요?",
     "포트폴리오 AI는 RAG 없이 어떻게 동작하나요?",
   ],
 };
@@ -34,15 +34,15 @@ export const SUGGESTION_MAP: Record<string, readonly string[]> = {
   ],
 
   rodia: [
-    "Rodia 아키텍처를 더 자세히 설명해 줘",
-    "모노레포를 도입한 이유는?",
-    "Orval과 Feature API를 왜 분리했나요?",
+    "Rodia는 어떤 프로젝트인가요?",
+    "Rodia에서 어떤 역할을 맡았나요?",
+    "모바일 API 디버거는 왜 만들었나요?",
   ],
 
   storylex: [
-    "401 에러 큐(Queue) 로직 설명해줘",
-    "React Query와 Zustand 분리 이유",
-    "StoryLex에서 예외 처리를 어떻게 설계했나요?",
+    "StoryLex는 어떤 프로젝트인가요?",
+    "StoryLex에서 어떤 역할을 맡았나요?",
+    "로그인 만료 상황을 왜 고려했나요?",
   ],
 
   "portfolio-ai": [

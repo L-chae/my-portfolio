@@ -7,29 +7,74 @@ import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { rewriteQuery, searchKnowledge } from "@/lib/searchKnowledge";
 import { buildContextPrompt } from "@/lib/contextBuilder";
 import { findPreparedAnswer } from "@/lib/preparedAnswers";
+import {
+  findEvidenceImageIds,
+  findSuggestedActionsPayload,
+} from "@/lib/evidenceImages";
+import type { SuggestedAction } from "@/lib/evidenceImages";
 
 type Message = {
   role: "user" | "assistant" | "system";
   content: string;
 };
 
-function createTextResponse(text: string, topicHint?: string | null, status = 200) {
-  return new Response(
-    text,
-    {
-      status,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        ...(topicHint ? { "X-Current-Topic-Hint": topicHint } : {}),
-      },
+function createTextResponse(
+  text: string,
+  options: {
+    topicHint?: string | null;
+    evidenceImageIds?: readonly string[];
+    suggestedActions?: readonly SuggestedAction[];
+    suggestedActionsDescription?: string;
+    suggestedActionsTitle?: string;
+    status?: number;
+  } = {},
+) {
+  const {
+    evidenceImageIds = [],
+    status = 200,
+    suggestedActions = [],
+    suggestedActionsDescription,
+    suggestedActionsTitle,
+    topicHint,
+  } = options;
+
+  return new Response(text, {
+    status,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...(topicHint ? { "X-Current-Topic-Hint": topicHint } : {}),
+      ...(evidenceImageIds.length > 0
+        ? { "X-Evidence-Image-Ids": evidenceImageIds.join(",") }
+        : {}),
+      ...(suggestedActions.length > 0
+        ? {
+            "X-Suggested-Actions": encodeURIComponent(
+              JSON.stringify(suggestedActions),
+            ),
+            ...(suggestedActionsTitle
+              ? {
+                  "X-Suggested-Actions-Title": encodeURIComponent(
+                    suggestedActionsTitle,
+                  ),
+                }
+              : {}),
+            ...(suggestedActionsDescription
+              ? {
+                  "X-Suggested-Actions-Description": encodeURIComponent(
+                    suggestedActionsDescription,
+                  ),
+                }
+              : {}),
+          }
+        : {}),
     },
-  );
+  });
 }
 
 function clarificationResponse(topicHint?: string | null) {
   return createTextResponse(
     "질문과 연결할 수 있는 포트폴리오 데이터가 충분하지 않습니다. Rodia, StoryLex, HiveLab 경험, AI 활용 방식처럼 조금 더 구체적인 주제로 다시 물어봐 주세요.",
-    topicHint,
+    { topicHint },
   );
 }
 
@@ -39,22 +84,48 @@ export async function POST(req: Request) {
     const normalizedCurrentTopicHint =
       typeof currentTopicHint === "string" ? currentTopicHint : null;
 
-    const recentMessages: Message[] = messages.slice(-3);
+    const recentMessages: Message[] = messages.slice(-6);
     const lastUserMessage = [...recentMessages]
       .reverse()
       .find((msg): msg is Message => msg.role === "user");
 
     const question = lastUserMessage?.content ?? "";
-    const rewrittenQuery = rewriteQuery(question, recentMessages.slice(-4));
+    const historyMessages = lastUserMessage
+      ? recentMessages.filter((msg) => msg !== lastUserMessage)
+      : recentMessages;
+
+    const rewrittenQuery = rewriteQuery(
+      question,
+      historyMessages,
+      normalizedCurrentTopicHint,
+    );
+
     const sections = searchKnowledge(rewrittenQuery, 3, {
       currentTopicHint: normalizedCurrentTopicHint,
+      messages: historyMessages,
       skipRewrite: true,
     });
     const nextTopicHint = sections[0]?.sourceId ?? normalizedCurrentTopicHint;
+    const evidenceImageIds = findEvidenceImageIds({
+      question,
+      rewrittenQuery,
+      sections,
+    });
+    const suggestedActionsPayload = findSuggestedActionsPayload({
+      question,
+      rewrittenQuery,
+      sections,
+    });
 
     const preparedAnswer = findPreparedAnswer(question);
     if (preparedAnswer) {
-      return createTextResponse(preparedAnswer, nextTopicHint);
+      return createTextResponse(preparedAnswer, {
+        evidenceImageIds,
+        suggestedActions: suggestedActionsPayload?.actions,
+        suggestedActionsDescription: suggestedActionsPayload?.description,
+        suggestedActionsTitle: suggestedActionsPayload?.title,
+        topicHint: nextTopicHint,
+      });
     }
 
     if (sections.length === 0) {
@@ -90,6 +161,23 @@ ${rewrittenQuery}`,
         "Content-Type": "text/plain; charset=utf-8",
         "Transfer-Encoding": "chunked",
         ...(nextTopicHint ? { "X-Current-Topic-Hint": nextTopicHint } : {}),
+        ...(evidenceImageIds.length > 0
+          ? { "X-Evidence-Image-Ids": evidenceImageIds.join(",") }
+          : {}),
+        ...(suggestedActionsPayload &&
+        suggestedActionsPayload.actions.length > 0
+          ? {
+              "X-Suggested-Actions": encodeURIComponent(
+                JSON.stringify(suggestedActionsPayload.actions),
+              ),
+              "X-Suggested-Actions-Title": encodeURIComponent(
+                suggestedActionsPayload.title,
+              ),
+              "X-Suggested-Actions-Description": encodeURIComponent(
+                suggestedActionsPayload.description,
+              ),
+            }
+          : {}),
       },
     });
   } catch (error) {

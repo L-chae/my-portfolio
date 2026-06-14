@@ -1,7 +1,16 @@
 // src/types/knowledge.ts
+export interface EvidenceImage {
+  id: string;
+  title: string;
+  src: string;
+  alt: string;
+  description?: string;
+}
+
 export interface KnowledgeSection {
   id?: string;
   summary: string;
+  evidenceImages?: Record<string, EvidenceImage>;
   principles?: readonly string[];
   coreValues?: readonly string[];
   strengths?: readonly string[];

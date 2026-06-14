@@ -46,7 +46,13 @@ const knowledgeMap = knowledge as KnowledgeMap;
 
 const META_KEYS = new Set([
   "id",
+  "answerPolicy",
+  "evidenceImageIds",
+  "evidenceImages",
+  "exposeOnlyWhenAsked",
+  "followUpQuestions",
   "keywords",
+  "name",
   "suggestedQuestions",
   "preparedAnswers",
 ]);
@@ -55,10 +61,12 @@ const DEFAULT_MIN_SCORE = 0.75;
 const HINT_BOOST = 3.2;
 const SOURCE_MENTION_BOOST = 12;
 const PATH_MATCH_BOOST = 2.5;
-const AUTH401_DOMAIN_BOOST = 8;
+const AUTH_FLOW_DOMAIN_BOOST = 8;
 const STATE_MANAGEMENT_DOMAIN_BOOST = 4;
 const INTENT_DOMAIN_BOOST = 10;
 const INTENT_CHUNK_BOOST = 8;
+const BASIC_INTENT_CHUNK_BOOST = 14;
+const BASIC_INTENT_TECHNICAL_PENALTY = 12;
 
 const BM25_K1 = 1.2;
 const BM25_B = 0.75;
@@ -86,6 +94,49 @@ const STOP_WORDS = new Set([
   "해주세요",
   "해줘",
 ]);
+
+const BASIC_INTENT_HINTS = [
+  "프로젝트",
+  "설명",
+  "쉽게",
+  "역할",
+  "맡은",
+  "기여도",
+  "배운",
+  "의미",
+  "상황",
+  "고려",
+  "고려했나요",
+];
+
+const TECHNICAL_INTENT_HINTS = [
+  "구현",
+  "구조",
+  "코드",
+  "로직",
+  "401",
+  "refresh",
+  "single",
+  "flight",
+  "subscriber",
+  "queue",
+  "promise",
+  "interceptor",
+  "mutator",
+  "orval",
+  "openapi",
+  "zod",
+  "관리",
+  "토큰",
+  "tokens",
+  "json",
+  "requestid",
+  "curl",
+  "debug",
+  "logs",
+  "전처리",
+  "safeparse",
+];
 
 /**
  * 프로젝트명은 동의어 확장보다 먼저 canonical keyword로 정규화한다.
@@ -160,14 +211,7 @@ const SYNONYMS: Record<string, readonly string[]> = {
     "zod",
   ],
 
-  모노레포: [
-    "monorepo",
-    "pnpm",
-    "workspace",
-    "웹",
-    "모바일",
-    "동기화",
-  ],
+  모노레포: ["monorepo", "pnpm", "workspace", "웹", "모바일", "동기화"],
 
   api: ["요청", "응답", "서버"],
 
@@ -230,14 +274,9 @@ const SYNONYMS: Record<string, readonly string[]> = {
 
   "코드 검증": ["validation", "cross validation", "교차 검증", "의사결정"],
 
-  rodia: [
-    "로디아",
-  ],
+  rodia: ["로디아"],
 
-  storylex: [
-    "스토리렉스",
-    "스토리랙스",
-  ],
+  storylex: ["스토리렉스", "스토리랙스"],
 
   hivelab: ["하이브랩", "career", "데이터", "검수", "라벨링", "데이터 정합성"],
 
@@ -298,11 +337,14 @@ function normalizeToken(word: string) {
 
   const particles = [
     "에서는",
+    "인가요",
     "으로는",
     "한테는",
     "이랑은",
+    "인가",
     "에서",
     "으로",
+    "나요",
     "이나",
     "이랑",
     "한테",
@@ -367,7 +409,83 @@ function normalizeTopicHint(currentTopicHint?: string | null) {
 
   return matched?.[1] ?? null;
 }
+function getTopicSeed(currentTopicHint?: string | null) {
+  const normalizedHint = normalizeTopicHint(currentTopicHint);
 
+  if (normalizedHint === "storylex") {
+    return "StoryLex 스토리렉스 영어 단어 반복 학습 서비스 AI 스토리 인증 상태관리";
+  }
+
+  if (normalizedHint === "rodia") {
+    return "Rodia 로디아 화물 운송 중개 플랫폼 React Native API 디버깅 디자인 토큰";
+  }
+
+  if (normalizedHint === "portfolio-ai") {
+    return "포트폴리오 AI 챗봇 Static Context Injection prepared answer guardrail";
+  }
+
+  if (normalizedHint === "career") {
+    return "HiveLab 하이브랩 AI 데이터 품질 관리 디자인 데이터 정리 마크업 준비";
+  }
+
+  if (normalizedHint === "problem-solving") {
+    return "문제 해결 재현 검증 예외 상황 방어적 프로그래밍";
+  }
+
+  if (normalizedHint === "ai-engineering") {
+    return "AI 활용 코드 검증 Codex Claude Cursor 의사결정";
+  }
+
+  return null;
+}
+
+function isFollowUpQuestion(question: string) {
+  const compact = normalizeProjectAlias(question).replace(/\s+/g, "");
+
+  return [
+    "그럼",
+    "그거",
+    "그건",
+    "그기능",
+    "그프로젝트",
+    "그토큰",
+    "그과정",
+    "거기서",
+    "여기서",
+    "해당기능",
+    "해당프로젝트",
+    "이기능",
+    "이프로젝트",
+    "이어서",
+    "방금",
+    "아까",
+    "직전",
+    "왜",
+    "더",
+    "자세히",
+    "예시",
+    "결과",
+    "대안",
+    "어려웠던",
+    "배웠",
+    "과정",
+  ].some((marker) => compact.includes(marker));
+}
+
+function getRecentUserContext(
+  question: string,
+  messages: readonly ChatMessageLike[],
+) {
+  return [...messages]
+    .reverse()
+    .filter(
+      (message) => message.role === "user" && message.content !== question,
+    )
+    .slice(0, 2)
+    .reverse()
+    .map((message) => normalizeProjectAlias(message.content))
+    .join(" ");
+}
 function getMentionedSourceIds(query: string) {
   const normalized = normalizeText(normalizeProjectAlias(query));
   const compact = normalized.replace(/\s+/g, "");
@@ -395,11 +513,18 @@ function getMentionedSourceIds(query: string) {
     sourceIds.add("portfolio-ai");
   }
 
+  const hasProjectSourceMention =
+    sourceIds.has("rodia") ||
+    sourceIds.has("storylex") ||
+    sourceIds.has("career");
+
   if (
     compact.includes("codex") ||
     compact.includes("claude") ||
     compact.includes("cursor") ||
-    (compact.includes("ai") && !sourceIds.has("portfolio-ai"))
+    (compact.includes("ai") &&
+      !sourceIds.has("portfolio-ai") &&
+      !hasProjectSourceMention)
   ) {
     sourceIds.add("ai-engineering");
   }
@@ -418,24 +543,252 @@ function getPathMatchBoost(
   }, 0);
 }
 
+function hasAnyToken(tokenSet: ReadonlySet<string>, tokens: readonly string[]) {
+  return tokens.some((token) => tokenSet.has(token));
+}
+
+function hasProjectIntent(intentTokenSet: ReadonlySet<string>) {
+  return hasAnyToken(intentTokenSet, [
+    "storylex",
+    "rodia",
+    "hivelab",
+    "portfolio",
+  ]);
+}
+
+function isStoryLexAiStoryIntent(intentTokenSet: ReadonlySet<string>) {
+  return (
+    intentTokenSet.has("storylex") &&
+    intentTokenSet.has("ai") &&
+    hasAnyToken(intentTokenSet, ["스토리", "기능", "직접"])
+  );
+}
+
+function isStoryLexLearningIntent(intentTokenSet: ReadonlySet<string>) {
+  return (
+    intentTokenSet.has("storylex") &&
+    hasAnyToken(intentTokenSet, [
+      "경험",
+      "배웠어",
+      "배웠",
+      "배운",
+      "배움",
+      "느낀",
+      "회고",
+      "개선",
+    ])
+  );
+}
+
+function isRodiaDesignTokenIntent(tokenSet: ReadonlySet<string>) {
+  const hasTokenWord = hasAnyToken(tokenSet, ["토큰", "token", "tokens"]);
+  const hasDesignWord = tokenSet.has("디자인");
+  const hasDesignTokenQualifier = hasAnyToken(tokenSet, [
+    "json",
+    "css",
+    "스키마",
+    "zod",
+    "변수",
+    "검증",
+    "오류",
+    "동기화",
+    "웹",
+    "모바일",
+    "web",
+    "app",
+  ]);
+  const hasUiImpactIntent =
+    tokenSet.has("ui") &&
+    hasAnyToken(tokenSet, ["영향", "줄였어", "줄이기", "줄였"]);
+
+  if (hasUiImpactIntent && tokenSet.has("api")) return false;
+
+  return (
+    (hasDesignWord && hasTokenWord) || (hasTokenWord && hasDesignTokenQualifier)
+  );
+}
+
+function isGeneralProblemSolvingIntent(intentTokenSet: ReadonlySet<string>) {
+  const hasExceptionControlIntent =
+    intentTokenSet.has("예외") &&
+    hasAnyToken(intentTokenSet, ["상황", "통제", "방어"]);
+  const hasProblemSolvingIntent =
+    intentTokenSet.has("문제") && intentTokenSet.has("해결");
+
+  return (
+    !hasProjectIntent(intentTokenSet) &&
+    (hasExceptionControlIntent || hasProblemSolvingIntent)
+  );
+}
+function isTechStackScopeIntent(tokenSet: ReadonlySet<string>) {
+  return (
+    hasAnyToken(tokenSet, [
+      "기술",
+      "스택",
+      "tech",
+      "stack",
+      "숙련도",
+      "순위",
+    ]) ||
+    (hasAnyToken(tokenSet, ["잘하는", "자신", "많이", "깊이"]) &&
+      hasAnyToken(tokenSet, ["기술", "스택", "사용", "다룬"]))
+  );
+}
+function isCoreProjectChunk(chunk: KnowledgeChunk) {
+  return [
+    ".summary",
+    ".publicDescription",
+    ".contributionScope",
+    ".interviewAnswers",
+  ].some((path) => chunk.id.includes(path));
+}
+
+function isTechnicalDetailChunk(chunk: KnowledgeChunk) {
+  return chunk.id.includes("technicalDetail");
+}
+
+function isPublicProjectChunk(chunk: KnowledgeChunk) {
+  return (
+    !isTechnicalDetailChunk(chunk) &&
+    (chunk.id.includes(".public") || chunk.id.includes(".simpleFlow"))
+  );
+}
+
+function getProjectIntentBoost(
+  intentTokenSet: ReadonlySet<string>,
+  chunk: KnowledgeChunk,
+) {
+  if (chunk.sourceId !== "storylex" && chunk.sourceId !== "rodia") return 0;
+
+  let boost = 0;
+  const hasBasicIntent = hasAnyToken(intentTokenSet, BASIC_INTENT_HINTS);
+  const hasTechnicalIntent = hasAnyToken(
+    intentTokenSet,
+    TECHNICAL_INTENT_HINTS,
+  );
+
+  if (hasBasicIntent && isCoreProjectChunk(chunk)) {
+    boost += BASIC_INTENT_CHUNK_BOOST;
+  }
+
+  if (hasBasicIntent && isPublicProjectChunk(chunk)) {
+    boost += BASIC_INTENT_CHUNK_BOOST / 2;
+  }
+
+  if (hasBasicIntent && !hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+    boost -= BASIC_INTENT_TECHNICAL_PENALTY;
+  }
+
+  if (hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+    boost += INTENT_CHUNK_BOOST;
+  }
+
+  return boost;
+}
+
 function getDomainSpecificBoost(
   queryTokens: readonly string[],
   chunk: KnowledgeChunk,
+  intentTokens: readonly string[] = queryTokens,
 ) {
   const tokenSet = new Set(queryTokens);
-  let boost = 0;
+  const intentTokenSet = new Set(intentTokens);
+  let boost = getProjectIntentBoost(intentTokenSet, chunk);
+  const hasTechnicalIntent = hasAnyToken(
+    intentTokenSet,
+    TECHNICAL_INTENT_HINTS,
+  );
+  const hasTechStackScopeIntent = isTechStackScopeIntent(intentTokenSet);
+
+  if (
+    hasTechStackScopeIntent &&
+    ["storylex", "rodia", "portfolio-ai"].includes(chunk.sourceId) &&
+    (chunk.id.includes("techStack") ||
+      chunk.id.includes("technologies") ||
+      chunk.id.includes("implementationScope"))
+  ) {
+    boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+
+    if (chunk.id.includes("technologies") || chunk.id.includes("techStack")) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+  if (
+    isStoryLexAiStoryIntent(intentTokenSet) &&
+    chunk.sourceId === "storylex"
+  ) {
+    if (chunk.id.includes("keyFeatures.aiStory")) {
+      boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    }
+
+    if (chunk.id.includes("implementationScope")) {
+      boost += INTENT_DOMAIN_BOOST;
+    }
+
+    if (chunk.id.includes("publicDescription")) {
+      boost += INTENT_CHUNK_BOOST / 2;
+    }
+  }
+
+  if (
+    isStoryLexLearningIntent(intentTokenSet) &&
+    chunk.sourceId === "storylex"
+  ) {
+    if (chunk.id.includes("retrospective")) {
+      boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    }
+
+    if (
+      chunk.id.includes("interviewAnswers") ||
+      chunk.id.includes("publicDescription")
+    ) {
+      boost += INTENT_DOMAIN_BOOST;
+    }
+  }
+
+  if (
+    isRodiaDesignTokenIntent(tokenSet) &&
+    chunk.sourceId === "rodia" &&
+    chunk.id.includes("designTokens")
+  ) {
+    boost += INTENT_DOMAIN_BOOST + INTENT_CHUNK_BOOST * 2;
+
+    if (isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+
+  if (
+    isGeneralProblemSolvingIntent(intentTokenSet) &&
+    chunk.sourceId === "problem-solving"
+  ) {
+    boost += INTENT_DOMAIN_BOOST;
+
+    if (
+      chunk.id.includes("summary") ||
+      chunk.id.includes("defensiveProgramming") ||
+      chunk.id.includes("philosophy")
+    ) {
+      boost += INTENT_CHUNK_BOOST;
+    }
+  }
+
   const hasAuthIntent =
-    ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some((token) =>
-      tokenSet.has(token),
+    ["401", "refresh", "queue", "인증", "만료", "재요청", "재발급"].some(
+      (token) => tokenSet.has(token),
     ) ||
     (tokenSet.has("토큰") && tokenSet.has("storylex"));
 
   if (
     hasAuthIntent &&
     chunk.sourceId === "storylex" &&
-    chunk.id.includes("auth401")
+    chunk.id.includes("authFlow")
   ) {
-    boost += AUTH401_DOMAIN_BOOST + INTENT_CHUNK_BOOST;
+    boost += AUTH_FLOW_DOMAIN_BOOST;
+
+    if (hasTechnicalIntent && isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
   }
 
   const hasStateManagementIntent = [
@@ -472,7 +825,9 @@ function getDomainSpecificBoost(
   if (
     hasRodiaApiIntent &&
     chunk.sourceId === "rodia" &&
-    chunk.id.includes("apiArchitecture") &&
+    (chunk.id.includes("apiAutomation") ||
+      chunk.id.includes("customInstance") ||
+      chunk.id.includes("apiDebugLogger")) &&
     (tokenSet.has("rodia") ||
       tokenSet.has("feature") ||
       tokenSet.has("피처") ||
@@ -484,7 +839,7 @@ function getDomainSpecificBoost(
     boost += INTENT_DOMAIN_BOOST;
 
     if (
-      chunk.id.includes("featureApi") &&
+      chunk.id.includes("apiAutomation") &&
       ["feature", "피처", "mapper", "매퍼", "서버", "응답", "영향"].some(
         (token) => tokenSet.has(token),
       )
@@ -493,16 +848,24 @@ function getDomainSpecificBoost(
     }
   }
 
-  const hasOrvalIntent = ["orval", "오벌", "openapi", "swagger", "codegen"].some(
-    (token) => tokenSet.has(token),
-  );
+  const hasOrvalIntent = [
+    "orval",
+    "오벌",
+    "openapi",
+    "swagger",
+    "codegen",
+  ].some((token) => tokenSet.has(token));
 
   if (
     hasOrvalIntent &&
     chunk.sourceId === "rodia" &&
-    chunk.id.includes("apiArchitecture.orval")
+    chunk.id.includes("apiAutomation")
   ) {
     boost += INTENT_DOMAIN_BOOST;
+
+    if (isTechnicalDetailChunk(chunk)) {
+      boost += INTENT_CHUNK_BOOST;
+    }
   }
 
   const hasRetrospectiveIntent = [
@@ -571,8 +934,7 @@ function getDomainSpecificBoost(
   if (
     hasAiFutureIntent &&
     chunk.sourceId === "ai-engineering" &&
-    (chunk.id.includes("ultimateQuestion") ||
-      chunk.id.includes("highestValue"))
+    (chunk.id.includes("ultimateQuestion") || chunk.id.includes("highestValue"))
   ) {
     boost += INTENT_CHUNK_BOOST;
   }
@@ -594,8 +956,7 @@ function getDomainSpecificBoost(
     boost += INTENT_DOMAIN_BOOST;
   }
 
-  const hasMobileDebugIntent =
-    tokenSet.has("모바일") && tokenSet.has("디버깅");
+  const hasMobileDebugIntent = tokenSet.has("모바일") && tokenSet.has("디버깅");
 
   if (
     hasMobileDebugIntent &&
@@ -644,39 +1005,34 @@ function getDomainSpecificBoost(
 export function rewriteQuery(
   question: string,
   messages: readonly ChatMessageLike[] = [],
+  currentTopicHint?: string | null,
 ) {
   const normalized = normalizeProjectAlias(question.trim());
-  const compact = normalized.replace(/\s+/g, "");
-
-  const isFollowUp = [
-    "그럼",
-    "그거",
-    "그건",
-    "왜",
-    "더",
-    "자세히",
-    "이어서",
-    "방금",
-    "아까",
-    "예시",
-    "결과",
-    "대안",
-    "어려웠던",
-    "배웠",
-    "과정",
-  ].some((marker) => compact.includes(marker));
+  const isFollowUp = isFollowUpQuestion(normalized);
 
   if (!isFollowUp) return normalized;
 
-  const previousUserMessage = [...messages]
-    .reverse()
-    .find((message) => message.role === "user" && message.content !== question);
+  const recentUserContext = getRecentUserContext(question, messages);
+  const recentMentionedSources = getMentionedSourceIds(recentUserContext);
+  const topicSeed = getTopicSeed(currentTopicHint);
 
-  if (!previousUserMessage) return normalized;
+  if (recentUserContext && recentMentionedSources.size > 0) {
+    return `${recentUserContext} ${normalized}`;
+  }
 
-  const previous = normalizeProjectAlias(previousUserMessage.content);
+  if (topicSeed && recentUserContext) {
+    return `${topicSeed} ${recentUserContext} ${normalized}`;
+  }
 
-  return `${previous} ${normalized}`;
+  if (topicSeed) {
+    return `${topicSeed} ${normalized}`;
+  }
+
+  if (recentUserContext) {
+    return `${recentUserContext} ${normalized}`;
+  }
+
+  return normalized;
 }
 
 export function expandQuery(query: string) {
@@ -900,7 +1256,12 @@ function rankChunks(query: string, limit: number, options: RetrievalOptions) {
   const aliasNormalizedQuery = normalizeProjectAlias(query);
   const rewrittenQuery = options.skipRewrite
     ? aliasNormalizedQuery
-    : rewriteQuery(aliasNormalizedQuery, options.messages ?? []);
+    : rewriteQuery(
+        aliasNormalizedQuery,
+        options.messages ?? [],
+        normalizedHint,
+      );
+  const intentTokens = tokenize(rewrittenQuery);
   const expandedTokens = expandQuery(rewrittenQuery);
   const mentionedSourceIds = getMentionedSourceIds(rewrittenQuery);
 
@@ -925,6 +1286,7 @@ function rankChunks(query: string, limit: number, options: RetrievalOptions) {
       const domainSpecificBoost = getDomainSpecificBoost(
         expandedTokens,
         chunk,
+        intentTokens,
       );
 
       return {

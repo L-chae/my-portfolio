@@ -4,14 +4,23 @@ import { useChat } from "@/hooks/useChat";
 
 interface ChatSuggestionsProps {
   activeSection: string;
+  messageCount: number;
   onSelect: (suggestion: string) => void;
-  messages: { role: string; content: string }[];
+  userMessages: readonly string[];
   isTyping: boolean;
+  isStreaming: boolean;
 }
 
-function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSuggestionsProps) {
+function ChatSuggestions({
+  activeSection,
+  messageCount,
+  onSelect,
+  userMessages,
+  isTyping,
+  isStreaming,
+}: ChatSuggestionsProps) {
   const currentTopicHint = useChat((state) => state.currentTopicHint);
-  const isInitialState = messages.length === 1;
+  const isInitialState = messageCount === 1;
 
   const suggestions = useMemo(() => {
     const rawSuggestions =
@@ -20,15 +29,15 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
         : SECTION_SUGGESTION_MAP[activeSection] ?? DEFAULT_SUGGESTIONS;
 
     return rawSuggestions
-      .filter((suggestion) => !messages.some((message) => message.role === "user" && message.content === suggestion))
+      .filter((suggestion) => !userMessages.includes(suggestion))
       .slice(0, 3);
-  }, [currentTopicHint, activeSection, messages]);
+  }, [activeSection, currentTopicHint, userMessages]);
 
-  if (isTyping || suggestions.length === 0) return null;
+  if (isTyping || isStreaming || suggestions.length === 0) return null;
 
   return (
-    <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <p className="text-[13px] font-bold text-slate-400">
+    <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+      <p className="text-sm text-ink-muted">
         {isInitialState ? "첫 질문을 선택해 대화를 시작해 보세요" : "현재 내용과 관련된 후속 질문"}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -38,8 +47,8 @@ function ChatSuggestions({ activeSection, onSelect, messages, isTyping }: ChatSu
             onClick={() => onSelect(suggestion)}
             className={`px-4 py-2 text-[14px] font-medium transition-all shadow-sm text-left break-keep rounded-xl border ${
               isInitialState
-                ? "bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300"
-                : "bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300"
+                ? "bg-brand-soft/70 hover:bg-brand-soft text-brand border-brand-soft hover:border-brand/30"
+                : "bg-surface hover:bg-surface-soft text-ink hover:text-navy border-line hover:border-brand/30"
             }`}
           >
             {suggestion}
