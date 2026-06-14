@@ -136,6 +136,40 @@ export const preparedAnswers: Record<string, string> = {
 AI 모델에만 기대기보다, 데이터 구조와 답변 경로를 함께 통제하는 방식으로 신뢰도를 높였습니다.
 `.trim(),
 
+  "기술 스택은 무엇인가요?":
+    `포트폴리오 AI 프로젝트에서는 각 기술을 필요한 범위 안에서 사용했습니다.
+
+- **Next.js:** 포트폴리오 화면과 챗봇 API route 구성에 사용했습니다.
+- **React / TypeScript:** 챗봇 UI, 메시지 목록, 입력 상태, knowledge 데이터와 유틸 함수 작성에 사용했습니다.
+- **AI SDK / Anthropic API:** 내부 context를 바탕으로 assistant 답변을 생성하는 데 사용했습니다.
+- **searchKnowledge / contextBuilder:** 내부 knowledge 데이터에서 관련 section을 찾고, 이를 prompt context로 구성하는 데 사용했습니다.
+- **Zustand:** 메시지, 입력 중 상태, streaming 상태, topic hint 같은 챗봇 상태를 관리하는 데 사용했습니다.
+- **Streaming Response / Markdown Rendering:** 답변을 점진적으로 표시하고, 완료된 답변을 markdown 형태로 읽기 쉽게 보여주는 데 사용했습니다.
+`.trim(),
+
+  "챗봇 환각을 어떻게 막았나요?":
+    `환각을 완전히 제거했다고 말하지는 않습니다. 대신 포트폴리오 데이터 범위 안에서 답변하도록 여러 기준을 두었습니다.
+
+- **system prompt:** context 안의 사실만 사용하고, 없는 수치나 성과를 추측하지 않도록 제한했습니다.
+- **prepared answer:** 민감하거나 자주 묻는 질문은 모델 호출 전에 고정 답변으로 우선 응답하게 했습니다.
+- **searchKnowledge / contextBuilder:** 내부 knowledge 데이터에서 질문과 관련된 section을 찾고, 이를 prompt context로 구성했습니다.
+- **avoidStatements:** RAG 구현, AI 모델 개발, 벡터 DB 구축처럼 과장될 수 있는 표현을 제한했습니다.
+
+핵심은 모델이 모든 것을 자유롭게 말하게 두는 것이 아니라, 답변 가능한 근거 범위를 좁히는 방식입니다.
+`.trim(),
+
+  "AI 모델을 직접 개발했나요?":
+    `아니요. 포트폴리오 AI 프로젝트는 AI 모델을 직접 개발하거나 학습시킨 프로젝트가 아닙니다.
+
+기존 LLM API를 활용해 포트폴리오 데이터 범위 안에서 답변하도록 구성했습니다. 핵심은 모델 개발보다 knowledge 데이터 구조화, context 구성, 답변 기준 설계에 가깝습니다.
+`.trim(),
+
+  "Claude를 사용했나요?":
+    `네. 챗봇 API route에서 AI SDK와 Anthropic Claude 계열 모델을 사용해 답변을 생성합니다.
+
+다만 Claude를 능숙하게 다룬다고 표현하기보다는, 포트폴리오 프로젝트 안에서 LLM API 호출과 context 전달 흐름을 구현해 본 경험으로 설명하는 것이 정확합니다.
+`.trim(),
+
   "HiveLab 경험이 프론트엔드에 어떻게 연결되나요?":
     `HiveLab에서는 디자이너로서 디자인 데이터와 AI 학습 데이터를 기준에 맞게 정리하고 검수했습니다.
 
