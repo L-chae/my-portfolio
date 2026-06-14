@@ -1,6 +1,7 @@
 'use client';
 
 import { Building2 } from 'lucide-react';
+import { career } from '../content/knowledge/career';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SectionLayout } from './ui/SectionLayout';
 import { SectionHeading } from './ui/SectionHeading';
@@ -8,17 +9,18 @@ import { SurfaceCard } from './ui/SurfaceCard';
 
 const EXPERIENCE_ITEMS = [
   {
-    label: '데이터 품질 기반의 예외 처리:',
-    text: '양보다 품질이 중요하다는 검수 경험을 바탕으로, 서버 데이터 신뢰도 저하를 대비한 Error Boundary 설계.',
+    label: '디자인 데이터 정리:',
+    text: 'PSD 내부 레이어와 UI 요소를 기준에 맞게 확인하고 정리했습니다.',
   },
   {
-    label: '반복 비용 제거:',
-    text: '휴먼 에러를 유발하는 수동 작업 환경을 단축 도구로 최적화했던 경험을 현재의 코드 생성기 도입 등 시스템 자동화 시각으로 연결.',
+    label: '마크업 준비:',
+    text: 'Figma 레이어 이름과 구조를 개발자가 이해하기 좋은 형태로 다듬었습니다.',
   },
 ];
 
 export default function ExperienceSection() {
   const ref = useScrollReveal<HTMLDivElement>();
+  const hivelab = career.hivelab;
 
   return (
     <div ref={ref}>
@@ -41,23 +43,22 @@ export default function ExperienceSection() {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-brand">Experience</p>
-                    <h4 className="mt-1 text-2xl font-bold text-navy sm:text-xl">HiveLab</h4>
+                    <p className="text-sm font-semibold text-brand">{hivelab.uiText.label}</p>
+                    <h4 className="mt-1 text-2xl font-bold text-navy sm:text-xl">{hivelab.company}</h4>
                     <p className="mt-2 break-keep text-[15px] font-medium text-ink-muted">
-                      AI 학습 데이터 검수 및 관리
+                      {hivelab.uiText.title}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-[13px] font-semibold text-ink-faint sm:pt-1">
-                  2020.09 - 현재
+                  {hivelab.uiText.period}
                 </p>
               </div>
 
               <div className="rounded-panel border border-line-soft bg-surface-soft p-5">
                 <p className="break-keep text-[15px] font-medium leading-relaxed text-ink">
-                  &quot;수만 건의 AI 학습 데이터를 검수하며 체득한 &apos;데이터 일관성&apos;의 감각을,
-                  프론트엔드 상태 관리와 예외 흐름(Edge Case) 방어 로직에 적용하고 있습니다.&quot;
+                  &quot;{hivelab.uiText.description}&quot;
                 </p>
               </div>
 

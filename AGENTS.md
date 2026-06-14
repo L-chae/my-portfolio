@@ -1,7 +1,11 @@
 <!-- BEGIN:global-design-extension-rules -->
 
 # Global Design Extension Rules
-
+- 모든 파일 읽기/쓰기 작업은 **UTF-8 (BOM 없음)** 인코딩을 기준으로 한다.
+- 터미널 출력 시 인코딩 오류 방지를 위해, 시스템 호출 시 항상 다음 인코딩 플래그를 준수한다:
+  - PowerShell/CMD 실행 시: `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`
+  - Python 등 외부 스크립트 실행 시: `PYTHONIOENCODING=utf-8` 환경 변수 주입
+  
 작업 중 기존 전역 디자인 토큰만으로 해결할 수 없어 새 디자인 효과, 유틸리티, 토큰을 추가해야 한다면 반드시 아래 규칙을 따르세요.
 
 ## 기준 파일
