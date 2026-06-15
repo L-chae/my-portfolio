@@ -9,7 +9,11 @@ import ChatPanel from "./ChatPanel";
 
 const SECTION_IDS = ["hero", "experience", "core-values", "projects"];
 
-export default function ChatBar() {
+type ChatBarProps = {
+  hideFloatingButton?: boolean;
+};
+
+export default function ChatBar({ hideFloatingButton = false }: ChatBarProps) {
   const isExpanded = useChat((state) => state.isExpanded);
   const setIsExpanded = useChat((state) => state.setIsExpanded);
 
@@ -108,11 +112,13 @@ export default function ChatBar() {
         }}
       />
 
-      <ChatFloatingButton
-        isExpanded={isExpanded}
-        isScrolled={isScrolled}
-        onOpen={() => toggleExpanded(true)}
-      />
+      {!hideFloatingButton && (
+        <ChatFloatingButton
+          isExpanded={isExpanded}
+          isScrolled={isScrolled}
+          onOpen={() => toggleExpanded(true)}
+        />
+      )}
 
       <ChatPanel
         activeSection={activeSection}
