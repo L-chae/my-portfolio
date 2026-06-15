@@ -44,9 +44,9 @@ function ProjectDetailLink({ projectKey }: { projectKey: string }) {
     <Link
       href={`/projects/${projectKey}`}
       scroll={false}
-      className="motion-link-arrow inline-flex w-max shrink-0 items-center gap-2 rounded-pill border border-line-soft bg-surface-soft px-3 py-2 whitespace-nowrap text-sm font-semibold text-brand transition-colors hover:border-brand-ring hover:text-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
+      className="motion-link-arrow inline-flex w-max shrink-0 items-center gap-2 rounded-pill border border-line-soft bg-surface-soft px-3.5 py-2 whitespace-nowrap text-sm font-semibold text-brand transition-colors hover:border-brand-ring hover:text-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
     >
-      상세보기
+      자세히 보기
       <ArrowUpRight size={14} aria-hidden="true" />
     </Link>
   );
@@ -61,8 +61,8 @@ export default function ProjectsSection() {
         id="projects"
         aside={
           <SectionHeading eyebrow="PROJECTS">
-            문제를 정의하고 <br className="hidden md:block" />
-            흐름을 개선합니다.
+            프로젝트에서 다룬 문제와 <br className="hidden md:block" />
+            구현 과정을 정리했습니다.
           </SectionHeading>
         }
       >
@@ -91,7 +91,7 @@ export default function ProjectsSection() {
                       />
                     </div>
 
-                    <h4 className="min-w-0 text-2xl font-bold text-navy md:text-3xl">
+                    <h4 className="min-w-0 text-xl font-bold leading-tight text-navy md:text-2xl">
                       <Link
                         href={`/projects/${project.projectKey}`}
                         scroll={false}
@@ -107,18 +107,24 @@ export default function ProjectsSection() {
                   </div>
                 </div>
 
-                <div className="mt-3 min-w-0 space-y-2">
-                  <p className="text-sm font-medium text-ink-muted">{project.displayLabel}</p>
-                  <p className="break-keep leading-7 text-ink">{project.summary}</p>
+                <div className="mt-4 min-w-0 space-y-2.5">
+                  <p className="break-keep text-sm font-semibold text-navy">
+                    {project.displayLabel}
+                  </p>
+
+                  <p className="break-keep text-[15px] leading-7 text-ink">
+                    {project.summary}
+                  </p>
                 </div>
 
                 <div className="mt-6 border-t border-line-soft pt-4">
                   <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-start md:justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold uppercase tracking-widest text-ink-faint">
-                        Stack
+                        주요 기술
                       </p>
-                      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-muted">
+
+                      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-6 text-ink-muted">
                         {featuredTechStack.map((tech, techIndex) => (
                           <span key={tech} className="inline-flex items-center gap-2">
                             {techIndex > 0 && (

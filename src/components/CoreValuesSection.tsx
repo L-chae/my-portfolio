@@ -1,3 +1,4 @@
+
 "use client";
 
 import { DatabaseZap, ShieldCheck, SlidersHorizontal } from "lucide-react";
@@ -8,24 +9,24 @@ import { SectionHeading } from "./ui/SectionHeading";
 const CORE_VALUES = [
   {
     Icon: ShieldCheck,
-    title: "시나리오 검증가",
+    title: "예외 흐름을 먼저 확인합니다",
     chipClassName: "bg-brand-pale text-brand",
     description:
-      "사용자는 100번의 정상 동작보다 1번의 실패 경험을 더 오래 기억합니다. 해피 패스(Happy Path) 구현보다 네트워크 지연, 인증 만료 등 실패 흐름(Failure Flow)을 선제적으로 방어합니다.",
+      "기능이 정상적으로 동작하는지만 보지 않고, 로그인 만료, 네트워크 지연, 여러 요청이 동시에 실패하는 상황처럼 사용 흐름이 끊길 수 있는 경우를 함께 확인합니다.",
   },
   {
     Icon: DatabaseZap,
-    title: "반복 비용의 시스템적 제거",
+    title: "반복되는 작업은 구조로 줄입니다",
     chipClassName: "bg-accent-pale text-accent",
     description:
-      "휴먼 에러를 유발하는 반복 업무를 방치하지 않습니다. OpenAPI 기반 코드 생성기나 Zod를 활용해 런타임 에러를 빌드 타임으로 끌어올려 팀의 생산성을 높입니다.",
+      "API 명세 변경이나 반복되는 요청 처리처럼 실수가 생기기 쉬운 작업은 공통 계층, 코드 생성, 검증 흐름을 통해 관리 가능한 형태로 정리하려고 합니다.",
   },
   {
     Icon: SlidersHorizontal,
-    title: "적정 기술과 오버엔지니어링 경계",
+    title: "현재 범위에 맞는 방식을 선택합니다",
     chipClassName: "bg-brand-pale text-brand",
     description:
-      "미래의 확장성을 과도하게 고려하다 발생한 실패 경험을 바탕으로, 현재 팀 규모와 비즈니스 우선순위에 맞춰 가장 적합한 '적정 수준의 타협점'을 도출합니다.",
+      "모든 문제를 큰 구조로 해결하려 하기보다, 프로젝트 규모와 팀 상황에 맞는 방식을 선택하려고 합니다. 필요 이상으로 복잡해지는 구조는 줄이고, 지금 해결해야 할 문제에 집중합니다.",
   },
 ];
 
@@ -37,31 +38,31 @@ export default function CoreValuesSection() {
       <SectionLayout
         id="core-values"
         aside={
-          <SectionHeading eyebrow="CORE VALUES">
-            기능 구현보다 <br className="hidden md:block" />
-            유지보수 비용을 <br className="hidden md:block" />
-            고민합니다.
+          <SectionHeading eyebrow="WORK STYLE">
+            프로젝트에서 반복해서 <br className="hidden md:block" />
+            확인하는 작업 기준입니다.
           </SectionHeading>
         }
       >
-        <div className="scroll-reveal reveal-delay-1 max-w-3xl overflow-hidden rounded-card border border-line-soft bg-surface-glass">
+        <div className="scroll-reveal reveal-delay-1 max-w-3xl overflow-hidden rounded-card border border-line-soft bg-surface-glass shadow-card">
           <div className="divide-y divide-line-soft">
             {CORE_VALUES.map(({ Icon, title, description, chipClassName }) => (
               <article
                 key={title}
-                className="grid gap-4 px-6 py-6 md:grid-cols-[auto_minmax(0,1fr)] md:px-7 md:py-7"
+                className="grid gap-5 px-7 py-7 md:grid-cols-[auto_minmax(0,1fr)] md:px-8 md:py-8"
               >
                 <div
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-panel ${chipClassName}`}
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-panel ${chipClassName}`}
                 >
-                  <Icon size={20} aria-hidden="true" />
+                  <Icon size={21} aria-hidden="true" />
                 </div>
 
                 <div className="min-w-0">
-                  <h4 className="text-base font-bold text-navy break-keep">
+                  <h4 className="break-keep text-lg font-bold leading-7 text-navy md:text-xl">
                     {title}
                   </h4>
-                  <p className="mt-2 max-w-prose break-keep text-sm leading-7 text-ink">
+
+                  <p className="mt-2.5 max-w-prose break-keep text-[15px] leading-8 text-ink">
                     {description}
                   </p>
                 </div>
