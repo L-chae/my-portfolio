@@ -38,7 +38,7 @@ export default function CoreValuesSection() {
       <SectionLayout
         id="core-values"
         aside={
-          <SectionHeading eyebrow="WORK STYLE">
+          <SectionHeading eyebrow="CORE VALUES">
             프로젝트에서 반복해서 <br className="hidden md:block" />
             확인하는 작업 기준입니다.
           </SectionHeading>
