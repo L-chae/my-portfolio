@@ -32,6 +32,7 @@ export default function Header() {
 
   const [activeSection, setActiveSection] = useState<NavId>('hero');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
   const headerRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
@@ -43,6 +44,8 @@ export default function Header() {
   const isClickScrolling = useRef(false);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollRafRef = useRef<number | null>(null);
+  const lastScrollYRef = useRef(0);
+  const isMobileMenuOpenRef = useRef(false);
   const focusRafRef = useRef<number | null>(null);
   const activeSectionRef = useRef<NavId>('hero');
 
@@ -96,6 +99,23 @@ export default function Header() {
     } else {
       delete header.dataset.scrolled;
     }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasHeaderFocus = header.contains(document.activeElement);
+    const shouldShowHeader =
+      prefersReducedMotion ||
+      isMobileMenuOpenRef.current ||
+      hasHeaderFocus ||
+      scrollY <= 16 ||
+      scrollY < lastScrollYRef.current;
+
+    if (shouldShowHeader) {
+      setIsHeaderHidden(false);
+    } else if (scrollY > lastScrollYRef.current) {
+      setIsHeaderHidden(true);
+    }
+
+    lastScrollYRef.current = scrollY;
   }, []);
 
   const pickMostVisibleSection = useCallback(() => {
@@ -154,6 +174,11 @@ export default function Header() {
     [isHomePage, scrollToSection]
   );
 
+  const toggleMobileMenu = () => {
+    setIsHeaderHidden(false);
+    setIsMobileMenuOpen((prev) => !prev);
+  };
+
   useEffect(() => {
     updateIndicator(activeNavId);
   }, [activeNavId, updateIndicator]);
@@ -183,6 +208,10 @@ export default function Header() {
       if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
     };
   }, [pathname, updateScrollState]);
+
+  useEffect(() => {
+    isMobileMenuOpenRef.current = isMobileMenuOpen;
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -306,11 +335,12 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
+        onFocusCapture={() => setIsHeaderHidden(false)}
         className={`header-root fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
           isMobileMenuOpen
             ? 'border-line-soft bg-surface-glass shadow-soft backdrop-blur-xl'
             : 'border-transparent bg-transparent data-[scrolled=true]:border-line-soft data-[scrolled=true]:bg-surface-glass data-[scrolled=true]:shadow-soft data-[scrolled=true]:backdrop-blur-xl'
-        }`}
+        } ${isHeaderHidden && !isMobileMenuOpen ? '-translate-y-full pointer-events-none' : 'translate-y-0'}`}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link
@@ -364,7 +394,7 @@ export default function Header() {
             aria-label={isMobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation"
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            onClick={toggleMobileMenu}
             className={`mobile-toggle inline-flex h-11 w-11 items-center justify-center rounded-pill border border-line-soft transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring md:hidden ${
               isMobileMenuOpen
                 ? 'bg-surface shadow-soft'
