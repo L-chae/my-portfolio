@@ -47,11 +47,6 @@ type ProjectScreenshot = {
 
 type ScreenshotLayout = 'desktop' | 'mobile';
 
-type ScreenshotSelectHandler = (
-  screenshot: ProjectScreenshot,
-  trigger: HTMLButtonElement,
-) => void;
-
 const PROJECT_SCREENSHOTS: Record<string, readonly ProjectScreenshot[]> = {
   storylex: [
     {
@@ -346,9 +341,15 @@ function ProjectQuickPanel({
   );
 }
 
-function ScreenshotSectionHeader() {
+function ScreenshotSectionHeader({
+  count,
+  layout,
+}: {
+  count: number;
+  layout: ScreenshotLayout;
+}) {
   return (
-    <div className="mb-5 px-1">
+    <div className="mb-5 flex items-end justify-between gap-4 px-1">
       <div>
         <p className="text-[11px] font-bold tracking-[0.18em] text-brand">
           프로젝트 화면
@@ -358,6 +359,10 @@ function ScreenshotSectionHeader() {
           화면 구성
         </h2>
       </div>
+
+      <span className="hidden rounded-full border border-line-soft bg-surface px-3 py-1.5 text-[11px] font-bold text-ink-faint shadow-sm sm:inline-flex">
+        {layout === 'mobile' ? '모바일 화면' : '웹 화면'} {count}개
+      </span>
     </div>
   );
 }
@@ -367,7 +372,7 @@ function DesktopScreenshotGrid({
   onSelect,
 }: {
   screenshots: readonly ProjectScreenshot[];
-  onSelect: ScreenshotSelectHandler;
+  onSelect: (screenshot: ProjectScreenshot) => void;
 }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -375,7 +380,7 @@ function DesktopScreenshotGrid({
         <button
           key={screenshot.src}
           type="button"
-          onClick={(event) => onSelect(screenshot, event.currentTarget)}
+          onClick={() => onSelect(screenshot)}
           className="group overflow-hidden rounded-2xl border border-line-soft bg-surface text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
           aria-label={`${screenshot.title} 화면 확대해서 보기`}
         >
@@ -421,7 +426,7 @@ function MobileScreenshotRail({
   onSelect,
 }: {
   screenshots: readonly ProjectScreenshot[];
-  onSelect: ScreenshotSelectHandler;
+  onSelect: (screenshot: ProjectScreenshot) => void;
 }) {
   return (
     <div className="-mx-5 sm:mx-0">
@@ -430,12 +435,12 @@ function MobileScreenshotRail({
           <button
             key={screenshot.src}
             type="button"
-            onClick={(event) => onSelect(screenshot, event.currentTarget)}
+            onClick={() => onSelect(screenshot)}
             className="group w-52.5 shrink-0 snap-start text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring sm:w-55"
             aria-label={`${screenshot.title} 화면 확대해서 보기`}
           >
-            <div className="overflow-hidden rounded-4xl border border-line-soft bg-surface p-px shadow-sm transition duration-200 group-hover:border-brand/50 group-hover:shadow-md">
-              <div className="relative h-102.5 bg-surface-muted sm:h-107.5">
+            <div className="rounded-4xl border border-line-soft bg-surface p-2 shadow-sm transition duration-200 group-hover:border-brand/50 group-hover:shadow-md">
+              <div className="relative h-102.5 overflow-hidden rounded-[1.55rem] bg-surface-muted sm:h-107.5">
                 <Image
                   src={screenshot.src}
                   alt={screenshot.alt}
@@ -479,7 +484,7 @@ function ProjectScreenshotGallery({
   onSelect,
 }: {
   projectKey: string;
-  onSelect: ScreenshotSelectHandler;
+  onSelect: (screenshot: ProjectScreenshot) => void;
 }) {
   const screenshots = PROJECT_SCREENSHOTS[projectKey];
 
@@ -489,7 +494,7 @@ function ProjectScreenshotGallery({
 
   return (
     <section className="mt-10 md:mt-12" aria-label="프로젝트 화면 갤러리">
-      <ScreenshotSectionHeader />
+      <ScreenshotSectionHeader count={screenshots.length} layout={layout} />
 
       {layout === 'mobile' ? (
         <MobileScreenshotRail screenshots={screenshots} onSelect={onSelect} />
@@ -503,13 +508,9 @@ function ProjectScreenshotGallery({
 function ScreenshotModal({
   screenshot,
   onClose,
-  dialogRef,
-  closeButtonRef,
 }: {
   screenshot: ProjectScreenshot | null;
   onClose: () => void;
-  dialogRef: RefObject<HTMLDivElement | null>;
-  closeButtonRef: RefObject<HTMLButtonElement | null>;
 }) {
   if (!screenshot) return null;
 
@@ -518,20 +519,16 @@ function ScreenshotModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-navy/80 px-4 py-6 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="screenshot-modal-title"
+      aria-label={`${screenshot.title} 확대 이미지`}
       onClick={onClose}
     >
       <div
-        ref={dialogRef}
         className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-4 border-b border-line-soft px-4 py-3 md:px-5">
           <div className="min-w-0">
-            <h2
-              id="screenshot-modal-title"
-              className="truncate text-[14px] font-extrabold text-navy md:text-[15px]"
-            >
+            <h2 className="truncate text-[14px] font-extrabold text-navy md:text-[15px]">
               {screenshot.title}
             </h2>
 
@@ -541,7 +538,6 @@ function ScreenshotModal({
           </div>
 
           <button
-            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line-soft bg-surface-muted text-ink-muted transition-colors hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
@@ -575,9 +571,6 @@ export default function ProjectDetailContent({
   );
   const [selectedScreenshot, setSelectedScreenshot] =
     useState<ProjectScreenshot | null>(null);
-  const screenshotTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const screenshotDialogRef = useRef<HTMLDivElement | null>(null);
-  const screenshotCloseButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const projectMeta = buildProjectMeta(project);
   const questions = useMemo(
@@ -588,49 +581,14 @@ export default function ProjectDetailContent({
   const activeSections =
     activeTab === 'overview' ? OVERVIEW_SECTIONS : TECHNICAL_SECTIONS;
 
-  function handleSelectScreenshot(
-    screenshot: ProjectScreenshot,
-    trigger: HTMLButtonElement,
-  ) {
-    screenshotTriggerRef.current = trigger;
-    setSelectedScreenshot(screenshot);
-  }
-
   useEffect(() => {
     if (!selectedScreenshot) return;
 
     const previousOverflow = document.body.style.overflow;
-    const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-    const focusModalCloseButton = window.requestAnimationFrame(() => {
-      screenshotCloseButtonRef.current?.focus();
-    });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setSelectedScreenshot(null);
-        return;
-      }
-
-      if (event.key !== 'Tab') return;
-
-      const focusableElements = screenshotDialogRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
-
-      if (!focusableElements || focusableElements.length === 0) {
-        event.preventDefault();
-        return;
-      }
-
-      const firstFocusableElement = focusableElements[0];
-      const lastFocusableElement = focusableElements[focusableElements.length - 1];
-
-      if (event.shiftKey && document.activeElement === firstFocusableElement) {
-        event.preventDefault();
-        lastFocusableElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastFocusableElement) {
-        event.preventDefault();
-        firstFocusableElement.focus();
       }
     }
 
@@ -638,12 +596,8 @@ export default function ProjectDetailContent({
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.cancelAnimationFrame(focusModalCloseButton);
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
-      (screenshotTriggerRef.current ?? previouslyFocusedElement)?.focus({
-        preventScroll: true,
-      });
     };
   }, [selectedScreenshot]);
 
@@ -696,7 +650,7 @@ export default function ProjectDetailContent({
 
             <div
               key={activeTab}
-              className="content-switch-enter"
+              className="animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out"
             >
               <SectionGroup sections={activeSections} project={project} />
             </div>
@@ -707,15 +661,13 @@ export default function ProjectDetailContent({
 
         <ProjectScreenshotGallery
           projectKey={project.projectKey}
-          onSelect={handleSelectScreenshot}
+          onSelect={setSelectedScreenshot}
         />
       </main>
 
       <ScreenshotModal
         screenshot={selectedScreenshot}
         onClose={() => setSelectedScreenshot(null)}
-        dialogRef={screenshotDialogRef}
-        closeButtonRef={screenshotCloseButtonRef}
       />
     </>
   );
