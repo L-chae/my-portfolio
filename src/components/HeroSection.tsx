@@ -48,30 +48,37 @@ const HeroPrompt = memo(function HeroPrompt() {
     const projectsSection = document.getElementById("projects");
     if (!projectsSection) return;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const headerOffset = 64;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     window.scrollTo({
-      top: Math.max(0, window.scrollY + projectsSection.getBoundingClientRect().top - headerOffset),
+      top: Math.max(
+        0,
+        window.scrollY + projectsSection.getBoundingClientRect().top - 64,
+      ),
       behavior: prefersReducedMotion ? "auto" : "smooth",
     });
+
     window.history.replaceState(null, "", "#projects");
   };
 
   return (
     <div
-      className="hero-item mt-9 w-full max-w-3xl"
+      className="hero-item mt-9 w-full max-w-2xl"
       style={{ animationDelay: "520ms" }}
     >
       <form
         onSubmit={handleSubmit}
-        className="group flex h-14 w-full items-center gap-2 rounded-pill bg-surface-glass px-4 text-left ring-1 ring-line shadow-card transition-all duration-200 hover:bg-surface hover:ring-line focus-within:ring-4 focus-within:ring-brand-ring"
+        className="group flex h-14 w-full items-center gap-2 rounded-pill border border-line-soft bg-white/88 px-3.5 text-left shadow-card backdrop-blur-md transition-all duration-200 hover:bg-white focus-within:border-brand-ring focus-within:ring-4 focus-within:ring-brand-ring sm:px-4"
       >
-        <Sparkles
-          size={18}
-          className="ml-1 shrink-0 text-brand transition-transform group-hover:scale-110"
-          aria-hidden="true"
-        />
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-pill bg-brand-pale text-brand">
+          <Sparkles
+            size={16}
+            className="transition-transform duration-200 group-hover:scale-110"
+            aria-hidden="true"
+          />
+        </span>
 
         <input
           type="text"
@@ -85,7 +92,7 @@ const HeroPrompt = memo(function HeroPrompt() {
             isComposingRef.current = false;
           }}
           placeholder="프로젝트와 기술 선택 과정을 물어보세요"
-          className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm font-medium text-navy placeholder:text-ink-faint focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-1.5 py-2 text-sm font-semibold text-navy placeholder:text-ink-faint focus:outline-none sm:px-2"
         />
 
         <Button
@@ -108,7 +115,7 @@ const HeroPrompt = memo(function HeroPrompt() {
             onClick={() => {
               void sendHeroQuestion(question);
             }}
-            className="suggestion-chip h-9 px-4 text-[13px] disabled:pointer-events-none disabled:opacity-45"
+            className="suggestion-chip min-h-9 px-4 text-[13px] disabled:pointer-events-none disabled:opacity-45"
           >
             {question}
           </button>
@@ -116,7 +123,12 @@ const HeroPrompt = memo(function HeroPrompt() {
       </div>
 
       <div className="mt-6 flex justify-center">
-        <Button type="button" variant="ghost" size="sm" onClick={scrollToProjects}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={scrollToProjects}
+        >
           Projects 보기
           <ArrowUpRight size={14} aria-hidden="true" />
         </Button>
@@ -129,18 +141,25 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center overflow-hidden px-6 pb-20 pt-28 md:pb-24 md:pt-32"
+      className="relative flex min-h-svh items-center overflow-hidden px-5 pb-16 pt-28 sm:px-6 md:pb-20 md:pt-32"
     >
       <style>{`
         @keyframes hero-fade-up {
-          from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.985); }
-          to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+          from {
+            opacity: 0;
+            transform: translate3d(0, 14px, 0) scale(0.99);
+          }
+
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+          }
         }
 
         .hero-item {
           opacity: 0;
           will-change: opacity, transform;
-          animation: hero-fade-up 820ms cubic-bezier(0.34, 1.32, 0.64, 1) forwards;
+          animation: hero-fade-up 760ms cubic-bezier(0.34, 1.18, 0.64, 1) forwards;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -153,11 +172,11 @@ export default function HeroSection() {
         }
       `}</style>
 
-      <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+      <div className="mx-auto flex w-full max-w-4xl flex-col items-center text-center">
         <TypingTitle text="Frontend Developer" />
 
         <h1
-          className="hero-item mt-6 max-w-4xl text-4xl font-bold leading-[1.08] text-navy break-keep sm:text-5xl md:text-6xl"
+          className="hero-item mt-5 max-w-3xl break-keep text-[clamp(2.45rem,7vw,4rem)] font-extrabold leading-[1.08] tracking-[-0.04em] text-navy sm:mt-6"
           style={{ animationDelay: "150ms" }}
         >
           경험과 고민을
@@ -166,10 +185,11 @@ export default function HeroSection() {
         </h1>
 
         <p
-          className="hero-item mt-5 max-w-2xl  leading-8 text-ink break-keep"
+          className="hero-item mt-5 max-w-2xl break-keep text-[15px] font-semibold leading-7 text-navy-muted sm:leading-8"
           style={{ animationDelay: "280ms" }}
         >
-          구현 과정부터 기술적 선택의 근거까지, 무엇이든 물어보세요.
+          구현 과정부터 기술 선택의 근거까지, 포트폴리오 경험을 질문으로
+          확인할 수 있습니다.
         </p>
 
         <HeroPrompt />
