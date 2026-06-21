@@ -36,7 +36,7 @@ function ChatSuggestions({
   if (isTyping || isStreaming || suggestions.length === 0) return null;
 
   return (
-    <div className="ml-11 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+    <div className="ml-12 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
       <p className="text-sm text-ink-muted">
         {isInitialState ? "첫 질문을 선택해 대화를 시작해 보세요" : "현재 내용과 관련된 후속 질문"}
       </p>
@@ -45,10 +45,10 @@ function ChatSuggestions({
           <button
             key={suggestion}
             onClick={() => onSelect(suggestion)}
-            className={`px-4 py-2 text-[14px] font-medium transition-all shadow-sm text-left break-keep rounded-xl border ${
+            className={`suggestion-chip px-4 py-2 text-left text-[14px] ${
               isInitialState
-                ? "bg-brand-soft/70 hover:bg-brand-soft text-brand border-brand-soft hover:border-brand/30"
-                : "bg-surface hover:bg-surface-soft text-ink hover:text-navy border-line hover:border-brand/30"
+                ? "suggestion-chip-featured"
+                : ""
             }`}
           >
             {suggestion}

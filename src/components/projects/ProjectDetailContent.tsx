@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import type { RefObject } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Bot, ExternalLink, Info, Maximize2, X } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Info, Maximize2, X } from 'lucide-react';
+import ChatAiLogo from '@/components/chat/ChatAiLogo';
 import { LinkButton } from '@/components/ui/Button';
 import type { ProjectDetail } from '@/content/projectsMock';
 
@@ -126,6 +127,13 @@ const TECHNICAL_SECTIONS = [
   { key: 'tradeOff', title: '선택의 장단점' },
 ] as const satisfies ReadonlyArray<DetailSection>;
 
+const SECTION_BORDER_TONES = [
+  'border-brand-ring',
+  'border-cyan-ring',
+  'border-violet-ring',
+  'border-rose-ring',
+] as const;
+
 function hasMetaValue(item: ProjectMetaItem | null): item is ProjectMetaItem {
   return Boolean(item?.value);
 }
@@ -157,10 +165,10 @@ function ProjectHeroActions({ links }: { links: ProjectDetail['links'] }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`group inline-flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-[13px] font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring ${
+          className={`group inline-flex items-center justify-between gap-3 rounded-pill border px-4 py-3 text-[13px] font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring ${
             index === 0
-              ? 'border-navy bg-navy text-white hover:border-brand hover:bg-brand'
-              : 'border-line-soft bg-surface text-navy shadow-sm hover:border-brand hover:text-brand'
+              ? 'border-brand bg-brand text-white hover:bg-brand-hover'
+              : 'border-line bg-white text-ink hover:border-brand-ring hover:text-brand'
           }`}
         >
           <span className="truncate">{link.label}</span>
@@ -196,11 +204,11 @@ function ProjectHeroHeader({ project }: { project: ProjectDetail }) {
       >
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-line-soft bg-surface-muted px-3 py-1.5 text-[11px] font-bold text-ink-muted">
+            <span className="rounded-pill border border-line-soft bg-surface-soft px-3 py-1.5 text-[11px] font-bold text-ink-muted">
               {project.label}
             </span>
 
-            <span className="rounded-full border border-brand-soft bg-brand-pale px-3 py-1.5 text-[11px] font-bold text-brand">
+            <span className="rounded-pill border border-brand-ring bg-brand-pale px-3 py-1.5 text-[11px] font-bold text-brand">
               {project.displayLabel}
             </span>
           </div>
@@ -219,12 +227,12 @@ function ProjectHeroHeader({ project }: { project: ProjectDetail }) {
           {project.techStack.length > 0 && (
             <div
               aria-label="기술 스택"
-              className="scrollbar-none mt-5 flex max-w-full gap-2 overflow-x-auto pb-1"
+              className="mt-5 flex flex-wrap items-center gap-2"
             >
               {project.techStack.map((tech) => (
                 <span
                   key={tech}
-                  className="shrink-0 rounded-lg border border-line-soft bg-surface px-2.5 py-1.5 text-[12px] font-medium text-ink-muted shadow-sm"
+                  className="inline-flex rounded-pill border border-line-soft bg-surface-glass px-3 py-1.5 text-[12px] font-semibold text-ink shadow-soft"
                 >
                   {tech}
                 </span>
@@ -251,7 +259,7 @@ function SectionGroup({
       {sections.map(({ key, title }, index) => (
         <article
           key={key}
-          className="rounded-2xl border border-line-soft bg-surface px-5 py-5 shadow-sm md:px-6 md:py-6"
+          className={`rounded-card border border-line-soft bg-surface-glass px-5 py-5 shadow-card md:px-6 md:py-6 ${SECTION_BORDER_TONES[index % SECTION_BORDER_TONES.length]}`}
         >
           <p className="text-[11px] font-bold tracking-[0.18em] text-brand">
             {String(index + 1).padStart(2, '0')}
@@ -283,11 +291,11 @@ function ProjectQuickPanel({
 
   return (
     <aside className="lg:sticky lg:top-24">
-      <section className="overflow-hidden rounded-[1.5rem] border border-line-soft bg-surface shadow-sm">
+      <section className="overflow-hidden rounded-card border border-line-soft bg-surface-glass shadow-card">
         {meta.length > 0 && (
           <div className="px-5 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-brand">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-brand-pale text-brand">
                 <Info size={17} aria-hidden="true" />
               </div>
 
@@ -296,7 +304,7 @@ function ProjectQuickPanel({
               </h2>
             </div>
 
-            <dl className="mt-4 divide-y divide-line-soft rounded-xl border border-line-soft bg-surface-muted">
+            <dl className="mt-4 divide-y divide-line-soft rounded-panel border border-line-soft bg-surface-soft">
               {meta.map((item) => (
                 <div
                   key={item.label}
@@ -315,10 +323,10 @@ function ProjectQuickPanel({
         )}
 
         {visibleQuestions.length > 0 && (
-          <div className="border-t border-brand/20 bg-brand-pale/25 px-5 py-5">
+          <div className="border-t border-brand-ring bg-brand-pale px-5 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface text-brand">
-                <Bot size={17} aria-hidden="true" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel border border-brand-ring bg-white text-brand">
+                <ChatAiLogo decorative size={17} className="h-4 w-4 text-brand" />
               </div>
 
               <h2 className="text-[14px] font-extrabold text-brand">
@@ -333,7 +341,7 @@ function ProjectQuickPanel({
                   type="button"
                   data-chat-intent="open"
                   data-chat-topic={question}
-                  className="w-full rounded-xl border border-brand-soft bg-surface px-4 py-3 text-left text-[13px] font-bold leading-normal text-navy shadow-sm transition-colors hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
+                  className="suggestion-chip suggestion-chip-featured w-full px-4 py-3 text-left text-[13px] leading-normal"
                 >
                   {question}
                 </button>
@@ -376,7 +384,7 @@ function DesktopScreenshotGrid({
           key={screenshot.src}
           type="button"
           onClick={(event) => onSelect(screenshot, event.currentTarget)}
-          className="group overflow-hidden rounded-2xl border border-line-soft bg-surface text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
+          className="group overflow-hidden rounded-panel border border-line-soft bg-surface text-left shadow-card transition-colors hover:border-brand-ring focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
           aria-label={`${screenshot.title} 화면 확대해서 보기`}
         >
           <div className="relative h-55 overflow-hidden bg-surface-muted sm:h-67.5 lg:h-75">
@@ -385,12 +393,12 @@ function DesktopScreenshotGrid({
               alt={screenshot.alt}
               fill
               sizes="(min-width: 1024px) 520px, (min-width: 768px) 50vw, 100vw"
-              className="object-contain transition-transform duration-500 group-hover:scale-[1.015]"
+              className="object-contain"
               priority={index === 0}
             />
 
             <div className="absolute inset-0 flex items-start justify-end p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              <span className="inline-flex items-center gap-1 rounded-lg border border-line-soft bg-surface/90 px-2.5 py-1.5 text-[11px] font-bold text-navy shadow-sm backdrop-blur-sm">
+              <span className="inline-flex items-center gap-1 rounded-pill border border-line-soft bg-white px-2.5 py-1.5 text-[11px] font-bold text-navy shadow-soft">
                 <Maximize2 size={12} aria-hidden="true" />
                 확대
               </span>
@@ -431,10 +439,10 @@ function MobileScreenshotRail({
             key={screenshot.src}
             type="button"
             onClick={(event) => onSelect(screenshot, event.currentTarget)}
-            className="group w-52.5 shrink-0 snap-start text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring sm:w-55"
+            className="group w-52.5 shrink-0 snap-start text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring sm:w-55"
             aria-label={`${screenshot.title} 화면 확대해서 보기`}
           >
-            <div className="overflow-hidden rounded-4xl border border-line-soft bg-surface p-px shadow-sm transition duration-200 group-hover:border-brand/50 group-hover:shadow-md">
+            <div className="overflow-hidden rounded-panel border border-line-soft bg-surface p-px shadow-card transition-colors group-hover:border-brand-ring">
               <div className="relative h-102.5 bg-surface-muted sm:h-107.5">
                 <Image
                   src={screenshot.src}
@@ -446,7 +454,7 @@ function MobileScreenshotRail({
                 />
 
                 <div className="absolute inset-0 flex items-start justify-end p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                  <span className="inline-flex items-center gap-1 rounded-lg border border-line-soft bg-surface/90 px-2 py-1 text-[11px] font-bold text-navy shadow-sm backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1 rounded-pill border border-line-soft bg-white px-2 py-1 text-[11px] font-bold text-navy shadow-soft">
                     <Maximize2 size={11} aria-hidden="true" />
                     확대
                   </span>
@@ -515,7 +523,7 @@ function ScreenshotModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/80 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 px-4 py-6 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="screenshot-modal-title"
@@ -523,7 +531,7 @@ function ScreenshotModal({
     >
       <div
         ref={dialogRef}
-        className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl"
+        className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-card border border-line-soft bg-white shadow-card"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-4 border-b border-line-soft px-4 py-3 md:px-5">
@@ -544,7 +552,7 @@ function ScreenshotModal({
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line-soft bg-surface-muted text-ink-muted transition-colors hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill border border-line-soft bg-surface-soft text-ink-muted transition-colors hover:border-brand-ring hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring"
             aria-label="확대 이미지 닫기"
           >
             <X size={17} aria-hidden="true" />
@@ -666,14 +674,14 @@ export default function ProjectDetailContent({
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-12">
           <article className="min-w-0">
-            <div className="mb-5 grid grid-cols-2 rounded-2xl border border-line-soft bg-surface-muted p-1.5">
+            <div className="mb-5 grid grid-cols-2 rounded-panel border border-line-soft bg-surface-soft p-1.5">
               <button
                 type="button"
                 aria-pressed={activeTab === 'overview'}
                 onClick={() => setActiveTab('overview')}
-                className={`rounded-xl px-4 py-3 text-[14px] font-extrabold transition-colors ${
+                className={`rounded-pill px-4 py-3 text-[14px] font-extrabold transition-colors ${
                   activeTab === 'overview'
-                    ? 'bg-surface text-brand shadow-sm'
+                    ? 'bg-white text-brand shadow-soft'
                     : 'text-ink-muted hover:text-navy'
                 }`}
               >
@@ -684,9 +692,9 @@ export default function ProjectDetailContent({
                 type="button"
                 aria-pressed={activeTab === 'technical'}
                 onClick={() => setActiveTab('technical')}
-                className={`rounded-xl px-4 py-3 text-[14px] font-extrabold transition-colors ${
+                className={`rounded-pill px-4 py-3 text-[14px] font-extrabold transition-colors ${
                   activeTab === 'technical'
-                    ? 'bg-surface text-brand shadow-sm'
+                    ? 'bg-white text-brand shadow-soft'
                     : 'text-ink-muted hover:text-navy'
                 }`}
               >

@@ -11,6 +11,7 @@ import TypingIndicator from "./TypingIndicator";
 interface ChatMessageListProps {
   activeSection: string;
   isExpanded: boolean;
+  isFullScreen?: boolean;
 }
 
 const SCROLL_BOTTOM_THRESHOLD = 40;
@@ -31,6 +32,7 @@ function isNearBottom(element: HTMLDivElement) {
 export default function ChatMessageList({
   activeSection,
   isExpanded,
+  isFullScreen = false,
 }: ChatMessageListProps) {
   const messages = useChat((state) => state.messages);
   const isTyping = useChat((state) => state.isTyping);
@@ -64,10 +66,12 @@ export default function ChatMessageList({
   const lastAssistantMessageId = useMemo(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       const message = messages[index];
+
       if (isAssistantRole(message.role)) {
         return message.id;
       }
     }
+
     return null;
   }, [messages]);
 
@@ -128,6 +132,7 @@ export default function ChatMessageList({
 
   useEffect(() => {
     if (!isExpanded) return;
+
     autoScrollEnabledRef.current = true;
     shortStreamFollowRef.current = true;
     scheduleScrollToBottom("auto");
@@ -198,7 +203,9 @@ export default function ChatMessageList({
       }
 
       const now = performance.now();
+
       if (now - lastStreamFollowAtRef.current < STREAM_FOLLOW_INTERVAL) return;
+
       lastStreamFollowAtRef.current = now;
       scheduleScrollToBottom("auto");
       return;
@@ -226,11 +233,7 @@ export default function ChatMessageList({
       return;
     }
 
-    if (
-      isTyping &&
-      !previousTypingRef.current &&
-      autoScrollEnabledRef.current
-    ) {
+    if (isTyping && !previousTypingRef.current && autoScrollEnabledRef.current) {
       scheduleScrollToBottom("smooth");
     }
 
@@ -241,23 +244,20 @@ export default function ChatMessageList({
     userScrollIntentRef.current = true;
   }, []);
 
-  const handleScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const nearBottom = isNearBottom(event.currentTarget);
-      autoScrollEnabledRef.current = nearBottom;
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const nearBottom = isNearBottom(event.currentTarget);
+    autoScrollEnabledRef.current = nearBottom;
 
-      if (nearBottom) {
-        shortStreamFollowRef.current = true;
-        userScrollIntentRef.current = false;
-        return;
-      }
+    if (nearBottom) {
+      shortStreamFollowRef.current = true;
+      userScrollIntentRef.current = false;
+      return;
+    }
 
-      if (userScrollIntentRef.current) {
-        shortStreamFollowRef.current = false;
-      }
-    },
-    [],
-  );
+    if (userScrollIntentRef.current) {
+      shortStreamFollowRef.current = false;
+    }
+  }, []);
 
   return (
     <div
@@ -267,16 +267,24 @@ export default function ChatMessageList({
       onTouchMove={markUserScrollIntent}
       onPointerDown={markUserScrollIntent}
       onKeyDown={markUserScrollIntent}
-      className={`flex-1 overflow-y-auto flex flex-col px-5 sm:px-6 py-5 pb-35 transition-opacity duration-300 ${
-        isExpanded ? "opacity-100" : "opacity-0 hidden"
-      }`}
+      className={[
+        "flex flex-1 flex-col overflow-y-auto bg-transparent px-4 transition-opacity duration-300 sm:px-5",
+        "pt-24 pb-32 sm:pt-24 sm:pb-36",
+        "[scrollbar-gutter:stable]",
+        isExpanded ? "opacity-100" : "pointer-events-none opacity-0",
+      ].join(" ")}
       role="log"
       aria-live="polite"
       aria-relevant="additions"
       aria-atomic="false"
       aria-busy={isTyping || isStreaming}
     >
-      <div className="w-full max-w-3xl mx-auto flex flex-col gap-5">
+      <div
+        className={[
+          "mx-auto flex min-h-full w-full flex-col justify-end gap-4 sm:gap-5",
+          isFullScreen ? "max-w-4xl" : "max-w-3xl",
+        ].join(" ")}
+      >
         {messages.map((message, index) => {
           const previousMessage = index > 0 ? messages[index - 1] : undefined;
           const showAssistantAvatar =
@@ -289,6 +297,7 @@ export default function ChatMessageList({
               key={message.id}
               ref={(element) => registerMessageElement(message.id, element)}
               data-message-id={String(message.id)}
+              className="chat-message-enter"
             >
               <ChatMessageItem
                 message={message}

@@ -108,7 +108,7 @@ const HeroPrompt = memo(function HeroPrompt() {
             onClick={() => {
               void sendHeroQuestion(question);
             }}
-            className="inline-flex h-9 items-center rounded-pill border border-line-soft bg-surface-glass px-4 text-[13px] font-semibold text-ink-muted transition-colors duration-200 hover:border-brand-ring hover:bg-brand-pale hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring disabled:pointer-events-none disabled:opacity-45"
+            className="suggestion-chip h-9 px-4 text-[13px] disabled:pointer-events-none disabled:opacity-45"
           >
             {question}
           </button>

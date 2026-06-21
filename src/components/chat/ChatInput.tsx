@@ -29,7 +29,7 @@ export default function ChatInput({
   const handleSend = useChat((state) => state.handleSend);
   const [inputValue, setInputValue] = useState("");
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const isComposingRef = useRef(false);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function ChatInput({
   };
 
   const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
     if (
       e.key === "Enter" &&
@@ -59,6 +59,12 @@ export default function ChatInput({
         isComposingRef.current)
     ) {
       e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
     }
   };
 
@@ -89,7 +95,7 @@ export default function ChatInput({
     <div
       className={`absolute bottom-0 w-full flex justify-center pointer-events-none transition-all duration-300 ${
         isExpanded
-          ? "px-5 sm:px-6 pt-2 pb-5 sm:pb-6 bg-linear-to-t from-base via-base to-transparent"
+          ? "border-t border-line bg-surface px-5 pt-3 pb-5 sm:px-6 sm:pb-6"
           : "p-0"
       }`}
     >
@@ -98,9 +104,9 @@ export default function ChatInput({
         onClick={() => {
           if (!isExpanded) onExpand();
         }}
-        className={`pointer-events-auto flex items-center gap-2 w-full transition-all duration-500 cursor-text overflow-hidden ${
+        className={`pointer-events-auto flex w-full items-end gap-2 transition-all duration-500 cursor-text overflow-hidden ${
           isExpanded
-            ? "max-w-2xl min-h-14 px-4 py-2 bg-base border border-line rounded-[28px] focus-within:bg-surface focus-within:shadow-sm focus-within:border-brand/40 focus-within:ring-4 focus-within:ring-brand/10"
+            ? "max-w-2xl rounded-panel border border-line bg-white px-3 py-2 shadow-soft focus-within:border-brand focus-within:ring-4 focus-within:ring-brand-ring sm:px-4"
             : "max-w-100 h-14 px-4 bg-surface border border-line shadow-card hover:shadow-soft rounded-full group"
         }`}
         >
@@ -112,9 +118,9 @@ export default function ChatInput({
           />
         )}
 
-        <input
+        <textarea
           ref={inputRef}
-          type="text"
+          rows={1}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -124,10 +130,10 @@ export default function ChatInput({
           disabled={isTyping || isStreaming}
           readOnly={!isExpanded || isStreaming}
           aria-label="질문 입력"
-          className={`flex-1 min-w-0 bg-transparent px-2 py-2 focus:outline-none transition-all text-navy placeholder:text-ink-muted truncate ${
+          className={`min-h-10 max-h-28 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2 leading-6 text-navy placeholder:text-ink-muted focus:outline-none ${
             isExpanded
-              ? "text-[15.5px]"
-              : "text-[15px] font-medium cursor-pointer"
+              ? "text-[15px]"
+              : "cursor-pointer text-[15px] font-medium"
           }`}
         />
 
@@ -138,11 +144,11 @@ export default function ChatInput({
             (!inputValue.trim() || isTyping || isStreaming)
           }
           aria-label="질문 보내기"
-          className={`shrink-0 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`flex shrink-0 items-center justify-center rounded-pill transition-colors duration-200 ${
             isExpanded
               ? `w-10 h-10 ${
                   inputValue.trim() && !isTyping && !isStreaming
-                    ? "bg-brand text-white shadow-sm hover:bg-brand-hover"
+                    ? "bg-brand text-white shadow-brand hover:bg-brand-hover hover:ring-4 hover:ring-brand-ring"
                     : "bg-surface-muted text-ink-faint"
                 }`
               : "w-9 h-9 bg-surface-soft text-ink-faint group-hover:bg-brand-soft group-hover:text-brand"

@@ -1,5 +1,7 @@
 import { Maximize2, Minimize2, X } from "lucide-react";
 
+import ChatAiLogo from "./ChatAiLogo";
+
 interface ChatHeaderProps {
   titleId: string;
   isExpanded: boolean;
@@ -7,6 +9,9 @@ interface ChatHeaderProps {
   setIsFullScreen: (val: boolean) => void;
   onClose: () => void;
 }
+
+const iconButtonClassName =
+  "flex size-8 items-center justify-center rounded-pill text-ink-muted transition hover:bg-brand-pale hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring";
 
 export default function ChatHeader({
   titleId,
@@ -16,32 +21,68 @@ export default function ChatHeader({
   onClose,
 }: ChatHeaderProps) {
   return (
-    <div className={`shrink-0 bg-base/90 backdrop-blur-md px-5 sm:px-6 py-3 flex justify-between items-center border-b border-line/70 transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 hidden'}`}>
-      <h3 id={titleId} className="font-bold text-[15px] text-navy">
+    <header
+      aria-hidden={!isExpanded}
+      className={[
+        "shrink-0 border-b border-line-soft bg-white/82 px-4 py-3 backdrop-blur-md sm:px-5",
+        "transition-opacity duration-300 ease-out",
+        isExpanded ? "opacity-100" : "pointer-events-none opacity-0",
+      ].join(" ")}
+    >
+      <span id={titleId} className="sr-only">
         Portfolio AI
-      </h3>
-      <div className="flex items-center gap-1 shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsFullScreen(!isFullScreen);
-          }}
-          className="text-ink-faint hover:text-ink hover:bg-surface-muted rounded-full p-2 transition-colors"
-          aria-label={isFullScreen ? "채팅창 축소" : "채팅창 확대"}
-        >
-          {isFullScreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-          className="text-ink-faint hover:text-ink hover:bg-surface-muted rounded-full p-2 transition-colors"
-          aria-label="채팅 닫기"
-        >
-          <X size={18} />
-        </button>
+      </span>
+
+      <div className="flex h-9 items-center justify-between">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-pill bg-brand-pale text-brand">
+            <ChatAiLogo decorative size={15} className="h-4 w-4 text-brand" />
+          </div>
+
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate text-sm font-bold text-navy">
+              Portfolio AI
+            </p>
+
+            <span className="hidden rounded-pill bg-cyan-pale px-2 py-0.5 text-[11px] font-semibold text-cyan sm:inline-flex">
+              assistant
+            </span>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsFullScreen(!isFullScreen);
+            }}
+            className={iconButtonClassName}
+            aria-label={isFullScreen ? "채팅창 축소" : "채팅창 확대"}
+          >
+            {isFullScreen ? (
+              <Minimize2 size={17} aria-hidden="true" />
+            ) : (
+              <Maximize2 size={17} aria-hidden="true" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className={[
+              iconButtonClassName,
+              "hover:bg-danger-pale hover:text-danger",
+            ].join(" ")}
+            aria-label="채팅 닫기"
+          >
+            <X size={17} aria-hidden="true" />
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

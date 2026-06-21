@@ -144,22 +144,22 @@ function ChatMessageItem({
       className={`flex w-full gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
     >
       {isUser ? (
-        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-soft">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-pill bg-brand shadow-brand">
           <User size={13} className="text-white" strokeWidth={2.5} />
         </div>
       ) : shouldRenderAssistantAvatar ? (
-        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-soft bg-brand-pale shadow-sm">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-pill border border-brand-ring bg-brand-pale shadow-soft">
           <ChatAiLogo decorative size={16} className="h-4 w-4 text-brand" />
         </div>
       ) : (
-        <div aria-hidden="true" className="mt-0.5 h-7 w-7 shrink-0" />
+        <div aria-hidden="true" className="mt-0.5 h-8 w-8 shrink-0" />
       )}
 
       <div
         className={`relative max-w-[88%] ${
           isUser
-            ? "rounded-2xl rounded-tr-sm bg-navy-soft px-4 py-3 text-[14px] leading-relaxed text-white shadow-sm"
-            : "rounded-2xl rounded-tl-sm border border-line bg-surface px-5 py-4 text-[14px] leading-[1.75] text-ink shadow-sm"
+            ? "rounded-panel rounded-tr-sm bg-brand px-4 py-3 text-[14px] leading-relaxed text-white shadow-brand"
+            : "rounded-panel rounded-tl-sm border border-line bg-white px-5 py-4 text-[14px] leading-[1.75] text-ink shadow-soft"
         }`}
       >
         {isUser ? (
