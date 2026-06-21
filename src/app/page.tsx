@@ -14,8 +14,8 @@ export default function Home() {
     <div className="w-full h-full relative">
       <ChatBar />
       <HeroSection />
-      <ExperienceSection />
       <ProjectsSection />
+      <ExperienceSection />
       <CoreValuesSection />
       <Footer />
     </div>

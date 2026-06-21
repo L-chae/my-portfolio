@@ -3,7 +3,7 @@
 import { memo, useRef, useState } from "react";
 import { ArrowUpRight, Send, Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
-import { Button, LinkButton } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import TypingTitle from "@/components/TypingTitle";
 
 const SUGGESTED_TOPICS = [
@@ -52,6 +52,20 @@ const HeroPrompt = memo(function HeroPrompt() {
   };
 
   const canSend = heroInput.trim().length > 0 && !isTyping && !isStreaming;
+
+  const scrollToProjects = () => {
+    const projectsSection = document.getElementById("projects");
+    if (!projectsSection) return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const headerOffset = 64;
+
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + projectsSection.getBoundingClientRect().top - headerOffset),
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+    window.history.replaceState(null, "", "#projects");
+  };
 
   return (
     <div
@@ -112,11 +126,11 @@ const HeroPrompt = memo(function HeroPrompt() {
 </div>
 
       <div className="mt-6 flex justify-center">
-  <LinkButton href="#projects" variant="ghost" size="sm">
-    Projects 보기
-    <ArrowUpRight size={14} aria-hidden="true" />
-  </LinkButton>
-</div>
+        <Button type="button" variant="ghost" size="sm" onClick={scrollToProjects}>
+          Projects 보기
+          <ArrowUpRight size={14} aria-hidden="true" />
+        </Button>
+      </div>
     </div>
   );
 });

@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'hero', label: 'Home', href: '/', sectionId: 'hero', type: 'section' },
+  { id: 'projects', label: 'Projects', href: '/#projects', sectionId: 'projects', type: 'section' },
   {
     id: 'experience',
     label: 'Experience',
@@ -14,7 +15,6 @@ const NAV_ITEMS = [
     sectionId: 'experience',
     type: 'section',
   },
-  { id: 'projects', label: 'Projects', href: '/#projects', sectionId: 'projects', type: 'section' },
   {
     id: 'core-values',
     label: 'Core Values',
@@ -182,6 +182,16 @@ export default function Header() {
       isClickScrolling.current = false;
     }, behavior === 'smooth' ? 750 : 0);
   }, []);
+
+  const scrollToHashSection = useCallback(() => {
+    if (!isHomePage) return;
+
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+
+    const matchedItem = NAV_ITEMS.find((item) => item.sectionId === hash);
+    if (matchedItem) scrollToSection(matchedItem);
+  }, [isHomePage, scrollToSection]);
 
   const handleNavClick = useCallback(
     (item: NavItem, event: MouseEvent<HTMLAnchorElement>) => {
@@ -354,18 +364,14 @@ export default function Header() {
   useEffect(() => {
     if (!isHomePage) return;
 
-    const hash = window.location.hash.replace('#', '');
-    if (!hash) return;
+    const initialScrollTimer = window.setTimeout(scrollToHashSection, 80);
+    window.addEventListener('hashchange', scrollToHashSection);
 
-    const matchedItem = NAV_ITEMS.find((item) => item.sectionId === hash);
-    if (!matchedItem) return;
-
-    const timer = window.setTimeout(() => {
-      scrollToSection(matchedItem);
-    }, 80);
-
-    return () => window.clearTimeout(timer);
-  }, [isHomePage, pathname, scrollToSection]);
+    return () => {
+      window.clearTimeout(initialScrollTimer);
+      window.removeEventListener('hashchange', scrollToHashSection);
+    };
+  }, [isHomePage, pathname, scrollToHashSection]);
 
   useEffect(() => {
     return () => {
