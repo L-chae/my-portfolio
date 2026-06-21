@@ -7,9 +7,21 @@ import { Menu, X } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'hero', label: 'Home', href: '/', sectionId: 'hero', type: 'section' },
-  { id: 'experience', label: 'Experience', href: '/#experience', sectionId: 'experience', type: 'section' },
+  {
+    id: 'experience',
+    label: 'Experience',
+    href: '/#experience',
+    sectionId: 'experience',
+    type: 'section',
+  },
   { id: 'projects', label: 'Projects', href: '/#projects', sectionId: 'projects', type: 'section' },
-  { id: 'core-values', label: 'Core Values', href: '/#core-values', sectionId: 'core-values', type: 'section' },
+  {
+    id: 'core-values',
+    label: 'Core Values',
+    href: '/#core-values',
+    sectionId: 'core-values',
+    type: 'section',
+  },
 ] as const;
 
 type NavItem = (typeof NAV_ITEMS)[number];
@@ -49,14 +61,18 @@ export default function Header() {
   const focusRafRef = useRef<number | null>(null);
   const activeSectionRef = useRef<NavId>('hero');
 
+  // 핵심 수정:
+  // 마우스 클릭으로 헤더 내부에 focus가 남아도 헤더가 계속 고정되지 않도록,
+  // Tab 키로 접근한 경우에만 focus 보호를 적용합니다.
+  const isKeyboardFocusRef = useRef(false);
+
   const isHomePage = pathname === '/';
 
-  const activeNavId: NavId =
-    pathname.startsWith('/projects/')
-      ? 'projects'
-      : isHomePage
-        ? activeSection
-        : 'hero';
+  const activeNavId: NavId = pathname.startsWith('/projects/')
+    ? 'projects'
+    : isHomePage
+      ? activeSection
+      : 'hero';
 
   const getItemHref = useCallback(
     (item: NavItem) =>
@@ -101,11 +117,14 @@ export default function Header() {
     }
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const hasHeaderFocus = header.contains(document.activeElement);
+
+    const hasKeyboardHeaderFocus =
+      isKeyboardFocusRef.current && header.contains(document.activeElement);
+
     const shouldShowHeader =
       prefersReducedMotion ||
       isMobileMenuOpenRef.current ||
-      hasHeaderFocus ||
+      hasKeyboardHeaderFocus ||
       scrollY <= 16 ||
       scrollY < lastScrollYRef.current;
 
@@ -190,8 +209,29 @@ export default function Header() {
   }, [activeNavId, updateIndicator]);
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        isKeyboardFocusRef.current = true;
+      }
+    };
+
+    const handlePointerDown = () => {
+      isKeyboardFocusRef.current = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('pointerdown', handlePointerDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       if (scrollRafRef.current) return;
+
       scrollRafRef.current = requestAnimationFrame(() => {
         updateScrollState();
         scrollRafRef.current = null;
@@ -216,6 +256,7 @@ export default function Header() {
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     if (isMobileMenuOpen) document.body.style.overflow = 'hidden';
+
     return () => {
       document.body.style.overflow = previousOverflow;
     };
@@ -235,6 +276,7 @@ export default function Header() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+
       setIsMobileMenuOpen(false);
       requestAnimationFrame(() => {
         menuButtonRef.current?.focus();
@@ -288,6 +330,7 @@ export default function Header() {
         entries.forEach((entry) => {
           const matched = sections.find(({ el }) => el === entry.target);
           if (!matched) return;
+
           sectionRatiosRef.current.set(
             matched.id,
             entry.isIntersecting ? entry.intersectionRatio : 0
@@ -335,12 +378,20 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        onFocusCapture={() => setIsHeaderHidden(false)}
+        onFocusCapture={() => {
+          if (isKeyboardFocusRef.current) {
+            setIsHeaderHidden(false);
+          }
+        }}
         className={`header-root fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
           isMobileMenuOpen
             ? 'border-line-soft bg-surface-glass shadow-soft backdrop-blur-xl'
             : 'border-transparent bg-transparent data-[scrolled=true]:border-line-soft data-[scrolled=true]:bg-surface-glass data-[scrolled=true]:shadow-soft data-[scrolled=true]:backdrop-blur-xl'
-        } ${isHeaderHidden && !isMobileMenuOpen ? '-translate-y-full pointer-events-none' : 'translate-y-0'}`}
+        } ${
+          isHeaderHidden && !isMobileMenuOpen
+            ? 'pointer-events-none -translate-y-full'
+            : 'translate-y-0'
+        }`}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link
