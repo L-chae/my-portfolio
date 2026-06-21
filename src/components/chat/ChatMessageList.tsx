@@ -268,8 +268,8 @@ export default function ChatMessageList({
       onPointerDown={markUserScrollIntent}
       onKeyDown={markUserScrollIntent}
       className={[
-        "flex flex-1 flex-col overflow-y-auto bg-transparent px-4 transition-opacity duration-300 sm:px-5",
-        "pt-24 pb-32 sm:pt-24 sm:pb-36",
+        "min-h-0 flex-1 overflow-y-auto bg-transparent px-4 transition-opacity duration-300 sm:px-5",
+        "pt-5 pb-32 sm:pt-6 sm:pb-36",
         "[scrollbar-gutter:stable]",
         isExpanded ? "opacity-100" : "pointer-events-none opacity-0",
       ].join(" ")}
@@ -281,7 +281,7 @@ export default function ChatMessageList({
     >
       <div
         className={[
-          "mx-auto flex min-h-full w-full flex-col justify-end gap-4 sm:gap-5",
+          "mx-auto flex w-full flex-col gap-4 sm:gap-5",
           isFullScreen ? "max-w-4xl" : "max-w-3xl",
         ].join(" ")}
       >
