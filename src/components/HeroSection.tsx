@@ -7,18 +7,9 @@ import { Button } from "@/components/ui/Button";
 import TypingTitle from "@/components/TypingTitle";
 
 const SUGGESTED_TOPICS = [
-   {
-    label: "토큰 만료 처리",
-    question: "StoryLex 401 에러 해결 과정 알려줘",
-  },
-  {
-    label: "API 변경 관리",
-    question: "Rodia API 흐름은 어떻게 개선했나요?",
-  },
-  {
-    label: "AI 답변 신뢰도",
-    question: "AI 챗봇의 환각 방지는 어떻게 했나요?",
-  },
+  "Rodia API 흐름은 어떻게 개선했나요?",
+  "StoryLex 401 에러 해결 과정 알려줘",
+  "AI 챗봇의 환각 방지는 어떻게 했나요?",
 ] as const;
 
 const HeroPrompt = memo(function HeroPrompt() {
@@ -108,22 +99,21 @@ const HeroPrompt = memo(function HeroPrompt() {
         </Button>
       </form>
 
-     <div className="mt-4 flex flex-wrap justify-center gap-2">
-  {SUGGESTED_TOPICS.map(({ label, question }) => (
-    <button
-      key={label}
-      type="button"
-      data-chat-intent="open"
-      data-chat-topic={question}
-      disabled={isTyping || isStreaming}
-      onClick={() => {
-        void sendHeroQuestion(question);
-      }}
-      className="inline-flex h-9 items-center rounded-pill border border-line-soft bg-surface-glass px-4 text-[13px] font-semibold text-ink-muted transition-colors duration-200 hover:border-brand-ring hover:bg-brand-pale hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring disabled:pointer-events-none disabled:opacity-45"  >
-      {label}
-    </button>
-  ))}
-</div>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {SUGGESTED_TOPICS.map((question) => (
+          <button
+            key={question}
+            type="button"
+            disabled={isTyping || isStreaming}
+            onClick={() => {
+              void sendHeroQuestion(question);
+            }}
+            className="inline-flex h-9 items-center rounded-pill border border-line-soft bg-surface-glass px-4 text-[13px] font-semibold text-ink-muted transition-colors duration-200 hover:border-brand-ring hover:bg-brand-pale hover:text-brand focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-ring disabled:pointer-events-none disabled:opacity-45"
+          >
+            {question}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-6 flex justify-center">
         <Button type="button" variant="ghost" size="sm" onClick={scrollToProjects}>
