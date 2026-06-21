@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { ArrowUpRight, Send, Sparkles } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { Button, LinkButton } from "@/components/ui/Button";
-
-const FULL_TEXT = "Frontend Developer";
+import TypingTitle from "@/components/TypingTitle";
 
 const SUGGESTED_TOPICS = [
    {
@@ -22,7 +21,7 @@ const SUGGESTED_TOPICS = [
   },
 ] as const;
 
-function HeroPrompt() {
+const HeroPrompt = memo(function HeroPrompt() {
   const [heroInput, setHeroInput] = useState("");
   const isComposingRef = useRef(false);
   const { handleSend, setIsExpanded, isTyping, isStreaming } = useChat();
@@ -120,26 +119,9 @@ function HeroPrompt() {
 </div>
     </div>
   );
-}
+});
 
 export default function HeroSection() {
-  const [typedText, setTypedText] = useState("");
-
-  useEffect(() => {
-    let currentIndex = 0;
-
-    const interval = setInterval(() => {
-      setTypedText(FULL_TEXT.slice(0, currentIndex + 1));
-      currentIndex += 1;
-
-      if (currentIndex >= FULL_TEXT.length) {
-        clearInterval(interval);
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section
       id="hero"
@@ -168,13 +150,7 @@ export default function HeroSection() {
       `}</style>
 
       <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-        <div
-          className="hero-item text-sm font-semibold text-brand"
-          style={{ animationDelay: "0ms" }}
-        >
-          {typedText}
-          <span className="animate-pulse text-brand">|</span>
-        </div>
+        <TypingTitle text="Frontend Developer" />
 
         <h1
           className="hero-item mt-6 max-w-4xl text-4xl font-bold leading-[1.08] text-navy break-keep sm:text-5xl md:text-6xl"
